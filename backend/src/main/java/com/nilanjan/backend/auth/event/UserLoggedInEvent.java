@@ -1,5 +1,7 @@
 package com.nilanjan.backend.auth.event;
 
-public record UserLoggedInEvent(String userId) {
+import org.bson.types.ObjectId;
+
+public record UserLoggedInEvent(ObjectId userId) {
     
 }

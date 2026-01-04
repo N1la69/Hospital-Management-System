@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             String userId = jwtTokenProvider.getUserId(token);
 
-            UserPrincipal prinicpal = (UserPrincipal) userDetailsService.loadUserByUsername(userId);
+            UserPrincipal prinicpal =  (UserPrincipal) customUserDetailsService.loadUserByUsername(userId);
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 prinicpal, null, prinicpal.getAuthorities()

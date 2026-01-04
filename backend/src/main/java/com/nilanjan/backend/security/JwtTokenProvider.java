@@ -31,7 +31,7 @@ public class JwtTokenProvider {
         Instant now = Instant.now();
 
         return Jwts.builder()
-                .subject(user.getId())
+                .subject(user.getId().toHexString())
                 .claim("roles", user.getRoles())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plusSeconds(expirationSeconds)))

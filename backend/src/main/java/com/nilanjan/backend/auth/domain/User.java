@@ -3,6 +3,7 @@ package com.nilanjan.backend.auth.domain;
 import java.time.Instant;
 import java.util.Set;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -21,7 +22,7 @@ import lombok.Setter;
 public class User {
     
     @Id
-    private String Id;
+    private ObjectId id;
 
     private String username;
     private String email;
