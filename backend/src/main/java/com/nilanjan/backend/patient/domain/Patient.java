@@ -25,7 +25,7 @@ public class Patient {
     @Id
     private ObjectId id;
 
-    private String patientString;
+    private String patientCode;
 
     private String firstName;
     private String lastName;
