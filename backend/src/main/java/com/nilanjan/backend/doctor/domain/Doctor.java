@@ -1,8 +1,6 @@
-package com.nilanjan.backend.patient.domain;
+package com.nilanjan.backend.doctor.domain;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -21,26 +19,26 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "patients")
-public class Patient {
+@Document(collection = "doctors")
+public class Doctor {
 
     @Id
     private ObjectId id;
 
-    private String patientCode;
+    private String doctorCode;
 
     private String firstName;
     private String lastName;
 
-    private Gender gender;
-    private LocalDate dateOfBirth;
+    private Specialization specialization;
+    private String qualification;
+    private int experienceYears;
 
-    private BloodGroup bloodGroup;
-    private ContactInfo contact;
+    private ContactInfo contactInfo;
 
     private ObjectId linkedUserId;
-    private Set<ObjectId> assignedDoctorIds;
 
-    private PatientStatus status;
+    private DoctorStatus status;
+
     private Instant createdAt;
 }

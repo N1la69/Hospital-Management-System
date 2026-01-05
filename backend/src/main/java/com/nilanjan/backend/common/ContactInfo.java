@@ -1,4 +1,4 @@
-package com.nilanjan.backend.patient.domain;
+package com.nilanjan.backend.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
