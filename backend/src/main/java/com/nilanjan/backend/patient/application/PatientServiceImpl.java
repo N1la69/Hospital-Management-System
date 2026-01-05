@@ -1,6 +1,7 @@
 package com.nilanjan.backend.patient.application;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,21 @@ public class PatientServiceImpl implements PatientService {
         return patients.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void assignDoctor(String patientId, String doctorId) {
+        Patient patient = patientRepository.findById(new ObjectId(patientId))
+                .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
+
+        ObjectId doctorObjectId = new ObjectId(doctorId);
+
+        if (patient.getAssignedDoctorIds() == null)
+            patient.setAssignedDoctorIds(new HashSet<>());
+
+        patient.getAssignedDoctorIds().add(doctorObjectId);
+
+        patientRepository.save(patient);
     }
 
     private PatientResponse mapToResponse(Patient patient) {

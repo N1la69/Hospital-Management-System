@@ -21,24 +21,31 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/patients")
 @RequiredArgsConstructor
 public class PatientController {
-    
+
     private final PatientService patientService;
 
     @PostMapping
-    public ResponseEntity<PatientResponse> create(@RequestBody CreatePatientRequest request){
+    public ResponseEntity<PatientResponse> create(@RequestBody CreatePatientRequest request) {
         return ResponseEntity.ok(patientService.createPatient(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PatientResponse> getById(@PathVariable String id){
+    public ResponseEntity<PatientResponse> getById(@PathVariable String id) {
         return ResponseEntity.ok(patientService.getPatientById(id));
     }
 
     @GetMapping
     public ResponseEntity<List<PatientResponse>> search(
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) String phone
-    ) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String phone) {
         return ResponseEntity.ok(patientService.searchPatients(name, phone));
+    }
+
+    @PostMapping("/{patientId}/assign-doctor/{doctorId}")
+    public ResponseEntity<Void> assignDoctor(
+            @PathVariable String patientId,
+            @PathVariable String doctorId) {
+        patientService.assignDoctor(patientId, doctorId);
+        return ResponseEntity.ok().build();
     }
 }
