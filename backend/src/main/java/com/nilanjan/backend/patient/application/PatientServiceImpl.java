@@ -3,15 +3,21 @@ package com.nilanjan.backend.patient.application;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.nilanjan.backend.auth.application.UserAccountService;
+import com.nilanjan.backend.auth.domain.Role;
+import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
+import com.nilanjan.backend.patient.api.dto.PatientSelfRegisterRequest;
 import com.nilanjan.backend.patient.domain.Patient;
 import com.nilanjan.backend.patient.domain.PatientStatus;
 import com.nilanjan.backend.patient.event.PatientCreatedEvent;
@@ -26,14 +32,24 @@ public class PatientServiceImpl implements PatientService {
 
     private final PatientRepository patientRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserAccountService userAccountService;
 
     @Override
     public PatientResponse createPatient(CreatePatientRequest request) {
+
+        ObjectId linkedUserId = null;
+
+        if (request.createLogin()) {
+            User user = userAccountService.createUser(request.username(), request.email(), request.password(),
+                    Set.of(Role.PATIENT));
+            linkedUserId = user.getId();
+        }
 
         Patient patient = Patient.builder()
                 .patientCode(PatientCodeGenerator.generate())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
+                .email(request.email())
                 .gender(request.gender())
                 .dateOfBirth(request.dateOfBirth())
                 .bloodGroup(request.bloodGroup())
@@ -42,6 +58,7 @@ public class PatientServiceImpl implements PatientService {
                         .email(request.email())
                         .address(request.address())
                         .build())
+                .linkedUserId(linkedUserId)
                 .status(PatientStatus.ACTIVE)
                 .createdAt(Instant.now())
                 .build();
@@ -106,6 +123,38 @@ public class PatientServiceImpl implements PatientService {
         patient.getAssignedDoctorIds().add(doctorObjectId);
 
         patientRepository.save(patient);
+    }
+
+    @Transactional
+    @Override
+    public PatientResponse selfRegister(PatientSelfRegisterRequest request) {
+
+        User user = userAccountService.createUser(request.username(), request.email(), request.password(),
+                Set.of(Role.PATIENT));
+
+        Patient patient = Patient.builder()
+                .patientCode(PatientCodeGenerator.generate())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(request.email())
+                .gender(request.gender())
+                .dateOfBirth(request.dateOfBirth())
+                .bloodGroup(request.bloodGroup())
+                .contact(ContactInfo.builder()
+                        .phone(request.phone())
+                        .email(request.email())
+                        .address(request.address())
+                        .build())
+                .linkedUserId(user.getId())
+                .status(PatientStatus.ACTIVE)
+                .createdAt(Instant.now())
+                .build();
+
+        // eventPublisher.publishEvent(
+        // new PatientCreatedEvent(patient.getId().toHexString(),
+        // patient.getPatientCode()));
+
+        return mapToResponse(patientRepository.save(patient));
     }
 
     private PatientResponse mapToResponse(Patient patient) {

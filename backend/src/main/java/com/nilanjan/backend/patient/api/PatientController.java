@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
+import com.nilanjan.backend.patient.api.dto.PatientSelfRegisterRequest;
 import com.nilanjan.backend.patient.application.PatientService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,12 +32,18 @@ public class PatientController {
         return ResponseEntity.ok(patientService.createPatient(request));
     }
 
+    @PostMapping("/patient-registration")
+    public ResponseEntity<PatientResponse> selfRegister(@RequestBody PatientSelfRegisterRequest request) {
+        return ResponseEntity.ok(patientService.selfRegister(request));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponse> getById(@PathVariable String id) {
         return ResponseEntity.ok(patientService.getPatientById(id));
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
     public ResponseEntity<List<PatientResponse>> search(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone) {

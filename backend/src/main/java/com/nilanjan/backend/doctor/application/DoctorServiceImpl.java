@@ -2,12 +2,16 @@ package com.nilanjan.backend.doctor.application;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import com.nilanjan.backend.auth.application.UserAccountService;
+import com.nilanjan.backend.auth.domain.Role;
+import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
@@ -24,9 +28,13 @@ public class DoctorServiceImpl implements DoctorService {
 
     private final DoctorRepository doctorRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserAccountService userAccountService;
 
     @Override
     public DoctorResponse createDoctor(CreateDoctorRequest request) {
+
+        User doctorUser = userAccountService.createUser(request.username(), request.email(), request.password(),
+                Set.of(Role.DOCTOR));
 
         Doctor doctor = Doctor.builder()
                 .doctorCode(DoctorCodeGenerator.generate())
@@ -40,6 +48,7 @@ public class DoctorServiceImpl implements DoctorService {
                         .email(request.email())
                         .address(request.address())
                         .build())
+                .linkedUserId(doctorUser.getId())
                 .status(DoctorStatus.ACTIVE)
                 .createdAt(Instant.now())
                 .build();
