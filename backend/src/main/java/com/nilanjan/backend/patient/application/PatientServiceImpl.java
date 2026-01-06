@@ -16,6 +16,7 @@ import com.nilanjan.backend.patient.domain.Patient;
 import com.nilanjan.backend.patient.domain.PatientStatus;
 import com.nilanjan.backend.patient.event.PatientCreatedEvent;
 import com.nilanjan.backend.patient.repository.PatientRepository;
+import com.nilanjan.backend.security.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -59,7 +60,19 @@ public class PatientServiceImpl implements PatientService {
         Patient patient = patientRepository.findById(new ObjectId(patientId))
                 .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
 
-        return mapToResponse(patient);
+        if (SecurityUtil.hasRole("ADMIN"))
+            return mapToResponse(patient);
+
+        ObjectId currentUserId = SecurityUtil.currentUserId();
+
+        if (SecurityUtil.hasRole("PATIENT") && currentUserId.equals(patient.getLinkedUserId()))
+            return mapToResponse(patient);
+
+        if (SecurityUtil.hasRole("DOCTOR") && patient.getAssignedDoctorIds() != null
+                && patient.getAssignedDoctorIds().contains(currentUserId))
+            return mapToResponse(patient);
+
+        throw new RuntimeException("Access Denied");
     }
 
     @Override
