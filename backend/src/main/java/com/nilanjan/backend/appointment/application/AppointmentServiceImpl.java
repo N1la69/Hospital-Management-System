@@ -80,19 +80,32 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(new ObjectId(appointmentId))
                 .orElseThrow(() -> new RuntimeException("Appointment not found: " + appointmentId));
 
-        return mapToResponse(appointment);
+        ObjectId currentUserId = SecurityUtil.currentUserId();
+
+        if (SecurityUtil.hasRole("ADMIN"))
+            return mapToResponse(appointment);
+
+        if (SecurityUtil.hasRole("DOCTOR") && appointment.getDoctorId().equals(currentUserId))
+            return mapToResponse(appointment);
+
+        if (SecurityUtil.hasRole("PATIENT") && appointment.getPatientId().equals(currentUserId))
+            return mapToResponse(appointment);
+
+        throw new RuntimeException("Access Denied");
     }
 
     @Override
     public List<AppointmentResponse> getMyAppointments() {
-        ObjectId currentUserId = SecurityUtil.currentUserId();
 
+        ObjectId currentUserId = SecurityUtil.currentUserId();
         List<Appointment> appointments;
 
         if (SecurityUtil.hasRole("DOCTOR"))
             appointments = appointmentRepository.findByDoctorIdAndStatus(currentUserId, AppointmentStatus.SCHEDULED);
-        else
+        else if (SecurityUtil.hasRole("PATIENT"))
             appointments = appointmentRepository.findByPatientIdAndStatus(currentUserId, AppointmentStatus.SCHEDULED);
+        else
+            throw new RuntimeException("Access Denied");
 
         return appointments.stream()
                 .map(this::mapToResponse)
@@ -105,8 +118,22 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentRepository.findById(new ObjectId(appointmentId))
                 .orElseThrow(() -> new RuntimeException("Appointment not found: " + appointmentId));
 
-        appointment.setStatus(AppointmentStatus.CANCELED);
-        appointmentRepository.save(appointment);
+        ObjectId currentUserId = SecurityUtil.currentUserId();
+
+        if (SecurityUtil.hasRole("ADMIN") || SecurityUtil.hasRole("RECEPTIONIST")) {
+            appointment.setStatus(AppointmentStatus.CANCELED);
+            appointmentRepository.save(appointment);
+            return;
+        }
+
+        if (SecurityUtil.hasRole("DOCTOR") && appointment.getDoctorId().equals(currentUserId)) {
+            appointment.setStatus(AppointmentStatus.CANCELED);
+            appointmentRepository.save(appointment);
+            return;
+        }
+
+        throw new RuntimeException("Access Denied");
+
     }
 
     private AppointmentResponse mapToResponse(Appointment appointment) {
