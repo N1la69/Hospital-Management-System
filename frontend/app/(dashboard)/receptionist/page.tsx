@@ -1,5 +1,11 @@
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
 const ReceptionistDashboard = () => {
-  return <div>ReceptionistDashboard</div>;
+  return (
+    <DashboardLayout title="Receptionist Dashboard">
+      <p>Welcome, Receptionist 👋</p>
+    </DashboardLayout>
+  );
 };
 
 export default ReceptionistDashboard;
