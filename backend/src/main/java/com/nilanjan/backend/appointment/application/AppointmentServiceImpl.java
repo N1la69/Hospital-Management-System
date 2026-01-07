@@ -1,6 +1,10 @@
 package com.nilanjan.backend.appointment.application;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +18,8 @@ import com.nilanjan.backend.appointment.domain.Appointment;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.appointment.event.AppointmentBookedEvent;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
+import com.nilanjan.backend.doctor.availability.domain.DoctorAvailability;
+import com.nilanjan.backend.doctor.availability.repository.DoctorAvailabilityRepository;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.patient.repository.PatientRepository;
 import com.nilanjan.backend.security.SecurityUtil;
@@ -25,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final DoctorAvailabilityRepository doctorAvailabilityRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -32,14 +39,31 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request) {
 
-        Instant start = request.scheduledStart();
-        Instant end = request.scheduledEnd();
+        Instant startInstant = request.scheduledStart();
+        Instant endInstant = request.scheduledEnd();
 
-        if (start.isAfter(end) || start.equals(end))
+        DayOfWeek day = startInstant.atZone(ZoneId.systemDefault()).getDayOfWeek();
+        LocalTime startTime = startInstant.atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime endTime = endInstant.atZone(ZoneId.systemDefault()).toLocalTime();
+
+        if (startInstant.isAfter(endInstant) || startInstant.equals(endInstant))
             throw new RuntimeException("Invalid Appointment Window");
 
         ObjectId patientId = new ObjectId(request.patientId());
         ObjectId doctorId = new ObjectId(request.doctorId());
+
+        List<DoctorAvailability> availabilities = doctorAvailabilityRepository.findByDoctorIdAndDayOfWeek(doctorId,
+                day);
+
+        if (availabilities.isEmpty())
+            throw new RuntimeException("Doctor is not available on this day");
+
+        boolean insideAvailability = availabilities.stream().anyMatch(a -> !startTime.isBefore(a.getStartTime()) &&
+                !endTime.isAfter(a.getEndTime()) &&
+                Duration.between(startTime, endTime).toMinutes() == a.getSlotMinutes());
+
+        if (!insideAvailability)
+            throw new RuntimeException("Appointment time outside doctor availability");
 
         if (patientRepository.findById(patientId).isEmpty())
             throw new RuntimeException("Patient not found");
@@ -48,19 +72,21 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Doctor not found");
 
         if (!appointmentRepository
-                .findByDoctorIdAndScheduledStartLessThanAndScheduledEndGreaterThan(doctorId, end, start).isEmpty())
+                .findByDoctorIdAndScheduledStartLessThanAndScheduledEndGreaterThan(doctorId, endInstant, startInstant)
+                .isEmpty())
             throw new RuntimeException("Doctor is not available in this time slot");
 
         if (!appointmentRepository
-                .findByPatientIdAndScheduledStartLessThanAndScheduledEndGreaterThan(patientId, end, start).isEmpty())
+                .findByPatientIdAndScheduledStartLessThanAndScheduledEndGreaterThan(patientId, endInstant, startInstant)
+                .isEmpty())
             throw new RuntimeException("Patient already has an appointment in this time slot");
 
         Appointment appointment = Appointment.builder()
                 .appointmentCode(AppointmentCodeGenerator.generate())
                 .patientId(patientId)
                 .doctorId(doctorId)
-                .scheduledStart(start)
-                .scheduledEnd(end)
+                .scheduledStart(startInstant)
+                .scheduledEnd(endInstant)
                 .reason(request.reason())
                 .status(AppointmentStatus.SCHEDULED)
                 .createdBy(SecurityUtil.currentUserId())
@@ -72,7 +98,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         eventPublisher
                 .publishEvent(new AppointmentBookedEvent(saved.getId().toHexString(), saved.getAppointmentCode()));
 
-        return mapToResponse(appointment);
+        return mapToResponse(saved);
     }
 
     @Override

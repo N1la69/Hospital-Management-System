@@ -28,7 +28,7 @@ public class DoctorAvailability {
 
     private DayOfWeek dayOfWeek;
 
-    private LocalTime starTime;
+    private LocalTime startTime;
     private LocalTime endTime;
 
     private int slotMinutes;
