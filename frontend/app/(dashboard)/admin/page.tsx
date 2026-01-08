@@ -17,6 +17,12 @@ const AdminDashboard = () => {
         >
           Manage Doctors
         </Link>
+        <Link
+          href="/admin/receptionists"
+          className="block p-4 bg-white rounded shadow"
+        >
+          Manage Receptionists
+        </Link>
       </div>
     </DashboardLayout>
   );
