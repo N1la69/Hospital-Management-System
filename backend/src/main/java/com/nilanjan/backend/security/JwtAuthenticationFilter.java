@@ -17,27 +17,33 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    
+
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(
-        HttpServletRequest request, 
-        HttpServletResponse response, 
-        FilterChain filterChain
-    ) throws ServletException, IOException {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        if (path.startsWith("/api/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
-        if(header != null && header.startsWith("Bearer ")){
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             String userId = jwtTokenProvider.getUserId(token);
 
-            UserPrincipal prinicpal =  (UserPrincipal) customUserDetailsService.loadUserByUsername(userId);
+            UserPrincipal prinicpal = (UserPrincipal) customUserDetailsService.loadUserByUsername(userId);
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                prinicpal, null, prinicpal.getAuthorities()
-            );
+                    prinicpal, null, prinicpal.getAuthorities());
 
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

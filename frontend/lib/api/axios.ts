@@ -23,6 +23,7 @@ api.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem("accessToken");
+      document.cookie = "accessToken=; Max-Age=0; path=/";
 
       if (typeof window !== "undefined") window.location.href = "/login";
     }
