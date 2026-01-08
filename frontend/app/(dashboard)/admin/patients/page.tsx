@@ -1,5 +1,6 @@
 "use client";
 
+import CreatePatientModal from "@/components/admin/CreatePatientModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { fetchPatients } from "@/lib/api/patient.api";
 import { PatientResponse } from "@/types/patient";
@@ -8,6 +9,7 @@ import { useEffect, useState } from "react";
 const AdminPatientsPage = () => {
   const [patients, setPatients] = useState<PatientResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetchPatients()
@@ -17,6 +19,13 @@ const AdminPatientsPage = () => {
 
   return (
     <DashboardLayout title="Patients">
+      <button
+        onClick={() => setOpen(true)}
+        className="mb-4 bg-black text-white px-4 py-2"
+      >
+        + Add Patient
+      </button>
+
       {loading && <p>Loading patients...</p>}
 
       {!loading && patients.length === 0 && <p>No patients found.</p>}
@@ -43,6 +52,15 @@ const AdminPatientsPage = () => {
           </tbody>
         </table>
       )}
+
+      <CreatePatientModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onSuccess={() => {
+          setOpen(false);
+          fetchPatients();
+        }}
+      />
     </DashboardLayout>
   );
 };
