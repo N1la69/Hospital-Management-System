@@ -139,27 +139,92 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void cancelAppointment(String appointmentId) {
+    public void cancelAppointment(String appointmentId, String reason) {
 
-        Appointment appointment = appointmentRepository.findById(new ObjectId(appointmentId))
-                .orElseThrow(() -> new RuntimeException("Appointment not found: " + appointmentId));
+        Appointment appointment = getAppointment(appointmentId);
+        AppointmentStatus status = appointment.getStatus();
 
-        ObjectId currentUserId = SecurityUtil.currentUserId();
-
-        if (SecurityUtil.hasRole("ADMIN") || SecurityUtil.hasRole("RECEPTIONIST")) {
-            appointment.setStatus(AppointmentStatus.CANCELED);
-            appointmentRepository.save(appointment);
-            return;
+        if (SecurityUtil.hasRole("ADMIN")) {
+            // ADMIN CANCELS ANYTIME
+        } else if (SecurityUtil.hasRole("RECEPTIONIST") && status == AppointmentStatus.SCHEDULED) {
+            // RECEPTIONIST ALLOWED TO CANCEL AFTER APPOINTMENT IS SCHEDULED
+        } else {
+            throw new SecurityException("Access Denied: Not permitted to cancel appointment");
         }
 
-        if (SecurityUtil.hasRole("DOCTOR") && appointment.getDoctorId().equals(currentUserId)) {
-            appointment.setStatus(AppointmentStatus.CANCELED);
-            appointmentRepository.save(appointment);
-            return;
-        }
+        appointment.setStatus(AppointmentStatus.CANCELED);
+        appointment.setCancelledAt(Instant.now());
+        appointment.setCancelledReason(reason);
+        appointment.setCancelledByRole(SecurityUtil.currentUserId().toHexString());
 
-        throw new RuntimeException("Access Denied");
+        appointmentRepository.save(appointment);
+    }
 
+    @Override
+    public void checkInAppointment(String appointmentId) {
+
+        Appointment appointment = getAppointment(appointmentId);
+
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
+            throw new IllegalStateException("Cannot check-in from status: " + appointment.getStatus());
+
+        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
+            throw new SecurityException("Only receptionist or admin can check-in");
+
+        appointment.setStatus(AppointmentStatus.CHECKED_IN);
+        appointment.setCheckedInAt(Instant.now());
+
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public void startAppointment(String appointmentId) {
+
+        Appointment appointment = getAppointment(appointmentId);
+
+        if (appointment.getStatus() != AppointmentStatus.CHECKED_IN)
+            throw new IllegalStateException("Cannot start appointment from status: " + appointment.getStatus());
+
+        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
+            throw new SecurityException("Only receptionist or admin can start the appointment");
+
+        appointment.setStatus(AppointmentStatus.IN_PROGRESS);
+        appointment.setStartedAt(Instant.now());
+
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public void completeAppointment(String appointmentId) {
+
+        Appointment appointment = getAppointment(appointmentId);
+
+        if (appointment.getStatus() != AppointmentStatus.IN_PROGRESS)
+            throw new IllegalStateException("Cannot end appointment from status: " + appointment.getStatus());
+
+        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
+            throw new SecurityException("Only receptionist or admin can end the appointment");
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointment.setCompletedAt(Instant.now());
+
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public void markNoShow(String appointmentId) {
+
+        Appointment appointment = getAppointment(appointmentId);
+
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
+            throw new IllegalStateException("Cannot mark no-show from status: " + appointment.getStatus());
+
+        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
+            throw new SecurityException("Only receptionist or admin can mark no-show");
+
+        appointment.setStatus(AppointmentStatus.NO_SHOW);
+
+        appointmentRepository.save(appointment);
     }
 
     private AppointmentResponse mapToResponse(Appointment appointment) {
@@ -171,6 +236,11 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getScheduledStart(),
                 appointment.getScheduledEnd(),
                 appointment.getStatus());
+    }
+
+    private Appointment getAppointment(String id) {
+        return appointmentRepository.findById(new ObjectId(id))
+                .orElseThrow(() -> new RuntimeException("Appointment not found: " + id));
     }
 
 }

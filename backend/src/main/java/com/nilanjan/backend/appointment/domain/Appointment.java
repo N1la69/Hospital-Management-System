@@ -37,4 +37,11 @@ public class Appointment {
 
     private ObjectId createdBy;
     private Instant createdAt;
+
+    private Instant checkedInAt;
+    private Instant startedAt;
+    private Instant completedAt;
+    private Instant cancelledAt;
+    private String cancelledByRole;
+    private String cancelledReason;
 }

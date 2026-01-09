@@ -13,5 +13,14 @@ public interface AppointmentService {
 
     List<AppointmentResponse> getMyAppointments();
 
-    void cancelAppointment(String appointmentId);
+    void checkInAppointment(String appointmentId);
+
+    void startAppointment(String appointmentId);
+
+    void completeAppointment(String appointmentId);
+
+    void cancelAppointment(String appointmentId, String reason);
+
+    void markNoShow(String appointmentId);
+
 }

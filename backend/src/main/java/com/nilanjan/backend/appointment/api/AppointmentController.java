@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
+import com.nilanjan.backend.appointment.api.dto.CancelAppointmentRequest;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
 import com.nilanjan.backend.appointment.application.AppointmentService;
 
@@ -42,10 +43,38 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.getMyAppointments());
     }
 
+    @PostMapping("/{id}/check-in")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
+    public ResponseEntity<Void> checkIn(@PathVariable String id) {
+        appointmentService.checkInAppointment(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/start")
+    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
+    public ResponseEntity<Void> start(@PathVariable String id) {
+        appointmentService.startAppointment(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/complete")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<Void> complete(@PathVariable String id) {
+        appointmentService.completeAppointment(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
-    public ResponseEntity<Void> cancel(@PathVariable String id) {
-        appointmentService.cancelAppointment(id);
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<Void> cancel(@PathVariable String id, @RequestBody CancelAppointmentRequest request) {
+        appointmentService.cancelAppointment(id, request.reason());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/no-show")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<Void> noShow(@PathVariable String id) {
+        appointmentService.markNoShow(id);
         return ResponseEntity.ok().build();
     }
 }
