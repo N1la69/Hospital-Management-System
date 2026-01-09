@@ -1,5 +1,5 @@
 import { CreateDoctorRequest, DoctorResponse } from "@/types/doctor";
-import api from "./axios";
+import api from "../utils/axios";
 
 export const fetchDoctors = async (): Promise<DoctorResponse[]> => {
   try {

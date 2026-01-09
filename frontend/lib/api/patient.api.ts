@@ -1,5 +1,5 @@
 import { CreatePatientRequest, PatientResponse } from "@/types/patient";
-import api from "./axios";
+import api from "../utils/axios";
 
 export const fetchPatients = async (): Promise<PatientResponse[]> => {
   try {

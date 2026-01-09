@@ -2,7 +2,7 @@ import {
   CreateReceptionistRequest,
   ReceptionistResponse,
 } from "@/types/receptionist";
-import api from "./axios";
+import api from "../utils/axios";
 
 export const fetchReceptionists = async (): Promise<ReceptionistResponse[]> => {
   try {
