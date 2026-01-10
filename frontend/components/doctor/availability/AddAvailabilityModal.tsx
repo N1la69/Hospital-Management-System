@@ -48,26 +48,6 @@ const AddAvailabilityModal = ({
 
   const dayOffset = DAY_INDEX[day];
 
-  // const startIso = new Date(
-  //   Date.UTC(
-  //     1970,
-  //     0,
-  //     4 + dayOffset,
-  //     Number(startTime.split(":")[0]),
-  //     Number(startTime.split(":")[1])
-  //   )
-  // ).toISOString();
-
-  // const endIso = new Date(
-  //   Date.UTC(
-  //     1970,
-  //     0,
-  //     4 + dayOffset,
-  //     Number(endTime.split(":")[0]),
-  //     Number(endTime.split(":")[1])
-  //   )
-  // ).toISOString();
-
   const submit = async () => {
     setError(null);
 
@@ -93,14 +73,14 @@ const AddAvailabilityModal = ({
     console.log("Parsed start:", sh, sm);
     console.log("Parsed end:", eh, em);
 
-    const startUtc = Date.UTC(1970, 0, 4 + dayOffset, sh, sm);
-    const endUtc = Date.UTC(1970, 0, 4 + dayOffset, eh, em);
+    const startDate = new Date(1970, 0, 4 + dayOffset, sh, sm);
+    const endDate = new Date(1970, 0, 4 + dayOffset, eh, em);
 
-    console.log("startUtc:", startUtc);
-    console.log("endUtc:", endUtc);
+    console.log("startUtc:", startDate);
+    console.log("endUtc:", endDate);
 
-    const startIso = new Date(startUtc).toISOString();
-    const endIso = new Date(endUtc).toISOString();
+    const startIso = startDate.toISOString();
+    const endIso = endDate.toISOString();
 
     console.log("startIso:", startIso);
     console.log("endIso:", endIso);

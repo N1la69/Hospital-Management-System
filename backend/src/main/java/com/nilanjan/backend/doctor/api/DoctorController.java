@@ -37,6 +37,11 @@ public class DoctorController {
         return ResponseEntity.ok(doctorService.getDoctorById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<DoctorResponse> getMyProfile() {
+        return ResponseEntity.ok(doctorService.getMyDoctorProfile());
+    }
+
     @GetMapping
     public ResponseEntity<List<DoctorResponse>> getBySpecialization(
             @RequestParam(required = false) String specialization) {

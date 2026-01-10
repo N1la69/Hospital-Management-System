@@ -19,6 +19,7 @@ import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.domain.DoctorStatus;
 import com.nilanjan.backend.doctor.event.DoctorCreatedEvent;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
+import com.nilanjan.backend.security.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -82,6 +83,15 @@ public class DoctorServiceImpl implements DoctorService {
         return doctors.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DoctorResponse getMyDoctorProfile() {
+        ObjectId userId = SecurityUtil.currentUserId();
+        Doctor doctor = doctorRepository.findByLinkedUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+        return mapToResponse(doctor);
     }
 
     private DoctorResponse mapToResponse(Doctor doctor) {

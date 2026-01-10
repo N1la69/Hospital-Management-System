@@ -42,7 +42,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Instant startInstant = request.scheduledStart();
         Instant endInstant = request.scheduledEnd();
 
-        DayOfWeek day = startInstant.atZone(ZoneId.systemDefault()).getDayOfWeek();
+        DayOfWeek day = startInstant.atZone(ZoneId.systemDefault()).toLocalDate().getDayOfWeek();
         LocalTime startTime = startInstant.atZone(ZoneId.systemDefault()).toLocalTime();
         LocalTime endTime = endInstant.atZone(ZoneId.systemDefault()).toLocalTime();
 
@@ -58,10 +58,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (availabilities.isEmpty())
             throw new RuntimeException("Doctor is not available on this day: " + day);
 
-        boolean insideAvailability = availabilities.stream()
-                .anyMatch(a -> !startTime.isBefore(a.getStartTime().atZone(ZoneId.systemDefault()).toLocalTime()) &&
-                        !endTime.isAfter(a.getEndTime().atZone(ZoneId.systemDefault()).toLocalTime()) &&
-                        Duration.between(startTime, endTime).toMinutes() == a.getSlotMinutes());
+        boolean insideAvailability = availabilities.stream().anyMatch(a -> {
+            LocalTime availStart = a.getStartTime().atZone(ZoneId.systemDefault()).toLocalTime();
+            LocalTime availEnd = a.getEndTime().atZone(ZoneId.systemDefault()).toLocalTime();
+
+            boolean withinTimeWindow = !startTime.isBefore(availStart) && !endTime.isAfter(availEnd);
+
+            long appointmentMinutes = Duration.between(startTime, endTime).toMinutes();
+
+            boolean validSlotMultiple = appointmentMinutes > 0 && appointmentMinutes % a.getSlotMinutes() == 0;
+
+            return withinTimeWindow && validSlotMultiple;
+        });
 
         if (!insideAvailability)
             throw new RuntimeException("Appointment time outside doctor availability");

@@ -6,8 +6,11 @@ import { DoctorAvailabilityResponse } from "@/types/availability";
 import { getDoctorAvailability } from "@/lib/api/availability.api";
 import AvailabilityCalendar from "@/components/doctor/availability/AvailabilityCalendar";
 import AddAvailabilityModal from "@/components/doctor/availability/AddAvailabilityModal";
+import { getMyDoctorProfile } from "@/lib/api/doctor.api";
 
 const DoctorAvailabilityPage = () => {
+  const [doctorId, setDoctorId] = useState<string | null>(null);
+
   const { userId, roles } = useAuth();
   console.log("🔐 AuthContext:", { userId, roles });
 
@@ -28,7 +31,13 @@ const DoctorAvailabilityPage = () => {
   >(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const doctorId = userId; // doctor can only manage self
+  useEffect(() => {
+    if (!userId) return;
+
+    getMyDoctorProfile().then((doc) => {
+      setDoctorId(doc.id); // Doctor._id
+    });
+  }, [userId]);
 
   const loadAvailability = async () => {
     if (!doctorId) return;

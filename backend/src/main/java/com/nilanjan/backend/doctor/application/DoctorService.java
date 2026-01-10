@@ -12,4 +12,6 @@ public interface DoctorService {
     DoctorResponse getDoctorById(String doctorId);
 
     List<DoctorResponse> getDoctorBySpecialization(String specialization);
+
+    DoctorResponse getMyDoctorProfile();
 }

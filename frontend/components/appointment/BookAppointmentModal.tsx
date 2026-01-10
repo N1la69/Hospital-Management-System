@@ -58,7 +58,13 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
     setLoading(true);
 
     try {
-      console.log(patientId, doctorId, startIso, endIso, reason);
+      console.log(
+        "PatientId:" + patientId,
+        "DoctorId:" + doctorId,
+        "StartTime:" + startIso,
+        "EndTime:" + endIso,
+        "Reason:" + reason
+      );
 
       await api.post("/api/appointments", {
         patientId,
