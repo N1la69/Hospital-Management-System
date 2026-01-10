@@ -26,26 +26,51 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-80 space-y-4">
-        <input
-          type="text"
-          className="w-full border p-2"
-          placeholder="Username"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          className="w-full border p-2"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button
-          className="w-full bg-black text-white p-2"
-          onClick={handleLogin}
-        >
-          Login
-        </button>
+    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg border">
+        {/* Header */}
+        <div className="bg-blue-900 text-white rounded-t-xl px-6 py-4 text-center">
+          <h2 className="text-lg font-semibold">Hospital Management System</h2>
+          <p className="text-sm text-blue-200 mt-1">Secure Login Portal</p>
+        </div>
+
+        {/* Form */}
+        <div className="p-6 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+              placeholder="Enter your username"
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <button
+            onClick={handleLogin}
+            className="w-full rounded-md bg-blue-700 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 transition"
+          >
+            Login
+          </button>
+
+          <p className="text-center text-xs text-slate-500">
+            Registered Patient or Authorized personnel only
+          </p>
+        </div>
       </div>
     </div>
   );
