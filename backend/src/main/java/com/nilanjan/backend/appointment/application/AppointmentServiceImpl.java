@@ -58,9 +58,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (availabilities.isEmpty())
             throw new RuntimeException("Doctor is not available on this day: " + day);
 
-        boolean insideAvailability = availabilities.stream().anyMatch(a -> !startTime.isBefore(a.getStartTime()) &&
-                !endTime.isAfter(a.getEndTime()) &&
-                Duration.between(startTime, endTime).toMinutes() == a.getSlotMinutes());
+        boolean insideAvailability = availabilities.stream()
+                .anyMatch(a -> !startTime.isBefore(a.getStartTime().atZone(ZoneId.systemDefault()).toLocalTime()) &&
+                        !endTime.isAfter(a.getEndTime().atZone(ZoneId.systemDefault()).toLocalTime()) &&
+                        Duration.between(startTime, endTime).toMinutes() == a.getSlotMinutes());
 
         if (!insideAvailability)
             throw new RuntimeException("Appointment time outside doctor availability");

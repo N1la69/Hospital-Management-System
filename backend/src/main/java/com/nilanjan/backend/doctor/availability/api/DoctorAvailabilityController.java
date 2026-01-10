@@ -25,7 +25,7 @@ public class DoctorAvailabilityController {
     private final DoctorAvailabilityService doctorAvailabilityService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     public ResponseEntity<DoctorAvailabilityResponse> add(@RequestBody CreateAvailabilityRequest request) {
         return ResponseEntity.ok(doctorAvailabilityService.addAvailability(request));
     }

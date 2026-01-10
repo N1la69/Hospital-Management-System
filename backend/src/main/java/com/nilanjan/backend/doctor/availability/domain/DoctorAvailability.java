@@ -1,7 +1,7 @@
 package com.nilanjan.backend.doctor.availability.domain;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.Instant;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -28,8 +28,8 @@ public class DoctorAvailability {
 
     private DayOfWeek dayOfWeek;
 
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private Instant startTime;
+    private Instant endTime;
 
     private int slotMinutes;
 }

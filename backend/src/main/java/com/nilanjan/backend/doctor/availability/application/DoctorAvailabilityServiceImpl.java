@@ -1,7 +1,9 @@
 package com.nilanjan.backend.doctor.availability.application;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,11 +26,24 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
     @Override
     public DoctorAvailabilityResponse addAvailability(CreateAvailabilityRequest request) {
 
-        LocalTime start = request.startTime();
-        LocalTime end = request.endTime();
+        Instant start = request.startTime();
+        Instant end = request.endTime();
+
+        System.out.println("REQUEST start=" + start);
+        System.out.println("REQUEST end=" + end);
+        System.out.println("slotMinutes=" + request.slotMinutes());
 
         if (!start.isBefore(end))
             throw new RuntimeException("Start time must be before end time");
+
+        DayOfWeek actualDay = start
+                .atZone(ZoneId.systemDefault())
+                .getDayOfWeek();
+
+        if (actualDay != request.dayOfWeek()) {
+            throw new RuntimeException(
+                    "DayOfWeek does not match startTime");
+        }
 
         long minutes = Duration.between(start, end).toMinutes();
         if (minutes % request.slotMinutes() != 0)
@@ -38,6 +53,11 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
 
         List<DoctorAvailability> existing = doctorAvailabilityRepository.findByDoctorIdAndDayOfWeek(doctorId,
                 request.dayOfWeek());
+
+        existing.forEach(a -> {
+            System.out.println("EXISTING start=" + a.getStartTime());
+            System.out.println("EXISTING end=" + a.getEndTime());
+        });
 
         for (DoctorAvailability a : existing) {
             boolean overlaps = start.isBefore(a.getEndTime()) && end.isAfter(a.getStartTime());
