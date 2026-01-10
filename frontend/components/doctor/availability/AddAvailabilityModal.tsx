@@ -44,18 +44,10 @@ const AddAvailabilityModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const baseDate = new Date("1970-01-04T00:00:00Z"); // Sunday
-
   const dayOffset = DAY_INDEX[day];
 
   const submit = async () => {
     setError(null);
-
-    console.log("🟡 submit clicked");
-    console.log("startTime:", startTime);
-    console.log("endTime:", endTime);
-    console.log("day:", day);
-    console.log("dayOffset:", dayOffset);
 
     if (!startTime || !endTime) {
       setError("Start time and end time are required");
@@ -70,20 +62,11 @@ const AddAvailabilityModal = ({
     const [sh, sm] = startTime.split(":").map(Number);
     const [eh, em] = endTime.split(":").map(Number);
 
-    console.log("Parsed start:", sh, sm);
-    console.log("Parsed end:", eh, em);
-
     const startDate = new Date(1970, 0, 4 + dayOffset, sh, sm);
     const endDate = new Date(1970, 0, 4 + dayOffset, eh, em);
 
-    console.log("startUtc:", startDate);
-    console.log("endUtc:", endDate);
-
     const startIso = startDate.toISOString();
     const endIso = endDate.toISOString();
-
-    console.log("startIso:", startIso);
-    console.log("endIso:", endIso);
 
     setLoading(true);
 

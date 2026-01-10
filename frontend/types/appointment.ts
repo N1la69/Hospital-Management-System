@@ -15,3 +15,11 @@ export interface AppointmentResponse {
   scheduledEnd: string;
   status: AppointmentStatus;
 }
+
+export interface CreateAppointmentRequest {
+  patientId: string;
+  doctorId: string;
+  scheduledStart: string;
+  scheduledEnd: string;
+  reason: string;
+}

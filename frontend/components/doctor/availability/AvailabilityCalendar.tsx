@@ -19,11 +19,6 @@ const DAYS: string[] = [
 ];
 
 const AvailabilityCalendar = ({ availability, onAddAvailability }: Props) => {
-  console.log("🗓️ Calendar props:", {
-    hasOnAdd: !!onAddAvailability,
-    availabilityCount: availability.length,
-  });
-
   const grouped: Record<string, DoctorAvailabilityResponse[]> = DAYS.reduce(
     (acc, day) => {
       acc[day] = [];

@@ -26,10 +26,17 @@ const CreateReceptionistModal = ({ open, onClose, onSuccess }: Props) => {
     setLoading(true);
     try {
       await createReceptionist(form as CreateReceptionistRequest);
+
       onSuccess();
       onClose();
-    } catch (error) {
-      console.log("Error in submitting receptionist request: ", error);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create receptionist";
+
+      alert(message);
+      console.log(message);
     } finally {
       setLoading(false);
     }

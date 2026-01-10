@@ -12,6 +12,7 @@ export interface DoctorAvailabilityResponse {
   endTime: string;
   slotMinutes: number;
 }
+
 export interface CreateAvailabilityRequest {
   doctorId: string;
   dayOfWeek:

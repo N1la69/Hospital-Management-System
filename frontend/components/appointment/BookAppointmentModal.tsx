@@ -3,6 +3,7 @@
 import api from "@/lib/utils/axios";
 import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
+import { bookAppointments } from "@/lib/api/appointment.api";
 
 interface Props {
   open: boolean;
@@ -66,7 +67,7 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
         "Reason:" + reason
       );
 
-      await api.post("/api/appointments", {
+      await bookAppointments({
         patientId,
         doctorId,
         scheduledStart: startIso,
@@ -77,7 +78,12 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
       onSuccess();
       onClose();
     } catch (error: any) {
-      alert(error?.response?.data ?? "Failed to book appointment");
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to book appointment";
+      alert(message);
+      console.log(message);
     } finally {
       setLoading(false);
     }

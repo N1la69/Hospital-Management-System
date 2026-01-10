@@ -21,6 +21,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
+    console.error("API Error:", err.response?.data || err.message);
+
     if (err.response?.status === 401) {
       localStorage.removeItem("accessToken");
       document.cookie = "accessToken=; Max-Age=0; path=/";

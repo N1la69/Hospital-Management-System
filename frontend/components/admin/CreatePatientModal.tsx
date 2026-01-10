@@ -28,10 +28,17 @@ const CreatePatientModal = ({ open, onClose, onSuccess }: Props) => {
     setLoading(true);
     try {
       await createPatient(form as CreatePatientRequest);
+
       onSuccess();
       onClose();
-    } catch (error) {
-      console.log("Error in submitting patient request: ", error);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create patient";
+
+      alert(message);
+      console.log(message);
     } finally {
       setLoading(false);
     }

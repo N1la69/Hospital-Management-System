@@ -26,10 +26,17 @@ const CreateDoctorModal = ({ open, onClose, onSuccess }: Props) => {
     setLoading(true);
     try {
       await createDoctor(form as CreateDoctorRequest);
+
       onSuccess();
       onClose();
-    } catch (error) {
-      console.log("Error in submitting doctor request: ", error);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create doctor";
+
+      alert(message);
+      console.log(message);
     } finally {
       setLoading(false);
     }

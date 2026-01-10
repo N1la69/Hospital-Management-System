@@ -14,12 +14,6 @@ const AvailabilityDayColumn = ({ day, slots, onAdd }: Props) => {
   const isAdmin = roles.includes("ADMIN");
   const isDoctor = roles.includes("DOCTOR");
 
-  console.log("📦 DayColumn:", {
-    day,
-    hasOnAdd: !!onAdd,
-    roles,
-  });
-
   return (
     <div className="border rounded-lg p-3 flex flex-col gap-3 min-h-45">
       {/* HEADER */}
@@ -30,7 +24,6 @@ const AvailabilityDayColumn = ({ day, slots, onAdd }: Props) => {
           <button
             className="text-sm text-blue-600 hover:underline"
             onClick={() => {
-              console.log("➕ Button clicked for", day);
               onAdd(day);
             }}
           >

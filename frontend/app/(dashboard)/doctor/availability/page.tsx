@@ -35,16 +35,25 @@ const DoctorAvailabilityPage = () => {
     if (!userId) return;
 
     getMyDoctorProfile().then((doc) => {
-      setDoctorId(doc.id); // Doctor._id
+      setDoctorId(doc.id);
     });
   }, [userId]);
 
   const loadAvailability = async () => {
     if (!doctorId) return;
+
     setLoading(true);
     try {
       const data = await getDoctorAvailability(doctorId);
       setAvailability(data);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to get availabilities";
+
+      alert(message);
+      console.log(message);
     } finally {
       setLoading(false);
     }

@@ -1,14 +1,18 @@
-import { AppointmentResponse } from "@/types/appointment";
+import {
+  AppointmentResponse,
+  CreateAppointmentRequest,
+} from "@/types/appointment";
 import api from "../utils/axios";
 
 export const fetchAppointments = async (): Promise<AppointmentResponse[]> => {
-  try {
-    const res = await api.get<AppointmentResponse[]>("/api/appointments");
-    return res.data;
-  } catch (error) {
-    console.log("Error fetching appointments: ", error);
-    return [];
-  }
+  const res = await api.get<AppointmentResponse[]>("/api/appointments");
+  return res.data;
+};
+
+export const bookAppointments = async (
+  payload: CreateAppointmentRequest
+): Promise<void> => {
+  await api.post("/api/appointments", payload);
 };
 
 export const checkInAppointment = async (id: string) => {
