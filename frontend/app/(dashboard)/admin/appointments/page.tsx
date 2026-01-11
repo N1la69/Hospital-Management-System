@@ -3,6 +3,7 @@
 import BookAppointmentModal from "@/components/appointment/BookAppointmentModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { fetchAppointments } from "@/lib/api/appointment.api";
+import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { AppointmentResponse } from "@/types/appointment";
 import { useEffect, useState } from "react";
 
@@ -18,7 +19,7 @@ const AdminAppointmentsPage = () => {
   }, []);
 
   return (
-    <DashboardLayout title="Appointments">
+    <DashboardLayout title="Appointments" menuItems={adminMenu}>
       <button
         onClick={() => setOpen(true)}
         className="mb-4 bg-black text-white px-4 py-2"

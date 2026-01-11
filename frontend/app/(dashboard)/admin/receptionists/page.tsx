@@ -3,6 +3,7 @@
 import CreateReceptionistModal from "@/components/admin/CreateReceptionistModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { fetchReceptionists } from "@/lib/api/receptionist.api";
+import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { ReceptionistResponse } from "@/types/receptionist";
 import { useEffect, useState } from "react";
 
@@ -20,7 +21,7 @@ const AdminReceptionistsPage = () => {
   }, []);
 
   return (
-    <DashboardLayout title="Receptionists">
+    <DashboardLayout title="Receptionists" menuItems={adminMenu}>
       <button
         onClick={() => setOpen(true)}
         className="mb-4 bg-black text-white px-4 py-2"

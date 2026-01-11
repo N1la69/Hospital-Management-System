@@ -1,34 +1,16 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import Link from "next/link";
+import StatCard from "@/components/ui/StatCard";
+import { adminMenu } from "@/lib/constants/sidebarMenus";
 
 const AdminDashboard = () => {
+  const totalDoctors = 42;
+  const totalReceptionists = 12;
+
   return (
-    <DashboardLayout title="Admin Dashboard">
-      <div className="space-y-4">
-        <Link
-          href="/admin/patients"
-          className="block p-4 bg-white rounded shadow"
-        >
-          Manage Patients
-        </Link>
-        <Link
-          href="/admin/doctors"
-          className="block p-4 bg-white rounded shadow"
-        >
-          Manage Doctors
-        </Link>
-        <Link
-          href="/admin/receptionists"
-          className="block p-4 bg-white rounded shadow"
-        >
-          Manage Receptionists
-        </Link>
-        <Link
-          href="/admin/appointments"
-          className="block p-4 bg-white rounded shadow"
-        >
-          Manage Appointments
-        </Link>
+    <DashboardLayout title="Admin Dashboard" menuItems={adminMenu}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+        <StatCard title="Total Doctors" value={totalDoctors} />
+        <StatCard title="Total Receptionists" value={totalReceptionists} />
       </div>
     </DashboardLayout>
   );

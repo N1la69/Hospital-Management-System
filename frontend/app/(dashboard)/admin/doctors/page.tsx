@@ -3,6 +3,7 @@
 import CreateDoctorModal from "@/components/admin/CreateDoctorModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { fetchDoctors } from "@/lib/api/doctor.api";
+import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { DoctorResponse } from "@/types/doctor";
 import { useEffect, useState } from "react";
 
@@ -18,7 +19,7 @@ const AdminDoctorsPage = () => {
   }, []);
 
   return (
-    <DashboardLayout title="Doctors">
+    <DashboardLayout title="Doctors" menuItems={adminMenu}>
       <button
         onClick={() => setOpen(true)}
         className="mb-4 bg-black text-white px-4 py-2"

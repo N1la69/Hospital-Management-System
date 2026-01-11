@@ -3,6 +3,7 @@
 import CreatePatientModal from "@/components/admin/CreatePatientModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { fetchPatients } from "@/lib/api/patient.api";
+import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { PatientResponse } from "@/types/patient";
 import { useEffect, useState } from "react";
 
@@ -18,7 +19,7 @@ const AdminPatientsPage = () => {
   }, []);
 
   return (
-    <DashboardLayout title="Patients">
+    <DashboardLayout title="Patients" menuItems={adminMenu}>
       <button
         onClick={() => setOpen(true)}
         className="mb-4 bg-black text-white px-4 py-2"
