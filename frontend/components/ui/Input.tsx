@@ -1,7 +1,7 @@
 interface Props {
   label: string;
   type?: string;
-  onChange: (v: string) => void;
+  onChange: (v: any) => void;
   className?: string;
 }
 
