@@ -4,6 +4,8 @@ import { createPatient } from "@/lib/api/patient.api";
 import { CreatePatientRequest } from "@/types/patient";
 import { useState } from "react";
 import Modal from "../ui/Modal";
+import Input from "../ui/Input";
+import Select from "../ui/Select";
 
 interface Props {
   open: boolean;
@@ -46,80 +48,77 @@ const CreatePatientModal = ({ open, onClose, onSuccess }: Props) => {
 
   return (
     <Modal open={open} onClose={onClose} title="Create Patient" size="lg">
-      <div className="space-y-3">
-        <input
-          type="text"
-          placeholder="First Name"
-          onChange={(e) => update("firstName", e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Last Name"
-          onChange={(e) => update("lastName", e.target.value)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input label="First Name" onChange={(v) => update("firstName", v)} />
+        <Input label="Last Name" onChange={(v) => update("lastName", v)} />
+
+        <Select
+          label="Gender"
+          onChange={(v) => update("gender", v as any)}
+          options={[
+            { label: "Select gender", value: "" },
+            { label: "Male", value: "MALE" },
+            { label: "Female", value: "FEMALE" },
+            { label: "Other", value: "OTHER" },
+          ]}
         />
 
-        <select onChange={(e) => update("gender", e.target.value as any)}>
-          <option value="">Gender</option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
-          <option value="OTHER">Other</option>
-        </select>
-
-        <input
+        <Input
+          label="Date of Birth"
           type="date"
-          onChange={(e) => update("dateOfBirth", e.target.value)}
+          onChange={(v) => update("dateOfBirth", v)}
         />
 
-        <select onChange={(e) => update("bloodGroup", e.target.value as any)}>
-          <option value="">Blood Group</option>
-          <option value="A_POS">A+</option>
-          <option value="A_NEG">A-</option>
-          <option value="B_POS">B+</option>
-          <option value="B_NEG">B-</option>
-          <option value="AB_POS">AB+</option>
-          <option value="AB_NEG">AB-</option>
-          <option value="O_POS">O+</option>
-          <option value="O_NEG">O-</option>
-        </select>
-
-        <input
-          placeholder="Phone"
-          onChange={(e) => update("phone", e.target.value)}
+        <Select
+          label="Blood Group"
+          onChange={(v) => update("bloodGroup", v as any)}
+          options={[
+            { label: "Select blood group", value: "" },
+            { label: "A+", value: "A_POS" },
+            { label: "A-", value: "A_NEG" },
+            { label: "B+", value: "B_POS" },
+            { label: "B-", value: "B_NEG" },
+            { label: "AB+", value: "AB_POS" },
+            { label: "AB-", value: "AB_NEG" },
+            { label: "O+", value: "O_POS" },
+            { label: "O-", value: "O_NEG" },
+          ]}
         />
-        <input
+
+        <Input label="Phone" onChange={(v) => update("phone", v)} />
+        <Input
+          label="Email"
           type="email"
-          placeholder="Email"
-          onChange={(e) => update("email", e.target.value)}
+          onChange={(v) => update("email", v)}
         />
-        <input
-          type="text"
-          placeholder="Address"
-          onChange={(e) => update("address", e.target.value)}
+        <Input
+          label="Address"
+          className="md:col-span-2"
+          onChange={(v) => update("address", v)}
         />
 
-        <input
-          type="text"
-          placeholder="Username"
-          onChange={(e) => update("username", e.target.value)}
-        />
-        <input
+        <Input label="Username" onChange={(v) => update("username", v)} />
+        <Input
+          label="Password"
           type="password"
-          placeholder="Password"
-          onChange={(e) => update("password", e.target.value)}
+          onChange={(v) => update("password", v)}
         />
+      </div>
 
-        <div className="flex justify-end gap-2 pt-2">
-          <button onClick={onClose} className="px-4 py-2 border">
-            Cancel
-          </button>
-          <button
-            onClick={submit}
-            disabled={loading}
-            className="px-4 py-2 bg-black text-white"
-          >
-            {loading ? "Creating..." : "Create"}
-          </button>
-        </div>
+      <div className="flex justify-end gap-3 pt-6 border-t mt-6">
+        <button
+          onClick={onClose}
+          className="px-4 py-2 rounded-md border text-sm text-slate-700 hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={submit}
+          disabled={loading}
+          className="px-4 py-2 rounded-md bg-blue-700 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
+        >
+          {loading ? "Creating..." : "Create Patient"}
+        </button>
       </div>
     </Modal>
   );
