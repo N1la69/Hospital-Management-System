@@ -27,3 +27,22 @@ export interface CreatePatientRequest {
   username?: string;
   password?: string;
 }
+
+export interface PatientSearchFilter {
+  name?: string;
+  patientCode?: string;
+  email?: string;
+  bloodGroup?:
+    | "A_POS"
+    | "A_NEG"
+    | "B_POS"
+    | "B_NEG"
+    | "O_POS"
+    | "O_NEG"
+    | "AB_POS"
+    | "AB_NEG";
+  status?: "ACTIVE" | "INACTIVE" | "DECEASED";
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  dobFrom?: string;
+  dobTo?: string;
+}

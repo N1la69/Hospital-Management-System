@@ -1,4 +1,8 @@
-import { CreatePatientRequest, PatientResponse } from "@/types/patient";
+import {
+  CreatePatientRequest,
+  PatientResponse,
+  PatientSearchFilter,
+} from "@/types/patient";
 import api from "../utils/axios";
 
 export const fetchPatients = async (): Promise<PatientResponse[]> => {
@@ -10,4 +14,9 @@ export const createPatient = async (
   payload: CreatePatientRequest
 ): Promise<void> => {
   await api.post("/api/patients", payload);
+};
+
+export const searchPatients = async (filter: PatientSearchFilter) => {
+  const res = await api.post("/api/patients/search", filter);
+  return res.data;
 };

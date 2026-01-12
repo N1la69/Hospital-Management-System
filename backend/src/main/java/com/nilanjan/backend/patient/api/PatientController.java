@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
-import com.nilanjan.backend.patient.api.dto.PatientSelfRegisterRequest;
+import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
 import com.nilanjan.backend.patient.application.PatientService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,11 +32,6 @@ public class PatientController {
         return ResponseEntity.ok(patientService.createPatient(request));
     }
 
-    @PostMapping("/patient-registration")
-    public ResponseEntity<PatientResponse> selfRegister(@RequestBody PatientSelfRegisterRequest request) {
-        return ResponseEntity.ok(patientService.selfRegister(request));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponse> getById(@PathVariable String id) {
         return ResponseEntity.ok(patientService.getPatientById(id));
@@ -48,6 +43,14 @@ public class PatientController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String phone) {
         return ResponseEntity.ok(patientService.searchPatients(name, phone));
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
+    public ResponseEntity<List<PatientResponse>> advancedSearch(
+            @RequestBody PatientSearchFilter filter) {
+
+        return ResponseEntity.ok(patientService.advancedSearch(filter));
     }
 
     @PostMapping("/{patientId}/assign-doctor/{doctorId}")
