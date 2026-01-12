@@ -16,7 +16,14 @@ export const createPatient = async (
   await api.post("/api/patients", payload);
 };
 
-export const searchPatients = async (filter: PatientSearchFilter) => {
-  const res = await api.post("/api/patients/search", filter);
+export const searchPatients = async (
+  filter: PatientSearchFilter,
+  page: number,
+  size: number
+) => {
+  const res = await api.post(
+    `/api/patients/search?page=${page}&size=${size}`,
+    filter
+  );
   return res.data;
 };

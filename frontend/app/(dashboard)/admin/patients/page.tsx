@@ -17,11 +17,19 @@ const AdminPatientsPage = () => {
 
   const [filters, setFilters] = useState<PatientSearchFilter>({});
 
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const pageSize = 3;
+
+  // const loadAllPatients = () => {
+  //   setLoading(true);
+  //   fetchPatients()
+  //     .then(setPatients)
+  //     .finally(() => setLoading(false));
+  // };
+
   const loadAllPatients = () => {
-    setLoading(true);
-    fetchPatients()
-      .then(setPatients)
-      .finally(() => setLoading(false));
+    handleSearch(0);
   };
 
   const dateToInstant = (dateStr: string, endOfDay = false) => {
@@ -31,7 +39,7 @@ const AdminPatientsPage = () => {
     return date.toISOString();
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (pageNo = 0) => {
     setLoading(true);
     const payload: PatientSearchFilter = { ...filters };
 
@@ -43,8 +51,12 @@ const AdminPatientsPage = () => {
       if (filters.dobFrom) payload.dobFrom = dateToInstant(filters.dobFrom);
       if (filters.dobTo) payload.dobTo = dateToInstant(filters.dobTo, true);
 
-      const result = await searchPatients(payload);
-      setPatients(result);
+      const result = await searchPatients(payload, pageNo, pageSize);
+
+      setPatients(result.items);
+      setTotal(result.total);
+      setPage(pageNo);
+      console.log({ total, pageSize, page });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
@@ -60,7 +72,7 @@ const AdminPatientsPage = () => {
   const clearFilters = () => {
     setFilters({});
     setSearchText("");
-    loadAllPatients();
+    handleSearch(0);
   };
 
   useEffect(() => {
@@ -111,7 +123,7 @@ const AdminPatientsPage = () => {
         </button>
 
         <button
-          onClick={handleSearch}
+          onClick={() => handleSearch()}
           className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
         >
           Search
@@ -172,7 +184,7 @@ const AdminPatientsPage = () => {
 
           <div className="col-span-full flex gap-2">
             <button
-              onClick={handleSearch}
+              onClick={() => handleSearch()}
               className="bg-blue-600 text-white px-4 py-2 rounded"
             >
               Apply
@@ -239,6 +251,33 @@ const AdminPatientsPage = () => {
           </div>
         )}
       </div>
+
+      {/* PAGINATION */}
+      {Math.ceil(total / pageSize) > 1 && (
+        <div className="flex justify-between items-center mt-4 text-sm">
+          <span>
+            Page {page + 1} of {Math.ceil(total / pageSize)}
+          </span>
+
+          <div className="flex gap-2">
+            <button
+              disabled={page === 0}
+              onClick={() => handleSearch(page - 1)}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <button
+              disabled={(page + 1) * pageSize >= total}
+              onClick={() => handleSearch(page + 1)}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       <CreatePatientModal
         open={open}

@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
 import com.nilanjan.backend.patient.domain.Patient;
 
@@ -20,7 +21,7 @@ public class PatientSearchRepositoryImpl implements PatientSearchRepository {
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public List<Patient> search(PatientSearchFilter filter) {
+    public PageResult<Patient> search(PatientSearchFilter filter, int page, int size) {
 
         List<Criteria> criteriaList = new ArrayList<>();
 
@@ -31,14 +32,6 @@ public class PatientSearchRepositoryImpl implements PatientSearchRepository {
                     Criteria.where("patientCode").regex(filter.name(), "i"),
                     Criteria.where("email").regex(filter.name(), "i")));
 
-        }
-
-        if (filter.patientCode() != null && !filter.patientCode().isBlank()) {
-            criteriaList.add(Criteria.where("patientCode").is(filter.patientCode()));
-        }
-
-        if (filter.email() != null && !filter.email().isBlank()) {
-            criteriaList.add(Criteria.where("email").regex(filter.email(), "i"));
         }
 
         if (filter.bloodGroup() != null) {
@@ -71,7 +64,15 @@ public class PatientSearchRepositoryImpl implements PatientSearchRepository {
             query.addCriteria(new Criteria().andOperator(criteriaList));
         }
 
-        return mongoTemplate.find(query, Patient.class);
+        long total = mongoTemplate.count(query, Patient.class);
+
+        query.skip((long) page * size);
+        query.limit(size);
+
+        List<Patient> data = mongoTemplate.find(query, Patient.class);
+
+        return new PageResult<>(data, total);
+
     }
 
 }

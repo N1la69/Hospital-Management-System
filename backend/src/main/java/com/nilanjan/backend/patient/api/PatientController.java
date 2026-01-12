@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
@@ -47,10 +48,12 @@ public class PatientController {
 
     @PostMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
-    public ResponseEntity<List<PatientResponse>> advancedSearch(
-            @RequestBody PatientSearchFilter filter) {
+    public ResponseEntity<PageResponse<PatientResponse>> advancedSearch(
+            @RequestBody PatientSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        return ResponseEntity.ok(patientService.advancedSearch(filter));
+        return ResponseEntity.ok(patientService.advancedSearch(filter, page, size));
     }
 
     @PostMapping("/{patientId}/assign-doctor/{doctorId}")

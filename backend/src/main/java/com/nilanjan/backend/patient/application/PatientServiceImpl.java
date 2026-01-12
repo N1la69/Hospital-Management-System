@@ -14,6 +14,8 @@ import com.nilanjan.backend.auth.application.UserAccountService;
 import com.nilanjan.backend.auth.domain.Role;
 import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.common.ContactInfo;
+import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
@@ -125,11 +127,14 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<PatientResponse> advancedSearch(PatientSearchFilter filter) {
-        return patientRepository.search(filter)
-                .stream()
+    public PageResponse<PatientResponse> advancedSearch(PatientSearchFilter filter, int page, int size) {
+
+        PageResult<Patient> result = patientRepository.search(filter, page, size);
+        List<PatientResponse> items = result.data().stream()
                 .map(this::mapToResponse)
                 .toList();
+
+        return new PageResponse<>(items, result.total(), page, size);
     }
 
     private PatientResponse mapToResponse(Patient patient) {
