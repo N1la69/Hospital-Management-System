@@ -7,3 +7,10 @@ export const adminMenu: SidebarItem[] = [
   { label: "Receptionists", href: "/admin/receptionists" },
   { label: "Appointments", href: "/admin/appointments" },
 ];
+
+export const doctorMenu: SidebarItem[] = [
+  { label: "Dashboard", href: "/doctor" },
+  { label: "My Patients", href: "/doctor/patients" },
+  { label: "My Appointments", href: "/doctor/appointments" },
+  { label: "Manage Schedule", href: "/doctor/availability" },
+];

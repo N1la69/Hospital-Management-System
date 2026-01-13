@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth/AuthContext";
+import { formatInstantToLocalTime } from "@/lib/utils/time";
 import { DoctorAvailabilityResponse } from "@/types/availability";
 
 interface Props {
@@ -15,43 +16,44 @@ const AvailabilityDayColumn = ({ day, slots, onAdd }: Props) => {
   const isDoctor = roles.includes("DOCTOR");
 
   return (
-    <div className="border rounded-lg p-3 flex flex-col gap-3 min-h-45">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold">{day}</h3>
+    <div className="bg-white border border-slate-200 rounded-lg overflow-hidden flex flex-col min-h-55">
+      {/* HEADER BAR */}
+      <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-b">
+        <h3 className="text-sm font-semibold text-slate-800">{day}</h3>
 
         {(isAdmin || isDoctor) && onAdd && (
           <button
-            className="text-sm text-blue-600 hover:underline"
-            onClick={() => {
-              onAdd(day);
-            }}
+            className="text-xs font-medium text-blue-700 hover:text-blue-900"
+            onClick={() => onAdd(day)}
           >
             + Add
           </button>
         )}
       </div>
 
-      {/* SLOTS */}
-      {slots.length === 0 ? (
-        <p className="text-sm text-gray-400">No Availability</p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {slots.map((slot) => (
+      {/* BODY */}
+      <div className="flex-1 p-3 space-y-2">
+        {slots.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-xs text-slate-400">
+            No availability
+          </div>
+        ) : (
+          slots.map((slot) => (
             <div
-              className="border rounded-md px-2 py-1 text-sm bg-gray-50"
               key={slot.id}
+              className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5"
             >
-              <div>
-                {slot.startTime} – {slot.endTime}
+              <div className="text-xs font-medium text-slate-800">
+                {formatInstantToLocalTime(slot.startTime)} –{" "}
+                {formatInstantToLocalTime(slot.endTime)}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-[11px] text-slate-500">
                 Slot: {slot.slotMinutes} min
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };

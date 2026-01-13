@@ -19,33 +19,31 @@ const DAYS: string[] = [
 ];
 
 const AvailabilityCalendar = ({ availability, onAddAvailability }: Props) => {
-  const grouped: Record<string, DoctorAvailabilityResponse[]> = DAYS.reduce(
-    (acc, day) => {
-      acc[day] = [];
-      return acc;
-    },
-    {} as Record<string, DoctorAvailabilityResponse[]>
-  );
+  const grouped: Record<string, DoctorAvailabilityResponse[]> = {};
 
-  availability.forEach((slot) => {
-    grouped[slot.dayOfWeek]?.push(slot);
-  });
+  DAYS.forEach((d) => (grouped[d] = []));
+  availability.forEach((slot) => grouped[slot.dayOfWeek]?.push(slot));
 
-  // Sort slots per day by start time
   DAYS.forEach((day) => {
     grouped[day].sort((a, b) => a.startTime.localeCompare(b.startTime));
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-      {DAYS.map((day) => (
-        <AvailabilityDayColumn
-          key={day}
-          day={day}
-          slots={grouped[day]}
-          onAdd={onAddAvailability}
-        />
-      ))}
+    <div>
+      <h2 className="text-lg font-semibold text-slate-800 mb-4">
+        Weekly Availability
+      </h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+        {DAYS.map((day) => (
+          <AvailabilityDayColumn
+            key={day}
+            day={day}
+            slots={grouped[day]}
+            onAdd={onAddAvailability}
+          />
+        ))}
+      </div>
     </div>
   );
 };

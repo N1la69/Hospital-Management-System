@@ -31,6 +31,9 @@ const DAY_INDEX: Record<string, number> = {
 
 const SLOT_OPTIONS = [15, 30, 60];
 
+const inputClass =
+  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600";
+
 const AddAvailabilityModal = ({
   open,
   doctorId,
@@ -91,36 +94,51 @@ const AddAvailabilityModal = ({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={`Add Availability (${day})`}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={`Add Availability (${day})`}
+      size="md"
+    >
       <div className="space-y-4">
-        {error && <div className="text-sm text-red-600">{error}</div>}
+        {error && (
+          <div className="rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
         <div>
-          <label className="block text-sm mb-1">Start Time</label>
+          <label className="block text-xs font-medium text-slate-600 mb-1">
+            Start Time
+          </label>
           <input
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="block text-sm mb-1">End Time</label>
+          <label className="block text-xs font-medium text-slate-600 mb-1">
+            End Time
+          </label>
           <input
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="w-full border px-2 py-1 rounded"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="block text-sm mb-1">Slot Duration</label>
+          <label className="block text-xs font-medium text-slate-600 mb-1">
+            Slot Duration
+          </label>
           <select
             value={slotMinutes}
             onChange={(e) => setSlotMinutes(Number(e.target.value))}
-            className="w-full border px-2 py-1 rounded"
+            className={inputClass}
           >
             {SLOT_OPTIONS.map((m) => (
               <option key={m} value={m}>
@@ -133,7 +151,7 @@ const AddAvailabilityModal = ({
         <button
           onClick={submit}
           disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
+          className="w-full rounded-md bg-blue-700 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
         >
           {loading ? "Saving..." : "Add Availability"}
         </button>

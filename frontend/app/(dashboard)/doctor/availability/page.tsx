@@ -7,12 +7,12 @@ import { getDoctorAvailability } from "@/lib/api/availability.api";
 import AvailabilityCalendar from "@/components/doctor/availability/AvailabilityCalendar";
 import AddAvailabilityModal from "@/components/doctor/availability/AddAvailabilityModal";
 import { getMyDoctorProfile } from "@/lib/api/doctor.api";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { doctorMenu } from "@/lib/constants/sidebarMenus";
 
 const DoctorAvailabilityPage = () => {
   const [doctorId, setDoctorId] = useState<string | null>(null);
-
   const { userId, roles } = useAuth();
-  console.log("🔐 AuthContext:", { userId, roles });
 
   const [availability, setAvailability] = useState<
     DoctorAvailabilityResponse[]
@@ -68,11 +68,9 @@ const DoctorAvailabilityPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">My Availability</h1>
-
+    <DashboardLayout title="My Schedule" menuItems={doctorMenu}>
       {loading ? (
-        <p>Loading availability...</p>
+        <p className="text-sm text-slate-500">Loading availability...</p>
       ) : (
         <AvailabilityCalendar
           availability={availability}
@@ -106,7 +104,7 @@ const DoctorAvailabilityPage = () => {
           onSuccess={loadAvailability}
         />
       )}
-    </div>
+    </DashboardLayout>
   );
 };
 
