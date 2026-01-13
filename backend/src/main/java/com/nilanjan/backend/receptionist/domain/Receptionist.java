@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "receptionist")
+@Document(collection = "receptionists")
 public class Receptionist {
 
     @Id

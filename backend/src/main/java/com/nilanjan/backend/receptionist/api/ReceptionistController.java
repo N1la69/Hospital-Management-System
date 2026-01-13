@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,14 +40,8 @@ public class ReceptionistController {
         return ResponseEntity.ok(receptionistService.getAllReceptionists());
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ReceptionistResponse> getById(@PathVariable String id) {
-        return ResponseEntity.ok(receptionistService.getReceptionistById(id));
-    }
-
     @PostMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PageResponse<ReceptionistResponse>> advancedSearch(
             @RequestBody ReceptionistSearchFilter filter,
             @RequestParam(defaultValue = "0") int page,

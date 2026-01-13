@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import com.nilanjan.backend.auth.application.UserAccountService;
@@ -62,15 +61,6 @@ public class ReceptionistServiceImpl implements ReceptionistService {
                                 .stream()
                                 .map(this::mapToResponse)
                                 .collect(Collectors.toList());
-        }
-
-        @Override
-        public ReceptionistResponse getReceptionistById(String receptionistId) {
-
-                Receptionist receptionist = receptionistRepository.findById(new ObjectId(receptionistId))
-                                .orElseThrow(() -> new RuntimeException("Receptionist not found: " + receptionistId));
-
-                return mapToResponse(receptionist);
         }
 
         @Override

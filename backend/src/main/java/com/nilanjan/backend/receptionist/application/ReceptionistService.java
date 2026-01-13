@@ -12,7 +12,5 @@ public interface ReceptionistService {
 
     List<ReceptionistResponse> getAllReceptionists();
 
-    ReceptionistResponse getReceptionistById(String receptionistId);
-
     PageResponse<ReceptionistResponse> advancedSearch(ReceptionistSearchFilter filter, int page, int size);
 }

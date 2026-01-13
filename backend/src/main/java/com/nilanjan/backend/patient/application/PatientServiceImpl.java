@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
@@ -90,24 +89,6 @@ public class PatientServiceImpl implements PatientService {
             return mapToResponse(patient);
 
         throw new RuntimeException("Access Denied");
-    }
-
-    @Override
-    public List<PatientResponse> searchPatients(String name, String phone) {
-
-        List<Patient> patients;
-
-        if (phone != null && !phone.isBlank()) {
-            patients = patientRepository.findByContact_Phone(phone);
-        } else if (name != null && !name.isBlank()) {
-            patients = patientRepository.findByFirstNameContainingIgnoreCase(name);
-        } else {
-            patients = patientRepository.findAll();
-        }
-
-        return patients.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
     }
 
     @Override
