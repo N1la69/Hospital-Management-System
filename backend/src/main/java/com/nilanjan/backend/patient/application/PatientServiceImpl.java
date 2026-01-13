@@ -50,7 +50,6 @@ public class PatientServiceImpl implements PatientService {
                 .patientCode(PatientCodeGenerator.generate())
                 .firstName(request.firstName())
                 .lastName(request.lastName())
-                .email(request.email())
                 .gender(request.gender())
                 .dateOfBirth(request.dateOfBirth())
                 .bloodGroup(request.bloodGroup())

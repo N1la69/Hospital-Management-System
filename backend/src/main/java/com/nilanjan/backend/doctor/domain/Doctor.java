@@ -34,7 +34,7 @@ public class Doctor {
     private String qualification;
     private int experienceYears;
 
-    private ContactInfo contactInfo;
+    private ContactInfo contact;
 
     private ObjectId linkedUserId;
 

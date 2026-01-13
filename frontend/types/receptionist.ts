@@ -14,3 +14,10 @@ export interface CreateReceptionistRequest {
   username: string;
   password: string;
 }
+
+export interface ReceptionistSearchFilter {
+  name?: string;
+  receptionistCode?: string;
+  email?: string;
+  status?: "ACTIVE" | "INACTIVE";
+}

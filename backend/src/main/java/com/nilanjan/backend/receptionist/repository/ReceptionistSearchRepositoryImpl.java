@@ -1,4 +1,4 @@
-package com.nilanjan.backend.patient.repository;
+package com.nilanjan.backend.receptionist.repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,19 +9,19 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.nilanjan.backend.common.dto.PageResult;
-import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
-import com.nilanjan.backend.patient.domain.Patient;
+import com.nilanjan.backend.receptionist.api.dto.ReceptionistSearchFilter;
+import com.nilanjan.backend.receptionist.domain.Receptionist;
 
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class PatientSearchRepositoryImpl implements PatientSearchRepository {
+public class ReceptionistSearchRepositoryImpl implements ReceptionistSearchRepository {
 
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public PageResult<Patient> search(PatientSearchFilter filter, int page, int size) {
+    public PageResult<Receptionist> search(ReceptionistSearchFilter filter, int page, int size) {
 
         List<Criteria> criteriaList = new ArrayList<>();
 
@@ -29,33 +29,12 @@ public class PatientSearchRepositoryImpl implements PatientSearchRepository {
             criteriaList.add(new Criteria().orOperator(
                     Criteria.where("firstName").regex(filter.name(), "i"),
                     Criteria.where("lastName").regex(filter.name(), "i"),
-                    Criteria.where("patientCode").regex(filter.name(), "i"),
+                    Criteria.where("receptionistCode").regex(filter.name(), "i"),
                     Criteria.where("contact.email").regex(filter.name(), "i")));
-
-        }
-
-        if (filter.bloodGroup() != null) {
-            criteriaList.add(Criteria.where("bloodGroup").is(filter.bloodGroup()));
         }
 
         if (filter.status() != null) {
             criteriaList.add(Criteria.where("status").is(filter.status()));
-        }
-
-        if (filter.gender() != null) {
-            criteriaList.add(Criteria.where("gender").is(filter.gender()));
-        }
-
-        if (filter.dobFrom() != null || filter.dobTo() != null) {
-            Criteria dobCriteria = Criteria.where("dateOfBirth");
-
-            if (filter.dobFrom() != null)
-                dobCriteria = dobCriteria.gte(filter.dobFrom());
-
-            if (filter.dobTo() != null)
-                dobCriteria = dobCriteria.lte(filter.dobTo());
-
-            criteriaList.add(dobCriteria);
         }
 
         Query query = new Query();
@@ -64,15 +43,14 @@ public class PatientSearchRepositoryImpl implements PatientSearchRepository {
             query.addCriteria(new Criteria().andOperator(criteriaList));
         }
 
-        long total = mongoTemplate.count(query, Patient.class);
+        long total = mongoTemplate.count(query, Receptionist.class);
 
         query.skip((long) page * size);
         query.limit(size);
 
-        List<Patient> data = mongoTemplate.find(query, Patient.class);
+        List<Receptionist> data = mongoTemplate.find(query, Receptionist.class);
 
         return new PageResult<>(data, total);
-
     }
 
 }

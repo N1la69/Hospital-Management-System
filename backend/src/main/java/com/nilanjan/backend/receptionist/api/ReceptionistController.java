@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.receptionist.api.dto.CreateReceptionistRequest;
 import com.nilanjan.backend.receptionist.api.dto.ReceptionistResponse;
+import com.nilanjan.backend.receptionist.api.dto.ReceptionistSearchFilter;
 import com.nilanjan.backend.receptionist.application.ReceptionistService;
 
 import lombok.RequiredArgsConstructor;
@@ -42,5 +45,14 @@ public class ReceptionistController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ReceptionistResponse> getById(@PathVariable String id) {
         return ResponseEntity.ok(receptionistService.getReceptionistById(id));
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
+    public ResponseEntity<PageResponse<ReceptionistResponse>> advancedSearch(
+            @RequestBody ReceptionistSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(receptionistService.advancedSearch(filter, page, size));
     }
 }

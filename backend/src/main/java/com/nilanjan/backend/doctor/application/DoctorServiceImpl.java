@@ -47,7 +47,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .specialization(request.specialization())
                 .qualification(request.qualification())
                 .experienceYears(request.experienceYears())
-                .contactInfo(ContactInfo.builder()
+                .contact(ContactInfo.builder()
                         .phone(request.phone())
                         .email(request.email())
                         .address(request.address())

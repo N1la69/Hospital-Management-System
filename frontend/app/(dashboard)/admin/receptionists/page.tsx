@@ -2,9 +2,15 @@
 
 import CreateReceptionistModal from "@/components/admin/CreateReceptionistModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { fetchReceptionists } from "@/lib/api/receptionist.api";
+import {
+  fetchReceptionists,
+  searchReceptionists,
+} from "@/lib/api/receptionist.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
-import { ReceptionistResponse } from "@/types/receptionist";
+import {
+  ReceptionistResponse,
+  ReceptionistSearchFilter,
+} from "@/types/receptionist";
 import { useEffect, useState } from "react";
 
 const AdminReceptionistsPage = () => {
@@ -14,10 +20,53 @@ const AdminReceptionistsPage = () => {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const [filters, setFilters] = useState<ReceptionistSearchFilter>({});
+
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const pageSize = 10;
+
+  const loadAllReceptionists = () => {
+    handleSearch(0);
+  };
+
+  const handleSearch = async (pageNo = 0) => {
+    setLoading(true);
+    const payload: ReceptionistSearchFilter = { ...filters };
+
+    try {
+      if (searchText) {
+        payload.name = searchText;
+      }
+
+      const result = await searchReceptionists(payload, pageNo, pageSize);
+
+      setReceptionists(result.items);
+      setTotal(result.total);
+      setPage(pageNo);
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to search receptionists";
+      alert(message);
+      console.log(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearFilters = () => {
+    setFilters({});
+    setSearchText("");
+    handleSearch(0);
+  };
+
   useEffect(() => {
-    fetchReceptionists()
-      .then(setReceptionists)
-      .finally(() => setLoading(false));
+    loadAllReceptionists();
   }, []);
 
   return (
@@ -44,6 +93,8 @@ const AdminReceptionistsPage = () => {
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
         <div className="relative flex-1">
           <input
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
             type="text"
             placeholder="Search by receptionist name or code..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
@@ -53,10 +104,47 @@ const AdminReceptionistsPage = () => {
           </span>
         </div>
 
-        <button className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+        <button
+          onClick={() => setShowFilters((v) => !v)}
+          className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+        >
           ⚙ Filters
         </button>
+
+        <button
+          onClick={() => handleSearch()}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+        >
+          Search
+        </button>
       </div>
+
+      {/* FILTER PANEL */}
+      {showFilters && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border p-4 rounded-xl mb-4">
+          <select
+            onChange={(e) =>
+              setFilters({ ...filters, status: e.target.value as any })
+            }
+          >
+            <option value="">Status</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+
+          <div className="col-span-full flex gap-2">
+            <button
+              onClick={() => handleSearch()}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
+            >
+              Apply
+            </button>
+            <button onClick={clearFilters} className="border px-4 py-2 rounded">
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* TABLE */}
       <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
@@ -113,6 +201,33 @@ const AdminReceptionistsPage = () => {
           </div>
         )}
       </div>
+
+      {/* PAGINATION */}
+      {Math.ceil(total / pageSize) > 1 && (
+        <div className="flex justify-between items-center mt-4 text-sm">
+          <span>
+            Page {page + 1} of {Math.ceil(total / pageSize)}
+          </span>
+
+          <div className="flex gap-2">
+            <button
+              disabled={page === 0}
+              onClick={() => handleSearch(page - 1)}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            <button
+              disabled={(page + 1) * pageSize >= total}
+              onClick={() => handleSearch(page + 1)}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       <CreateReceptionistModal
         open={open}

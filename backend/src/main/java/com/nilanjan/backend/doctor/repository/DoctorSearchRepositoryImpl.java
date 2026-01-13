@@ -30,7 +30,7 @@ public class DoctorSearchRepositoryImpl implements DoctorSearchRepository {
                     Criteria.where("firstName").regex(filter.name(), "i"),
                     Criteria.where("lastName").regex(filter.name(), "i"),
                     Criteria.where("doctorCode").regex(filter.name(), "i"),
-                    Criteria.where("email").regex(filter.name(), "i"),
+                    Criteria.where("contact.email").regex(filter.name(), "i"),
                     Criteria.where("qualification").regex(filter.name(), "i")));
 
         }
