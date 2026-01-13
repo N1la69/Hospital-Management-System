@@ -1,7 +1,5 @@
 package com.nilanjan.backend.patient.api;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,14 +34,6 @@ public class PatientController {
     @GetMapping("/{id}")
     public ResponseEntity<PatientResponse> getById(@PathVariable String id) {
         return ResponseEntity.ok(patientService.getPatientById(id));
-    }
-
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
-    public ResponseEntity<List<PatientResponse>> search(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String phone) {
-        return ResponseEntity.ok(patientService.searchPatients(name, phone));
     }
 
     @PostMapping("/search")

@@ -1,4 +1,8 @@
-import { CreateDoctorRequest, DoctorResponse } from "@/types/doctor";
+import {
+  CreateDoctorRequest,
+  DoctorResponse,
+  DoctorSearchFilter,
+} from "@/types/doctor";
 import api from "../utils/axios";
 
 export const fetchDoctors = async (): Promise<DoctorResponse[]> => {
@@ -15,4 +19,16 @@ export const createDoctor = async (
   payload: CreateDoctorRequest
 ): Promise<void> => {
   await api.post("/api/doctors", payload);
+};
+
+export const searchDoctors = async (
+  filter: DoctorSearchFilter,
+  page: number,
+  size: number
+) => {
+  const res = await api.post(
+    `/api/doctors/search?page=${page}&size=${size}`,
+    filter
+  );
+  return res.data;
 };

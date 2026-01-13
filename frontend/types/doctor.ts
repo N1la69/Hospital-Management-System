@@ -25,3 +25,20 @@ export interface CreateDoctorRequest {
   username: string;
   password: string;
 }
+
+export interface DoctorSearchFilter {
+  name?: string;
+  doctorCode?: string;
+  email?: string;
+  specialization?:
+    | "CARDIOLOGY"
+    | "NEUROLOGY"
+    | "ORTHOPEDICS"
+    | "PEDIATRICS"
+    | "GENERAL_MEDICINE"
+    | "DERMATOLOGY"
+    | "PSYCHIATRY";
+  status?: "ACTIVE" | "INACTIVE" | "ON_LEAVE";
+  qualification?: string;
+  experienceYears?: number;
+}

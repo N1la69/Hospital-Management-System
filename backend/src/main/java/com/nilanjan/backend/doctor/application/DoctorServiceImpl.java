@@ -13,8 +13,11 @@ import com.nilanjan.backend.auth.application.UserAccountService;
 import com.nilanjan.backend.auth.domain.Role;
 import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.common.ContactInfo;
+import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
+import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
 import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.domain.DoctorStatus;
 import com.nilanjan.backend.doctor.event.DoctorCreatedEvent;
@@ -83,6 +86,17 @@ public class DoctorServiceImpl implements DoctorService {
         return doctors.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<DoctorResponse> advancedSearch(DoctorSearchFilter filter, int page, int size) {
+
+        PageResult<Doctor> result = doctorRepository.search(filter, page, size);
+        List<DoctorResponse> items = result.data().stream()
+                .map(this::mapToResponse)
+                .toList();
+
+        return new PageResponse<>(items, result.total(), page, size);
     }
 
     @Override
