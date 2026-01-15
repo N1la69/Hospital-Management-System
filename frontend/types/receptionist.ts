@@ -2,6 +2,7 @@ export interface ReceptionistResponse {
   id: string;
   receptionistCode: string;
   fullName: string;
+  email: string;
   status: string;
 }
 

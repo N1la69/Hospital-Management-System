@@ -16,7 +16,7 @@ public class AdminStatsServiceImpl implements AdminStatsService {
     @Override
     public AdminStatsResponse getStats() {
         long doctors = mongoTemplate.getCollection("doctors").countDocuments();
-        long receptionists = mongoTemplate.getCollection("receptionist").countDocuments();
+        long receptionists = mongoTemplate.getCollection("receptionists").countDocuments();
 
         return new AdminStatsResponse(doctors, receptionists);
     }

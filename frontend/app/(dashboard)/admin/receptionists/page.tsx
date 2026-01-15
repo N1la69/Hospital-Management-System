@@ -165,8 +165,9 @@ const AdminReceptionistsPage = () => {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b">
                 <tr className="text-left text-slate-600">
-                  <th className="px-4 py-3 font-medium">Patient Code</th>
+                  <th className="px-4 py-3 font-medium">Receptionist Code</th>
                   <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
@@ -182,6 +183,9 @@ const AdminReceptionistsPage = () => {
                     </td>
                     <td className="px-4 py-3 text-slate-800">
                       {receptionist.fullName}
+                    </td>
+                    <td className="px-4 py-3 text-slate-800">
+                      {receptionist.email}
                     </td>
                     <td className="px-4 py-3">
                       <span

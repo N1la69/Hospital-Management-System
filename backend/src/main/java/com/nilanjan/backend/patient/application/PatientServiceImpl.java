@@ -133,6 +133,8 @@ public class PatientServiceImpl implements PatientService {
                 patient.getId().toHexString(),
                 patient.getPatientCode(),
                 patient.getFirstName() + " " + patient.getLastName(),
+                patient.getGender(),
+                patient.getContact().getEmail(),
                 patient.getBloodGroup(),
                 patient.getStatus());
     }

@@ -2,6 +2,8 @@ export interface PatientResponse {
   id: string;
   patientCode: string;
   fullName: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  email: string;
   bloodGroup: string;
   status: string;
 }

@@ -21,13 +21,6 @@ const AdminPatientsPage = () => {
   const [total, setTotal] = useState(0);
   const pageSize = 3;
 
-  // const loadAllPatients = () => {
-  //   setLoading(true);
-  //   fetchPatients()
-  //     .then(setPatients)
-  //     .finally(() => setLoading(false));
-  // };
-
   const loadAllPatients = () => {
     handleSearch(0);
   };
@@ -213,6 +206,8 @@ const AdminPatientsPage = () => {
                 <tr className="text-left text-slate-600">
                   <th className="px-4 py-3 font-medium">Patient Code</th>
                   <th className="px-4 py-3 font-medium">Name</th>
+                  <th className="px-4 py-3 font-medium">Gender</th>
+                  <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Blood Group</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
@@ -229,6 +224,12 @@ const AdminPatientsPage = () => {
                     </td>
                     <td className="px-4 py-3 text-slate-800">
                       {patient.fullName}
+                    </td>
+                    <td className="px-4 py-3 text-slate-800">
+                      {patient.gender}
+                    </td>
+                    <td className="px-4 py-3 text-slate-800">
+                      {patient.email}
                     </td>
                     <td className="px-4 py-3 text-slate-700">
                       {patient.bloodGroup}

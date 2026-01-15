@@ -174,6 +174,7 @@ const AdminDoctorsPage = () => {
                   <th className="px-4 py-3 font-medium">Patient Code</th>
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Specialization</th>
+                  <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
@@ -193,6 +194,7 @@ const AdminDoctorsPage = () => {
                     <td className="px-4 py-3 text-slate-700">
                       {doctor.specialization}
                     </td>
+                    <td className="px-4 py-3 text-slate-700">{doctor.email}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${

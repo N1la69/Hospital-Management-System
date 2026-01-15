@@ -79,6 +79,7 @@ public class ReceptionistServiceImpl implements ReceptionistService {
                                 receptionist.getId().toHexString(),
                                 receptionist.getReceptionistCode(),
                                 receptionist.getFirstName() + " " + receptionist.getLastName(),
+                                receptionist.getContact().getEmail(),
                                 receptionist.getStatus());
         }
 }

@@ -3,6 +3,7 @@ export interface DoctorResponse {
   doctorCode: string;
   fullName: string;
   specialization: string;
+  email: string;
   status: string;
 }
 
