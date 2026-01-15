@@ -123,25 +123,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentResponse getAppointmentById(String appointmentId) {
-        Appointment appointment = appointmentRepository.findById(new ObjectId(appointmentId))
-                .orElseThrow(() -> new RuntimeException("Appointment not found: " + appointmentId));
-
-        ObjectId currentUserId = SecurityUtil.currentUserId();
-
-        if (SecurityUtil.hasRole("ADMIN"))
-            return mapToResponse(appointment);
-
-        if (SecurityUtil.hasRole("DOCTOR") && appointment.getDoctorId().equals(currentUserId))
-            return mapToResponse(appointment);
-
-        if (SecurityUtil.hasRole("PATIENT") && appointment.getPatientId().equals(currentUserId))
-            return mapToResponse(appointment);
-
-        throw new RuntimeException("Access Denied");
-    }
-
-    @Override
     public List<AppointmentResponse> getMyAppointments() {
 
         ObjectId currentUserId = SecurityUtil.currentUserId();

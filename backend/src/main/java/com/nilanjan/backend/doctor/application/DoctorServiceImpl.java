@@ -3,7 +3,6 @@ package com.nilanjan.backend.doctor.application;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,29 +63,6 @@ public class DoctorServiceImpl implements DoctorService {
                                 new DoctorCreatedEvent(saved.getId().toHexString(), saved.getDoctorCode()));
 
                 return mapToResponse(saved);
-        }
-
-        @Override
-        public DoctorResponse getDoctorById(String doctorId) {
-                Doctor doctor = doctorRepository.findById(new ObjectId(doctorId))
-                                .orElseThrow(() -> new RuntimeException("Doctor not found: " + doctorId));
-
-                return mapToResponse(doctor);
-        }
-
-        @Override
-        public List<DoctorResponse> getDoctorBySpecialization(String specialization) {
-                List<Doctor> doctors;
-
-                if (specialization != null && !specialization.isBlank()) {
-                        doctors = doctorRepository.findBySpecialization(specialization);
-                } else {
-                        doctors = doctorRepository.findAll();
-                }
-
-                return doctors.stream()
-                                .map(this::mapToResponse)
-                                .collect(Collectors.toList());
         }
 
         @Override

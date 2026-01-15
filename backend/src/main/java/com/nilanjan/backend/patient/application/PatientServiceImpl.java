@@ -1,7 +1,6 @@
 package com.nilanjan.backend.patient.application;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ import com.nilanjan.backend.patient.domain.Patient;
 import com.nilanjan.backend.patient.domain.PatientStatus;
 import com.nilanjan.backend.patient.event.PatientCreatedEvent;
 import com.nilanjan.backend.patient.repository.PatientRepository;
-import com.nilanjan.backend.security.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -69,42 +67,6 @@ public class PatientServiceImpl implements PatientService {
                 new PatientCreatedEvent(saved.getId().toHexString(), saved.getPatientCode()));
 
         return mapToResponse(saved);
-    }
-
-    @Override
-    public PatientResponse getPatientById(String patientId) {
-
-        Patient patient = patientRepository.findById(new ObjectId(patientId))
-                .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
-
-        if (SecurityUtil.hasRole("ADMIN"))
-            return mapToResponse(patient);
-
-        ObjectId currentUserId = SecurityUtil.currentUserId();
-
-        if (SecurityUtil.hasRole("PATIENT") && currentUserId.equals(patient.getLinkedUserId()))
-            return mapToResponse(patient);
-
-        if (SecurityUtil.hasRole("DOCTOR") && patient.getAssignedDoctorIds() != null
-                && patient.getAssignedDoctorIds().contains(currentUserId))
-            return mapToResponse(patient);
-
-        throw new RuntimeException("Access Denied");
-    }
-
-    @Override
-    public void assignDoctor(String patientId, String doctorId) {
-        Patient patient = patientRepository.findById(new ObjectId(patientId))
-                .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
-
-        ObjectId doctorObjectId = new ObjectId(doctorId);
-
-        if (patient.getAssignedDoctorIds() == null)
-            patient.setAssignedDoctorIds(new HashSet<>());
-
-        patient.getAssignedDoctorIds().add(doctorObjectId);
-
-        patientRepository.save(patient);
     }
 
     @Override

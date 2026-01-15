@@ -11,11 +11,8 @@ import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
 public interface PatientService {
     PatientResponse createPatient(CreatePatientRequest request);
 
-    PatientResponse getPatientById(String patientId);
-
     List<SimpleOption> patientOptions();
 
     PageResponse<PatientResponse> advancedSearch(PatientSearchFilter filter, int page, int size);
 
-    void assignDoctor(String patientId, String doctorId);
 }

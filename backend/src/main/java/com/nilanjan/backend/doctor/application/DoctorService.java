@@ -12,10 +12,6 @@ public interface DoctorService {
 
     DoctorResponse createDoctor(CreateDoctorRequest request);
 
-    DoctorResponse getDoctorById(String doctorId);
-
-    List<DoctorResponse> getDoctorBySpecialization(String specialization);
-
     List<SimpleOption> doctorOptions();
 
     PageResponse<DoctorResponse> advancedSearch(DoctorSearchFilter filter, int page, int size);

@@ -9,8 +9,6 @@ public interface AppointmentService {
 
     AppointmentResponse bookAppointment(CreateAppointmentRequest request);
 
-    AppointmentResponse getAppointmentById(String appointmentId);
-
     List<AppointmentResponse> getMyAppointments();
 
     List<AppointmentResponse> getAppointments();

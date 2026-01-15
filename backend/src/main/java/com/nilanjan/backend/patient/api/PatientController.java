@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,11 +33,6 @@ public class PatientController {
         return ResponseEntity.ok(patientService.createPatient(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<PatientResponse> getById(@PathVariable String id) {
-        return ResponseEntity.ok(patientService.getPatientById(id));
-    }
-
     @PostMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
     public ResponseEntity<PageResponse<PatientResponse>> advancedSearch(
@@ -55,12 +49,4 @@ public class PatientController {
         return ResponseEntity.ok(patientService.patientOptions());
     }
 
-    @PostMapping("/{patientId}/assign-doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
-    public ResponseEntity<Void> assignDoctor(
-            @PathVariable String patientId,
-            @PathVariable String doctorId) {
-        patientService.assignDoctor(patientId, doctorId);
-        return ResponseEntity.ok().build();
-    }
 }
