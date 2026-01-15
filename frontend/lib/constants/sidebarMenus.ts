@@ -14,3 +14,10 @@ export const doctorMenu: SidebarItem[] = [
   { label: "My Appointments", href: "/doctor/appointments" },
   { label: "Manage Schedule", href: "/doctor/availability" },
 ];
+
+export const receptionistMenu: SidebarItem[] = [
+  { label: "Dashboard", href: "/receptionist" },
+  { label: "Patient Utils", href: "/receptionist/patients" },
+  { label: "View Doctors", href: "/receptionist/doctors" },
+  { label: "Appointments", href: "/receptionist/appointments" },
+];
