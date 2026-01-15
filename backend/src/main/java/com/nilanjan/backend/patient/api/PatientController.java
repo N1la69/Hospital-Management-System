@@ -1,5 +1,7 @@
 package com.nilanjan.backend.patient.api;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
@@ -44,6 +47,12 @@ public class PatientController {
             @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(patientService.advancedSearch(filter, page, size));
+    }
+
+    @GetMapping("/options")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<List<SimpleOption>> patientOptions() {
+        return ResponseEntity.ok(patientService.patientOptions());
     }
 
     @PostMapping("/{patientId}/assign-doctor/{doctorId}")

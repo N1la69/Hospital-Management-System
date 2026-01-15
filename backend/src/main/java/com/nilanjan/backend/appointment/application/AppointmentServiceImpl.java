@@ -4,7 +4,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,9 +42,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Instant startInstant = request.scheduledStart();
         Instant endInstant = request.scheduledEnd();
 
-        DayOfWeek day = startInstant.atZone(ZoneId.systemDefault()).toLocalDate().getDayOfWeek();
-        LocalTime startTime = startInstant.atZone(ZoneId.systemDefault()).toLocalTime();
-        LocalTime endTime = endInstant.atZone(ZoneId.systemDefault()).toLocalTime();
+        DayOfWeek day = startInstant.atZone(ZoneOffset.UTC).getDayOfWeek();
 
         if (startInstant.isAfter(endInstant) || startInstant.equals(endInstant))
             throw new RuntimeException("Invalid Appointment Window");
@@ -55,21 +53,34 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<DoctorAvailability> availabilities = doctorAvailabilityRepository.findByDoctorIdAndDayOfWeek(doctorId,
                 day);
 
+        System.out.println("Found availabilities = " + availabilities.size());
+
         if (availabilities.isEmpty())
             throw new RuntimeException("Doctor is not available on this day: " + day);
 
-        boolean insideAvailability = availabilities.stream().anyMatch(a -> {
-            LocalTime availStart = a.getStartTime().atZone(ZoneId.systemDefault()).toLocalTime();
-            LocalTime availEnd = a.getEndTime().atZone(ZoneId.systemDefault()).toLocalTime();
+        boolean insideAvailability = false;
 
-            boolean withinTimeWindow = !startTime.isBefore(availStart) && !endTime.isAfter(availEnd);
+        for (DoctorAvailability a : availabilities) {
 
-            long appointmentMinutes = Duration.between(startTime, endTime).toMinutes();
+            LocalTime availStart = a.getStartTime().atZone(ZoneOffset.UTC).toLocalTime();
+            LocalTime availEnd = a.getEndTime().atZone(ZoneOffset.UTC).toLocalTime();
 
-            boolean validSlotMultiple = appointmentMinutes > 0 && appointmentMinutes % a.getSlotMinutes() == 0;
+            LocalTime reqStart = startInstant.atZone(ZoneOffset.UTC).toLocalTime();
+            LocalTime reqEnd = endInstant.atZone(ZoneOffset.UTC).toLocalTime();
 
-            return withinTimeWindow && validSlotMultiple;
-        });
+            boolean withinTimeWindow = !reqStart.isBefore(availStart) &&
+                    !reqEnd.isAfter(availEnd);
+
+            long appointmentMinutes = Duration.between(reqStart, reqEnd).toMinutes();
+
+            boolean validSlotMultiple = appointmentMinutes > 0 &&
+                    appointmentMinutes % a.getSlotMinutes() == 0;
+
+            if (withinTimeWindow && validSlotMultiple) {
+                insideAvailability = true;
+                break;
+            }
+        }
 
         if (!insideAvailability)
             throw new RuntimeException("Appointment time outside doctor availability");
@@ -141,6 +152,16 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointments = appointmentRepository.findByPatientIdAndStatus(currentUserId, AppointmentStatus.SCHEDULED);
         else
             throw new RuntimeException("Access Denied");
+
+        return appointments.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AppointmentResponse> getAppointments() {
+
+        List<Appointment> appointments = appointmentRepository.findAll();
 
         return appointments.stream()
                 .map(this::mapToResponse)

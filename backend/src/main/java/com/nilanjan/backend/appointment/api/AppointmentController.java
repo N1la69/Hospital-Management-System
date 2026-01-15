@@ -31,6 +31,12 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.bookAppointment(request));
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<List<AppointmentResponse>> getAppointments() {
+        return ResponseEntity.ok(appointmentService.getAppointments());
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
     public ResponseEntity<AppointmentResponse> getById(@PathVariable String id) {

@@ -3,9 +3,7 @@ package com.nilanjan.backend.doctor.availability.application;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,36 +28,34 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         @Override
         public DoctorAvailabilityResponse addAvailability(CreateAvailabilityRequest request) {
 
-                ZoneId zone = ZoneId.systemDefault();
+                // ZoneId zone = ZoneId.systemDefault();
 
-                LocalTime startLocal = request.startTime()
-                                .atZone(zone)
-                                .toLocalTime();
+                // LocalTime startLocal = request.startTime()
+                // .atZone(zone)
+                // .toLocalTime();
 
-                LocalTime endLocal = request.endTime()
-                                .atZone(zone)
-                                .toLocalTime();
+                // LocalTime endLocal = request.endTime()
+                // .atZone(zone)
+                // .toLocalTime();
 
-                Instant start = startLocal
-                                .atDate(LocalDate.of(1970, 1, 5))
-                                .atZone(zone)
-                                .toInstant();
+                // Instant start = startLocal
+                // .atDate(LocalDate.of(1970, 1, 5))
+                // .atZone(zone)
+                // .toInstant();
 
-                Instant end = endLocal
-                                .atDate(LocalDate.of(1970, 1, 5))
-                                .atZone(zone)
-                                .toInstant();
+                // Instant end = endLocal
+                // .atDate(LocalDate.of(1970, 1, 5))
+                // .atZone(zone)
+                // .toInstant();
 
-                System.out.println("REQUEST start=" + start);
-                System.out.println("REQUEST end=" + end);
-                System.out.println("slotMinutes=" + request.slotMinutes());
+                Instant start = request.startTime();
+                Instant end = request.endTime();
 
                 if (!start.isBefore(end))
                         throw new RuntimeException("Start time must be before end time");
 
                 DayOfWeek actualDay = start
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
+                                .atZone(ZoneOffset.UTC)
                                 .getDayOfWeek();
 
                 if (actualDay != request.dayOfWeek()) {

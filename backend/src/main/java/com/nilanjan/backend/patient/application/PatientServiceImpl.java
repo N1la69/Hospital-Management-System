@@ -15,6 +15,7 @@ import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
+import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
@@ -115,6 +116,16 @@ public class PatientServiceImpl implements PatientService {
                 .toList();
 
         return new PageResponse<>(items, result.total(), page, size);
+    }
+
+    @Override
+    public List<SimpleOption> patientOptions() {
+
+        return patientRepository.findAll().stream()
+                .map(p -> new SimpleOption(
+                        p.getId().toHexString(),
+                        p.getFirstName() + " " + p.getLastName()))
+                .toList();
     }
 
     private PatientResponse mapToResponse(Patient patient) {

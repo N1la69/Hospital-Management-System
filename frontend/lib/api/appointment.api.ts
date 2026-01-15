@@ -15,6 +15,11 @@ export const bookAppointments = async (
   await api.post("/api/appointments", payload);
 };
 
+export const fetchMyAppointments = async (): Promise<AppointmentResponse[]> => {
+  const res = await api.get("/api/appointments/my");
+  return res.data;
+};
+
 export const checkInAppointment = async (id: string) => {
   await api.post(`/api/appointments/${id}/check-in`);
 };

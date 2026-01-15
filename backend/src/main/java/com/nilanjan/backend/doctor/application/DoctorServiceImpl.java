@@ -15,6 +15,7 @@ import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
+import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
@@ -106,6 +107,16 @@ public class DoctorServiceImpl implements DoctorService {
                 .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
         return mapToResponse(doctor);
+    }
+
+    @Override
+    public List<SimpleOption> doctorOptions() {
+        return doctorRepository.findAll()
+                .stream()
+                .map(d -> new SimpleOption(
+                        d.getId().toHexString(),
+                        d.getFirstName() + " " + d.getLastName()))
+                .toList();
     }
 
     private DoctorResponse mapToResponse(Doctor doctor) {

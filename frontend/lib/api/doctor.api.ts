@@ -4,6 +4,7 @@ import {
   DoctorSearchFilter,
 } from "@/types/doctor";
 import api from "../utils/axios";
+import { SimpleOption } from "@/types/options";
 
 export const fetchDoctors = async (): Promise<DoctorResponse[]> => {
   const res = await api.get<DoctorResponse[]>("/api/doctors");
@@ -30,5 +31,10 @@ export const searchDoctors = async (
     `/api/doctors/search?page=${page}&size=${size}`,
     filter
   );
+  return res.data;
+};
+
+export const fetchDoctorOptions = async (): Promise<SimpleOption[]> => {
+  const res = await api.get<SimpleOption[]>("/api/doctors/options");
   return res.data;
 };

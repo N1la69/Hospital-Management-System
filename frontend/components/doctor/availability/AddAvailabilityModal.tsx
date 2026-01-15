@@ -29,6 +29,46 @@ const DAY_INDEX: Record<string, number> = {
   SUNDAY: 7,
 };
 
+const DAY_TO_JS_INDEX: Record<string, number> = {
+  SUNDAY: 0,
+  MONDAY: 1,
+  TUESDAY: 2,
+  WEDNESDAY: 3,
+  THURSDAY: 4,
+  FRIDAY: 5,
+  SATURDAY: 6,
+};
+
+function buildISOFromLocal(day: string, time: string) {
+  const today = new Date();
+
+  const dayMap: Record<string, number> = {
+    SUNDAY: 0,
+    MONDAY: 1,
+    TUESDAY: 2,
+    WEDNESDAY: 3,
+    THURSDAY: 4,
+    FRIDAY: 5,
+    SATURDAY: 6,
+  };
+
+  const target = dayMap[day];
+  const current = today.getDay();
+
+  let diff = target - current;
+  if (diff <= 0) diff += 7;
+
+  const date = new Date(today);
+  date.setDate(today.getDate() + diff);
+
+  const [h, m] = time.split(":").map(Number);
+
+  // 👇 IMPORTANT: local time
+  date.setHours(h, m, 0, 0);
+
+  return date.toISOString(); // converted to UTC automatically
+}
+
 const SLOT_OPTIONS = [15, 30, 60];
 
 const inputClass =
@@ -62,16 +102,42 @@ const AddAvailabilityModal = ({
       return;
     }
 
-    const [sh, sm] = startTime.split(":").map(Number);
-    const [eh, em] = endTime.split(":").map(Number);
+    // const targetDayIndex = DAY_TO_JS_INDEX[day];
+    // const today = new Date();
 
-    const startDate = new Date(1970, 0, 4 + dayOffset, sh, sm);
-    const endDate = new Date(1970, 0, 4 + dayOffset, eh, em);
+    // const todayUtcDay = today.getUTCDay();
 
-    const startIso = startDate.toISOString();
-    const endIso = endDate.toISOString();
+    // let diff = targetDayIndex - todayUtcDay;
+    // if (diff <= 0) diff += 7;
+
+    // // base date in UTC
+    // const baseUtc = new Date(
+    //   Date.UTC(
+    //     today.getUTCFullYear(),
+    //     today.getUTCMonth(),
+    //     today.getUTCDate() + diff,
+    //     0,
+    //     0,
+    //     0,
+    //     0
+    //   )
+    // );
+
+    // const [sh, sm] = startTime.split(":").map(Number);
+    // const [eh, em] = endTime.split(":").map(Number);
+
+    // const startDate = new Date(baseUtc);
+    // startDate.setUTCHours(sh, sm, 0, 0);
+
+    // const endDate = new Date(baseUtc);
+    // endDate.setUTCHours(eh, em, 0, 0);
+
+    const startIso = buildISOFromLocal(day, startTime);
+    const endIso = buildISOFromLocal(day, endTime);
 
     setLoading(true);
+    // console.log("UTC:", startDate.toISOString());
+    // console.log("UTC Day:", new Date(startIso).getUTCDay());
 
     try {
       await createAvailability({

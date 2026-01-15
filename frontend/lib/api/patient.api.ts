@@ -4,6 +4,7 @@ import {
   PatientSearchFilter,
 } from "@/types/patient";
 import api from "../utils/axios";
+import { SimpleOption } from "@/types/options";
 
 export const fetchPatients = async (): Promise<PatientResponse[]> => {
   const res = await api.get<PatientResponse[]>("/api/patients");
@@ -25,5 +26,10 @@ export const searchPatients = async (
     `/api/patients/search?page=${page}&size=${size}`,
     filter
   );
+  return res.data;
+};
+
+export const fetchPatientOptions = async (): Promise<SimpleOption[]> => {
+  const res = await api.get<SimpleOption[]>("/api/patients/options");
   return res.data;
 };

@@ -1,33 +1,59 @@
+"use client";
+
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import StatCard from "@/components/ui/StatCard";
+import { fetchMyAppointments } from "@/lib/api/appointment.api";
 import { doctorMenu } from "@/lib/constants/sidebarMenus";
+import { formatInstantToLocalTime } from "@/lib/utils/time";
+import { AppointmentResponse } from "@/types/appointment";
+import { useEffect, useMemo, useState } from "react";
 
-const stats = {
-  todayAppointments: 8,
-  totalPatients: 124,
-  pendingReports: 3,
-  upcomingSurgeries: 2,
-};
-
-const todayAppointments = [
-  { time: "10:00 AM", patient: "Rohit Sharma", type: "Consultation" },
-  { time: "11:30 AM", patient: "Anita Verma", type: "Follow-up" },
-  { time: "02:00 PM", patient: "Suresh Kumar", type: "New Patient" },
-];
+function toUTCDateString(iso: string) {
+  const d = new Date(iso);
+  return new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+  ).toDateString();
+}
 
 const DoctorDashboard = () => {
+  const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const todayUTC = new Date().toISOString().slice(0, 10);
+
+  useEffect(() => {
+    fetchMyAppointments()
+      .then(setAppointments)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const todayAppointments = useMemo(
+    () =>
+      appointments.filter((a) => a.scheduledStart.slice(0, 10) === todayUTC),
+    [appointments]
+  );
+
+  const stats = {
+    todayAppointments: todayAppointments.length,
+    totalPatients: new Set(appointments.map((a) => a.patientId)).size,
+    pendingReports: 0,
+    upcomingSurgeries: 0,
+  };
+
   return (
     <DashboardLayout title="Doctor Dashboard" menuItems={doctorMenu}>
       {/* HEADER */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-slate-800">
-          Welcome back, Dr. John 👋
+          Welcome back, Doctor 👋
         </h2>
         <p className="text-sm text-slate-500 mt-1">
           Here&apos;s an overview of your activities today.
         </p>
       </div>
 
+      {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
           title="Today's Appointments"
@@ -47,6 +73,12 @@ const DoctorDashboard = () => {
             </h3>
           </div>
 
+          {loading && <p className="p-4 text-sm text-slate-500">Loading...</p>}
+
+          {!loading && todayAppointments.length === 0 && (
+            <p className="p-4 text-sm text-slate-500">No appointments today</p>
+          )}
+
           <div className="divide-y">
             {todayAppointments.map((a, idx) => (
               <div
@@ -54,10 +86,14 @@ const DoctorDashboard = () => {
                 className="flex items-center justify-between px-5 py-3 text-sm"
               >
                 <div>
-                  <p className="font-medium text-slate-800">{a.patient}</p>
-                  <p className="text-slate-500">{a.type}</p>
+                  <p className="font-medium text-slate-800">
+                    Patiend ID: {a.patientId}
+                  </p>
+                  <p className="text-slate-500">{a.status}</p>
                 </div>
-                <span className="text-blue-700 font-medium">{a.time}</span>
+                <span className="text-blue-700 font-medium">
+                  {formatInstantToLocalTime(a.scheduledStart)}
+                </span>
               </div>
             ))}
           </div>

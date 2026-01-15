@@ -4,6 +4,9 @@ import api from "@/lib/utils/axios";
 import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import { bookAppointments } from "@/lib/api/appointment.api";
+import { fetchPatientOptions, fetchPatients } from "@/lib/api/patient.api";
+import { PatientResponse } from "@/types/patient";
+import { fetchDoctorOptions } from "@/lib/api/doctor.api";
 
 interface Props {
   open: boolean;
@@ -31,23 +34,9 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
   useEffect(() => {
     if (!open) return;
 
-    api.get("/api/patients").then((res) =>
-      setPatients(
-        res.data.map((p: any) => ({
-          id: p.id,
-          name: p.fullName,
-        }))
-      )
-    );
+    fetchPatientOptions().then(setPatients).catch(console.error);
 
-    api.get("/api/doctors").then((res) =>
-      setDoctors(
-        res.data.map((d: any) => ({
-          id: d.id,
-          name: d.fullName,
-        }))
-      )
-    );
+    fetchDoctorOptions().then(setDoctors).catch(console.error);
   }, [open]);
 
   const submit = async () => {

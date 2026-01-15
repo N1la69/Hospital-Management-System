@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
@@ -51,6 +52,12 @@ public class DoctorController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(doctorService.advancedSearch(filter, page, size));
+    }
+
+    @GetMapping("/options")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<List<SimpleOption>> doctorOptions() {
+        return ResponseEntity.ok(doctorService.doctorOptions());
     }
 
     @GetMapping

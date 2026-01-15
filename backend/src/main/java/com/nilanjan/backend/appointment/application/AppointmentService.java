@@ -13,6 +13,8 @@ public interface AppointmentService {
 
     List<AppointmentResponse> getMyAppointments();
 
+    List<AppointmentResponse> getAppointments();
+
     void checkInAppointment(String appointmentId);
 
     void startAppointment(String appointmentId);
