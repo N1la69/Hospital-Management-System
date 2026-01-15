@@ -19,26 +19,6 @@ interface Props {
   onSuccess: () => void;
 }
 
-const DAY_INDEX: Record<string, number> = {
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-  SUNDAY: 7,
-};
-
-const DAY_TO_JS_INDEX: Record<string, number> = {
-  SUNDAY: 0,
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-};
-
 function buildISOFromLocal(day: string, time: string) {
   const today = new Date();
 
@@ -87,8 +67,6 @@ const AddAvailabilityModal = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const dayOffset = DAY_INDEX[day];
-
   const submit = async () => {
     setError(null);
 
@@ -102,42 +80,10 @@ const AddAvailabilityModal = ({
       return;
     }
 
-    // const targetDayIndex = DAY_TO_JS_INDEX[day];
-    // const today = new Date();
-
-    // const todayUtcDay = today.getUTCDay();
-
-    // let diff = targetDayIndex - todayUtcDay;
-    // if (diff <= 0) diff += 7;
-
-    // // base date in UTC
-    // const baseUtc = new Date(
-    //   Date.UTC(
-    //     today.getUTCFullYear(),
-    //     today.getUTCMonth(),
-    //     today.getUTCDate() + diff,
-    //     0,
-    //     0,
-    //     0,
-    //     0
-    //   )
-    // );
-
-    // const [sh, sm] = startTime.split(":").map(Number);
-    // const [eh, em] = endTime.split(":").map(Number);
-
-    // const startDate = new Date(baseUtc);
-    // startDate.setUTCHours(sh, sm, 0, 0);
-
-    // const endDate = new Date(baseUtc);
-    // endDate.setUTCHours(eh, em, 0, 0);
-
     const startIso = buildISOFromLocal(day, startTime);
     const endIso = buildISOFromLocal(day, endTime);
 
     setLoading(true);
-    // console.log("UTC:", startDate.toISOString());
-    // console.log("UTC Day:", new Date(startIso).getUTCDay());
 
     try {
       await createAvailability({

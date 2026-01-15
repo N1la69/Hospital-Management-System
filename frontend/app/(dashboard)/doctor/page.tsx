@@ -4,22 +4,24 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import StatCard from "@/components/ui/StatCard";
 import { fetchMyAppointments } from "@/lib/api/appointment.api";
 import { doctorMenu } from "@/lib/constants/sidebarMenus";
-import { formatInstantToLocalTime } from "@/lib/utils/time";
+import {
+  formatInstantToLocalTime,
+  getLocalDateStringFromInstant,
+} from "@/lib/utils/time";
 import { AppointmentResponse } from "@/types/appointment";
 import { useEffect, useMemo, useState } from "react";
-
-function toUTCDateString(iso: string) {
-  const d = new Date(iso);
-  return new Date(
-    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
-  ).toDateString();
-}
 
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const todayUTC = new Date().toISOString().slice(0, 10);
+  const todayLocal = (() => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  })();
 
   useEffect(() => {
     fetchMyAppointments()
@@ -30,8 +32,15 @@ const DoctorDashboard = () => {
 
   const todayAppointments = useMemo(
     () =>
-      appointments.filter((a) => a.scheduledStart.slice(0, 10) === todayUTC),
-    [appointments]
+      appointments.filter(
+        (a) => getLocalDateStringFromInstant(a.scheduledStart) === todayLocal
+      ),
+    [appointments, todayLocal]
+  );
+
+  console.log("TODAY LOCAL =", todayLocal);
+  appointments.forEach((a) =>
+    console.log("APPT LOCAL =", getLocalDateStringFromInstant(a.scheduledStart))
   );
 
   const stats = {

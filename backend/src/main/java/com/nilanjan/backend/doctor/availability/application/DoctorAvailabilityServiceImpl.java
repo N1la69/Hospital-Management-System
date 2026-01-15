@@ -28,26 +28,6 @@ public class DoctorAvailabilityServiceImpl implements DoctorAvailabilityService 
         @Override
         public DoctorAvailabilityResponse addAvailability(CreateAvailabilityRequest request) {
 
-                // ZoneId zone = ZoneId.systemDefault();
-
-                // LocalTime startLocal = request.startTime()
-                // .atZone(zone)
-                // .toLocalTime();
-
-                // LocalTime endLocal = request.endTime()
-                // .atZone(zone)
-                // .toLocalTime();
-
-                // Instant start = startLocal
-                // .atDate(LocalDate.of(1970, 1, 5))
-                // .atZone(zone)
-                // .toInstant();
-
-                // Instant end = endLocal
-                // .atDate(LocalDate.of(1970, 1, 5))
-                // .atZone(zone)
-                // .toInstant();
-
                 Instant start = request.startTime();
                 Instant end = request.endTime();
 

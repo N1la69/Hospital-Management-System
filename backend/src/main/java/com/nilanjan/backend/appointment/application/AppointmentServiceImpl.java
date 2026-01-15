@@ -20,6 +20,7 @@ import com.nilanjan.backend.appointment.event.AppointmentBookedEvent;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
 import com.nilanjan.backend.doctor.availability.domain.DoctorAvailability;
 import com.nilanjan.backend.doctor.availability.repository.DoctorAvailabilityRepository;
+import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.patient.repository.PatientRepository;
 import com.nilanjan.backend.security.SecurityUtil;
@@ -146,9 +147,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         ObjectId currentUserId = SecurityUtil.currentUserId();
         List<Appointment> appointments;
 
-        if (SecurityUtil.hasRole("DOCTOR"))
-            appointments = appointmentRepository.findByDoctorIdAndStatus(currentUserId, AppointmentStatus.SCHEDULED);
-        else if (SecurityUtil.hasRole("PATIENT"))
+        if (SecurityUtil.hasRole("DOCTOR")) {
+            Doctor doctor = doctorRepository.findByLinkedUserId(currentUserId)
+                    .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+            appointments = appointmentRepository.findByDoctorIdAndStatus(doctor.getId(), AppointmentStatus.SCHEDULED);
+        } else if (SecurityUtil.hasRole("PATIENT"))
             appointments = appointmentRepository.findByPatientIdAndStatus(currentUserId, AppointmentStatus.SCHEDULED);
         else
             throw new RuntimeException("Access Denied");
