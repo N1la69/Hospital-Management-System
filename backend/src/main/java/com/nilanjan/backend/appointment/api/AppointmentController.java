@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
+import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CancelAppointmentRequest;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
 import com.nilanjan.backend.appointment.application.AppointmentService;
+import com.nilanjan.backend.common.dto.PageResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +44,16 @@ public class AppointmentController {
     @PreAuthorize("hasAnyRole('DOCTOR','PATIENT')")
     public ResponseEntity<List<AppointmentResponse>> myAppointments() {
         return ResponseEntity.ok(appointmentService.getMyAppointments());
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','DOCTOR')")
+    public ResponseEntity<PageResponse<AppointmentResponse>> search(
+            @RequestBody AppointmentSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(appointmentService.advancedSearch(filter, page, size));
     }
 
     @PostMapping("/{id}/check-in")

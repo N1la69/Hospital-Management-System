@@ -23,3 +23,21 @@ export interface CreateAppointmentRequest {
   scheduledEnd: string;
   reason: string;
 }
+
+export interface AppointmentSearchFilter {
+  appointmentCode?: string;
+  patientName?: string;
+  doctorName?: string;
+  status?: AppointmentStatus;
+  fromTime?: string;
+  toTime?: string;
+  day?:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY";
+  date?: string;
+}

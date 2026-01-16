@@ -3,7 +3,9 @@ package com.nilanjan.backend.appointment.application;
 import java.util.List;
 
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
+import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
+import com.nilanjan.backend.common.dto.PageResponse;
 
 public interface AppointmentService {
 
@@ -12,6 +14,8 @@ public interface AppointmentService {
     List<AppointmentResponse> getMyAppointments();
 
     List<AppointmentResponse> getAppointments();
+
+    PageResponse<AppointmentResponse> advancedSearch(AppointmentSearchFilter filter, int page, int size);
 
     void checkInAppointment(String appointmentId);
 

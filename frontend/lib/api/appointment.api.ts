@@ -1,5 +1,6 @@
 import {
   AppointmentResponse,
+  AppointmentSearchFilter,
   CreateAppointmentRequest,
 } from "@/types/appointment";
 import api from "../utils/axios";
@@ -17,6 +18,18 @@ export const bookAppointments = async (
 
 export const fetchMyAppointments = async (): Promise<AppointmentResponse[]> => {
   const res = await api.get("/api/appointments/my");
+  return res.data;
+};
+
+export const searchAppointments = async (
+  filter: AppointmentSearchFilter,
+  page: number,
+  size: number
+) => {
+  const res = await api.post(
+    `/api/appointments/search?page=${page}&size=${size}`,
+    filter
+  );
   return res.data;
 };
 

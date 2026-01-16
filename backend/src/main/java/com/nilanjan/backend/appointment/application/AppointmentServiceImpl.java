@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
@@ -13,15 +14,19 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
+import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
 import com.nilanjan.backend.appointment.domain.Appointment;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.appointment.event.AppointmentBookedEvent;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
+import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.doctor.availability.domain.DoctorAvailability;
 import com.nilanjan.backend.doctor.availability.repository.DoctorAvailabilityRepository;
 import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
+import com.nilanjan.backend.patient.domain.Patient;
 import com.nilanjan.backend.patient.repository.PatientRepository;
 import com.nilanjan.backend.security.SecurityUtil;
 
@@ -150,6 +155,36 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointments.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PageResponse<AppointmentResponse> advancedSearch(AppointmentSearchFilter filter, int page, int size) {
+
+        Set<ObjectId> patientIds = null;
+        Set<ObjectId> doctorIds = null;
+
+        if (filter.patientName() != null && !filter.patientName().isBlank()) {
+            patientIds = patientRepository.searchByName(filter.patientName())
+                    .stream().map(Patient::getId).collect(Collectors.toSet());
+
+            if (patientIds.isEmpty())
+                return new PageResponse<>(List.of(), 0, page, size);
+        }
+
+        if (filter.doctorName() != null && !filter.doctorName().isBlank()) {
+            doctorIds = doctorRepository.searchByName(filter.doctorName())
+                    .stream().map(Doctor::getId).collect(Collectors.toSet());
+
+            if (doctorIds.isEmpty())
+                return new PageResponse<>(List.of(), 0, page, size);
+        }
+
+        PageResult<Appointment> result = appointmentRepository.search(filter, page, size, patientIds, doctorIds);
+
+        List<AppointmentResponse> items = result.data()
+                .stream().map(this::mapToResponse).toList();
+
+        return new PageResponse<>(items, result.total(), page, size);
     }
 
     @Override
