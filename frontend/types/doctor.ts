@@ -40,6 +40,14 @@ export interface DoctorSearchFilter {
     | "DERMATOLOGY"
     | "PSYCHIATRY";
   status?: "ACTIVE" | "INACTIVE" | "ON_LEAVE";
+  availableDay?:
+    | "MONDAY"
+    | "TUESDAY"
+    | "WEDNESDAY"
+    | "THURSDAY"
+    | "FRIDAY"
+    | "SATURDAY"
+    | "SUNDAY";
   qualification?: string;
   experienceYears?: number;
 }

@@ -142,6 +142,21 @@ const AdminDoctorsPage = () => {
             <option value="DECEASED">ON_LEAVE</option>
           </select>
 
+          <select
+            onChange={(e) =>
+              setFilters({ ...filters, availableDay: e.target.value as any })
+            }
+          >
+            <option value="">Available Day</option>
+            <option value="MONDAY">Monday</option>
+            <option value="TUESDAY">Tuesday</option>
+            <option value="WEDNESDAY">Wednesday</option>
+            <option value="THURSDAY">Thursday</option>
+            <option value="FRIDAY">Friday</option>
+            <option value="SATURDAY">Saturday</option>
+            <option value="SUNDAY">Sunday</option>
+          </select>
+
           <div className="col-span-full flex gap-2">
             <button
               onClick={() => handleSearch()}
