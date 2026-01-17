@@ -45,6 +45,9 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
     const startIso = new Date(`${date}T${startTime}:00`).toISOString();
     const endIso = new Date(`${date}T${endTime}:00`).toISOString();
 
+    console.log("Booked appointment Start Time: ", startIso);
+    console.log("Booked appointment End Time: ", endIso);
+
     setLoading(true);
 
     try {

@@ -27,6 +27,23 @@ const AdminAppointmentsPage = () => {
   const [total, setTotal] = useState(0);
   const pageSize = 10;
 
+  function timeToInstant(time: string, baseDateISO: string) {
+    const base = new Date(baseDateISO);
+    const [h, m] = time.split(":").map(Number);
+
+    const localDateTime = new Date(
+      base.getFullYear(),
+      base.getMonth(),
+      base.getDate(),
+      h,
+      m,
+      0,
+      0
+    );
+
+    return localDateTime.toISOString();
+  }
+
   const loadAllAppointments = () => {
     handleSearch(0);
   };
@@ -40,18 +57,22 @@ const AdminAppointmentsPage = () => {
         payload.appointmentCode = searchText;
       }
 
+      const baseDate = filters.date ?? new Date().toISOString();
+
+      if (filters.fromTime)
+        payload.fromTime = timeToInstant(filters.fromTime, baseDate);
+
+      if (filters.toTime)
+        payload.toTime = timeToInstant(filters.toTime, baseDate);
+
+      console.log("Appointment Search FromTime:", payload.fromTime);
+      console.log("Appointment Search ToTime:", payload.toTime);
+
       const result = await searchAppointments(payload, pageNo, pageSize);
 
       setAppointments(result.items);
       setTotal(result.total);
       setPage(pageNo);
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to search appointments";
-      alert(message);
-      console.log(message);
     } finally {
       setLoading(false);
     }

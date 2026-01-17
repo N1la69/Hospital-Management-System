@@ -83,6 +83,9 @@ const AddAvailabilityModal = ({
     const startIso = buildISOFromLocal(day, startTime);
     const endIso = buildISOFromLocal(day, endTime);
 
+    console.log("Doctor Availability Start Time: ", startIso);
+    console.log("Doctor Availability End Time: ", endIso);
+
     setLoading(true);
 
     try {

@@ -45,8 +45,15 @@ public class AppointmentSearchRepositoryImpl implements AppointmentSearchReposit
             criteriaList.add(Criteria.where("doctorId").in(doctorIds));
         }
 
-        if (filter.fromTime() != null || filter.toTime() != null) {
+        if (filter.date() != null || filter.fromTime() != null || filter.toTime() != null) {
             Criteria timeCriteria = Criteria.where("scheduledStart");
+
+            if (filter.date() != null) {
+                Instant startOfDay = filter.date().truncatedTo(java.time.temporal.ChronoUnit.DAYS);
+                Instant endOfDay = startOfDay.plus(1, java.time.temporal.ChronoUnit.DAYS);
+
+                timeCriteria = timeCriteria.gte(startOfDay).lt(endOfDay);
+            }
 
             if (filter.fromTime() != null)
                 timeCriteria = timeCriteria.gte(filter.fromTime());
@@ -55,20 +62,6 @@ public class AppointmentSearchRepositoryImpl implements AppointmentSearchReposit
                 timeCriteria = timeCriteria.lte(filter.toTime());
 
             criteriaList.add(timeCriteria);
-        }
-
-        if (filter.date() != null) {
-            Instant start = filter.date().truncatedTo(java.time.temporal.ChronoUnit.DAYS);
-            Instant end = start.plus(1, java.time.temporal.ChronoUnit.DAYS);
-
-            criteriaList.add(
-                    Criteria.where("scheduledStart").gte(start).lt(end));
-        }
-
-        if (filter.day() != null) {
-            criteriaList.add(
-                    Criteria.where("scheduledStart").gte(
-                            filter.day().getValue()));
         }
 
         Query query = new Query();

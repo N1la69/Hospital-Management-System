@@ -181,10 +181,31 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         PageResult<Appointment> result = appointmentRepository.search(filter, page, size, patientIds, doctorIds);
 
-        List<AppointmentResponse> items = result.data()
-                .stream().map(this::mapToResponse).toList();
+        List<Appointment> data = result.data();
 
-        return new PageResponse<>(items, result.total(), page, size);
+        if (filter.day() != null) {
+            System.out.println("Applying DayOfWeek filter = " + filter.day());
+
+            data = data.stream()
+                    .filter(a -> {
+                        DayOfWeek d = a.getScheduledStart().atZone(ZoneOffset.UTC).getDayOfWeek();
+
+                        System.out.println("Appointment " + a.getAppointmentCode()
+                                + " -> UTC Day = " + d);
+
+                        return d.equals(filter.day());
+                    }).toList();
+        }
+
+        long total = data.size();
+        int from = Math.min(page * size, data.size());
+        int to = Math.min(from + size, data.size());
+
+        List<Appointment> pageData = data.subList(from, to);
+
+        List<AppointmentResponse> items = pageData.stream().map(this::mapToResponse).toList();
+
+        return new PageResponse<>(items, total, page, size);
     }
 
     @Override
