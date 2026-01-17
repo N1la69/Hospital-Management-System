@@ -10,7 +10,9 @@ export interface AppointmentResponse {
   id: string;
   appointmentCode: string;
   patientId: string;
+  patientName: string;
   doctorId: string;
+  doctorName: string;
   scheduledStart: string;
   scheduledEnd: string;
   status: AppointmentStatus;

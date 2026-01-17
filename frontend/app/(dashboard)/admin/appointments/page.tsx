@@ -7,6 +7,7 @@ import {
   searchAppointments,
 } from "@/lib/api/appointment.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
+import { formatAppointmentDate, formatLocalTimeRange } from "@/lib/utils/time";
 import {
   AppointmentResponse,
   AppointmentSearchFilter,
@@ -38,7 +39,7 @@ const AdminAppointmentsPage = () => {
       h,
       m,
       0,
-      0
+      0,
     );
 
     return localDateTime.toISOString();
@@ -235,30 +236,76 @@ const AdminAppointmentsPage = () => {
         </div>
       )}
 
-      {loading && <p>Loading appointments...</p>}
+      {/* TABLE */}
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+        {loading && (
+          <div className="p-6 text-sm text-slate-500">
+            Loading appointments...
+          </div>
+        )}
 
-      {!loading && appointments.length === 0 && <p>No appointments found.</p>}
+        {!loading && appointments.length === 0 && (
+          <div className="p-6 text-sm text-slate-500">
+            No appointments found.
+          </div>
+        )}
 
-      {!loading && appointments.length > 0 && (
-        <table className="w-full bg-white border">
-          <thead>
-            <tr className="border-b">
-              <th className="p-2">Code</th>
-              <th className="p-2">Patient Name</th>
-              <th className="p-2">Doctor Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appointments.map((appointment) => (
-              <tr className="border-b" key={appointment.id}>
-                <td className="p-2">{appointment.appointmentCode}</td>
-                <td className="p-2">{appointment.patientId}</td>
-                <td className="p-2">{appointment.doctorId}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        {!loading && appointments.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 border-b">
+                <tr className="text-left text-slate-600">
+                  <th className="px-4 py-3 font-medium">Code</th>
+                  <th className="px-4 py-3 font-medium">Appointment Date</th>
+                  <th className="px-4 py-3 font-medium">Appointment Time</th>
+                  <th className="px-4 py-3 font-medium">Patient Name</th>
+                  <th className="px-4 py-3 font-medium">Doctor Name</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {appointments.map((appointment) => (
+                  <tr
+                    className="border-b last:border-b-0 hover:bg-slate-50 transition"
+                    key={appointment.id}
+                  >
+                    <td className="px-4 py-3 text-slate-700">
+                      {appointment.appointmentCode}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {formatAppointmentDate(appointment.scheduledStart)}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {formatLocalTimeRange(
+                        appointment.scheduledStart,
+                        appointment.scheduledEnd,
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {appointment.patientName}
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {appointment.doctorName}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                          appointment.status === "SCHEDULED"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {appointment.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* PAGINATION */}
       {Math.ceil(total / pageSize) > 1 && (

@@ -298,11 +298,22 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     private AppointmentResponse mapToResponse(Appointment appointment) {
+
+        String patientName = patientRepository.findById(appointment.getPatientId())
+                .map(p -> p.getFirstName() + " " + p.getLastName())
+                .orElse("Unknown Patient");
+
+        String doctorName = doctorRepository.findById(appointment.getDoctorId())
+                .map(d -> d.getFirstName() + " " + d.getLastName())
+                .orElse("Unknown Doctor");
+
         return new AppointmentResponse(
                 appointment.getId().toHexString(),
                 appointment.getAppointmentCode(),
                 appointment.getPatientId().toHexString(),
+                patientName,
                 appointment.getDoctorId().toHexString(),
+                doctorName,
                 appointment.getScheduledStart(),
                 appointment.getScheduledEnd(),
                 appointment.getStatus());
