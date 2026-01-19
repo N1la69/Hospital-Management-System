@@ -125,65 +125,108 @@ const AdminPatientsPage = () => {
 
       {/* FILTER PANEL */}
       {showFilters && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border p-4 rounded-xl mb-4">
-          <select
-            onChange={(e) =>
-              setFilters({ ...filters, bloodGroup: e.target.value as any })
-            }
-          >
-            <option value="">Blood Group</option>
-            <option value="A_POS">A+</option>
-            <option value="A_NEG">A-</option>
-            <option value="B_POS">B+</option>
-            <option value="B_NEG">B-</option>
-            <option value="O_POS">O+</option>
-            <option value="O_NEG">O-</option>
-            <option value="AB_POS">AB+</option>
-            <option value="AB_NEG">AB-</option>
-          </select>
+        <div className="bg-white border rounded-xl p-5 mb-4 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-800 mb-4">
+            Filter Patients
+          </h3>
 
-          <select
-            onChange={(e) =>
-              setFilters({ ...filters, status: e.target.value as any })
-            }
-          >
-            <option value="">Status</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="DECEASED">DECEASED</option>
-          </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Blood Group
+              </label>
+              <select
+                onChange={(e) =>
+                  setFilters({ ...filters, bloodGroup: e.target.value as any })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">All</option>
+                <option value="A_POS">A+</option>
+                <option value="A_NEG">A-</option>
+                <option value="B_POS">B+</option>
+                <option value="B_NEG">B-</option>
+                <option value="O_POS">O+</option>
+                <option value="O_NEG">O-</option>
+                <option value="AB_POS">AB+</option>
+                <option value="AB_NEG">AB-</option>
+              </select>
+            </div>
 
-          <select
-            onChange={(e) =>
-              setFilters({ ...filters, gender: e.target.value as any })
-            }
-          >
-            <option value="">Gender</option>
-            <option value="MALE">MALE</option>
-            <option value="FEMALE">FEMALE</option>
-            <option value="OTHER">OTHER</option>
-          </select>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Status
+              </label>
+              <select
+                onChange={(e) =>
+                  setFilters({ ...filters, status: e.target.value as any })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">All</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="INACTIVE">INACTIVE</option>
+                <option value="DECEASED">DECEASED</option>
+              </select>
+            </div>
 
-          <input
-            type="date"
-            onChange={(e) =>
-              setFilters({ ...filters, dobFrom: e.target.value })
-            }
-          />
-          <input
-            type="date"
-            onChange={(e) => setFilters({ ...filters, dobTo: e.target.value })}
-          />
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Gender
+              </label>
+              <select
+                onChange={(e) =>
+                  setFilters({ ...filters, gender: e.target.value as any })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">All</option>
+                <option value="MALE">MALE</option>
+                <option value="FEMALE">FEMALE</option>
+                <option value="OTHER">OTHER</option>
+              </select>
+            </div>
 
-          <div className="col-span-full flex gap-2">
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                DOB From
+              </label>
+              <input
+                type="date"
+                onChange={(e) =>
+                  setFilters({ ...filters, dobFrom: e.target.value })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                DOB To
+              </label>
+              <input
+                type="date"
+                onChange={(e) =>
+                  setFilters({ ...filters, dobTo: e.target.value })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-5">
             <button
-              onClick={() => handleSearch()}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              onClick={clearFilters}
+              className="rounded-md border px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
             >
-              Apply
-            </button>
-            <button onClick={clearFilters} className="border px-4 py-2 rounded">
               Clear
+            </button>
+
+            <button
+              onClick={() => handleSearch(0)}
+              className="rounded-md bg-blue-700 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            >
+              Apply Filters
             </button>
           </div>
         </div>

@@ -125,6 +125,34 @@ const AdminAppointmentsPage = () => {
           </span>
         </div>
 
+        <div className="relative flex-1">
+          <input
+            onChange={(e) =>
+              setFilters({ ...filters, doctorName: e.target.value })
+            }
+            type="text"
+            placeholder="Search by doctor name..."
+            className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+          />
+          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
+            🔍
+          </span>
+        </div>
+
+        <div className="relative flex-1">
+          <input
+            onChange={(e) =>
+              setFilters({ ...filters, patientName: e.target.value })
+            }
+            type="text"
+            placeholder="Search by patient name..."
+            className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+          />
+          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
+            🔍
+          </span>
+        </div>
+
         <button
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
@@ -143,92 +171,103 @@ const AdminAppointmentsPage = () => {
       {/* FILTER PANEL */}
       {showFilters && (
         <div className="bg-white border rounded-xl p-5 mb-4 shadow-sm">
-          <h3 className="text-sm font-semibold mb-4">Filter Appointments</h3>
+          <h3 className="text-sm font-semibold text-slate-800 mb-4">
+            Filter Appointments
+          </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <input
-              placeholder="Patient Name"
-              onChange={(e) =>
-                setFilters({ ...filters, patientName: e.target.value })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            />
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Status
+              </label>
+              <select
+                onChange={(e) =>
+                  setFilters({ ...filters, status: e.target.value as any })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">All</option>
+                <option value="SCHEDULED">Scheduled</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
 
-            <input
-              placeholder="Doctor Name"
-              onChange={(e) =>
-                setFilters({ ...filters, doctorName: e.target.value })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            />
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Day of Week
+              </label>
+              <select
+                onChange={(e) =>
+                  setFilters({ ...filters, day: e.target.value as any })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">All</option>
+                <option value="MONDAY">Monday</option>
+                <option value="TUESDAY">Tuesday</option>
+                <option value="WEDNESDAY">Wednesday</option>
+                <option value="THURSDAY">Thursday</option>
+                <option value="FRIDAY">Friday</option>
+                <option value="SATURDAY">Saturday</option>
+                <option value="SUNDAY">Sunday</option>
+              </select>
+            </div>
 
-            <select
-              onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value as any })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            >
-              <option value="">Status</option>
-              <option value="SCHEDULED">Scheduled</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="CANCELLED">Cancelled</option>
-            </select>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Appointment Date
+              </label>
+              <input
+                type="date"
+                onChange={(e) =>
+                  setFilters({
+                    ...filters,
+                    date: new Date(e.target.value).toISOString(),
+                  })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
 
-            <select
-              onChange={(e) =>
-                setFilters({ ...filters, day: e.target.value as any })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            >
-              <option value="">Day</option>
-              <option value="MONDAY">Monday</option>
-              <option value="TUESDAY">Tuesday</option>
-              <option value="WEDNESDAY">Wednesday</option>
-              <option value="THURSDAY">Thursday</option>
-              <option value="FRIDAY">Friday</option>
-              <option value="SATURDAY">Saturday</option>
-              <option value="SUNDAY">Sunday</option>
-            </select>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Appointment Start Date
+              </label>
+              <input
+                type="time"
+                onChange={(e) =>
+                  setFilters({ ...filters, fromTime: e.target.value })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
 
-            <input
-              type="date"
-              onChange={(e) =>
-                setFilters({
-                  ...filters,
-                  date: new Date(e.target.value).toISOString(),
-                })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            />
-
-            <input
-              type="time"
-              onChange={(e) =>
-                setFilters({ ...filters, fromTime: e.target.value })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            />
-
-            <input
-              type="time"
-              onChange={(e) =>
-                setFilters({ ...filters, toTime: e.target.value })
-              }
-              className="border px-3 py-2 rounded text-sm"
-            />
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Appointment End Date
+              </label>
+              <input
+                type="time"
+                onChange={(e) =>
+                  setFilters({ ...filters, toTime: e.target.value })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 mt-5">
             <button
               onClick={clearFilters}
-              className="border px-4 py-2 rounded text-sm"
+              className="rounded-md border px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
             >
               Clear
             </button>
 
             <button
               onClick={() => handleSearch(0)}
-              className="bg-blue-700 text-white px-5 py-2 rounded text-sm"
+              className="rounded-md bg-blue-700 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-800"
             >
               Apply Filters
             </button>

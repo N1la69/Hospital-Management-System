@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 
 const AdminReceptionistsPage = () => {
   const [receptionists, setReceptionists] = useState<ReceptionistResponse[]>(
-    []
+    [],
   );
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -121,26 +121,42 @@ const AdminReceptionistsPage = () => {
 
       {/* FILTER PANEL */}
       {showFilters && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-white border p-4 rounded-xl mb-4">
-          <select
-            onChange={(e) =>
-              setFilters({ ...filters, status: e.target.value as any })
-            }
-          >
-            <option value="">Status</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
-          </select>
+        <div className="bg-white border rounded-xl p-5 mb-4 shadow-sm">
+          <h3 className="text-sm font-semibold text-slate-800 mb-4">
+            Filter Receptionists
+          </h3>
 
-          <div className="col-span-full flex gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Status
+              </label>
+              <select
+                onChange={(e) =>
+                  setFilters({ ...filters, status: e.target.value as any })
+                }
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">All</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="INACTIVE">INACTIVE</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-5">
             <button
-              onClick={() => handleSearch()}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
+              onClick={clearFilters}
+              className="rounded-md border px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
             >
-              Apply
-            </button>
-            <button onClick={clearFilters} className="border px-4 py-2 rounded">
               Clear
+            </button>
+
+            <button
+              onClick={() => handleSearch(0)}
+              className="rounded-md bg-blue-700 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            >
+              Apply Filters
             </button>
           </div>
         </div>
