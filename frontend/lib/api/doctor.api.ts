@@ -2,6 +2,7 @@ import {
   CreateDoctorRequest,
   DoctorResponse,
   DoctorSearchFilter,
+  UpdateDoctorRequest,
 } from "@/types/doctor";
 import api from "../utils/axios";
 import { SimpleOption } from "@/types/options";
@@ -11,26 +12,37 @@ export const fetchDoctors = async (): Promise<DoctorResponse[]> => {
   return res.data;
 };
 
-export const getMyDoctorProfile = async () => {
-  const res = await api.get("/api/doctors/me");
-  return res.data;
-};
-
 export const createDoctor = async (
-  payload: CreateDoctorRequest
+  payload: CreateDoctorRequest,
 ): Promise<void> => {
   await api.post("/api/doctors", payload);
+};
+
+export const updateDoctor = async (
+  doctorId: string,
+  payload: UpdateDoctorRequest,
+): Promise<void> => {
+  await api.put(`/api/doctors/${doctorId}`, payload);
+};
+
+export const deleteDoctor = async (doctorId: string): Promise<void> => {
+  await api.delete(`/api/doctors/${doctorId}`);
 };
 
 export const searchDoctors = async (
   filter: DoctorSearchFilter,
   page: number,
-  size: number
+  size: number,
 ) => {
   const res = await api.post(
     `/api/doctors/search?page=${page}&size=${size}`,
-    filter
+    filter,
   );
+  return res.data;
+};
+
+export const getMyDoctorProfile = async () => {
+  const res = await api.get("/api/doctors/me");
   return res.data;
 };
 

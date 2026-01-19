@@ -27,6 +27,24 @@ export interface CreateDoctorRequest {
   password: string;
 }
 
+export interface UpdateDoctorRequest {
+  firstName: string;
+  lastName: string;
+  specialization:
+    | "CARDIOLOGY"
+    | "NEUROLOGY"
+    | "ORTHOPEDICS"
+    | "PEDIATRICS"
+    | "GENERAL_MEDICINE"
+    | "DERMATOLOGY"
+    | "PSYCHIATRY";
+  qualification: string;
+  experienceYears: number;
+  phone: string;
+  email: string;
+  address: string;
+}
+
 export interface DoctorSearchFilter {
   name?: string;
   doctorCode?: string;

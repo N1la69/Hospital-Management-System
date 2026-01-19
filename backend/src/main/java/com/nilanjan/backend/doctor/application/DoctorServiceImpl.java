@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.nilanjan.backend.auth.application.UserAccountService;
 import com.nilanjan.backend.auth.domain.Role;
 import com.nilanjan.backend.auth.domain.User;
+import com.nilanjan.backend.auth.repository.UserRepository;
 import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
@@ -18,6 +19,8 @@ import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
+import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
+import com.nilanjan.backend.doctor.availability.repository.DoctorAvailabilityRepository;
 import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.domain.DoctorStatus;
 import com.nilanjan.backend.doctor.event.DoctorCreatedEvent;
@@ -33,6 +36,8 @@ public class DoctorServiceImpl implements DoctorService {
         private final DoctorRepository doctorRepository;
         private final ApplicationEventPublisher eventPublisher;
         private final UserAccountService userAccountService;
+        private final UserRepository userRepository;
+        private final DoctorAvailabilityRepository doctorAvailabilityRepository;
 
         @Override
         public DoctorResponse createDoctor(CreateDoctorRequest request) {
@@ -63,6 +68,43 @@ public class DoctorServiceImpl implements DoctorService {
                                 new DoctorCreatedEvent(saved.getId().toHexString(), saved.getDoctorCode()));
 
                 return mapToResponse(saved);
+        }
+
+        @Override
+        public DoctorResponse updateDoctor(String doctorId, UpdateDoctorRequest request) {
+
+                Doctor doctor = doctorRepository.findById(new ObjectId(doctorId))
+                                .orElseThrow(() -> new RuntimeException("Doctor not found: " + doctorId));
+
+                doctor.setFirstName(request.firstName());
+                doctor.setLastName(request.lastName());
+                doctor.setSpecialization(request.specialization());
+                doctor.setQualification(request.qualification());
+                doctor.setExperienceYears(request.experienceYears());
+
+                ContactInfo contact = doctor.getContact();
+                contact.setPhone(request.phone());
+                contact.setEmail(request.email());
+                contact.setAddress(request.address());
+
+                Doctor saved = doctorRepository.save(doctor);
+
+                return mapToResponse(saved);
+        }
+
+        @Override
+        public void deleteDoctor(String doctorId) {
+
+                Doctor doctor = doctorRepository.findById(new ObjectId(doctorId))
+                                .orElseThrow(() -> new RuntimeException("Doctor not found: " + doctorId));
+
+                ObjectId linkedUserId = doctor.getLinkedUserId();
+
+                doctorAvailabilityRepository.deleteByDoctorId(doctor.getId());
+                doctorRepository.deleteById(doctor.getId());
+
+                if (linkedUserId != null)
+                        userRepository.deleteById(linkedUserId);
         }
 
         @Override
@@ -104,4 +146,5 @@ public class DoctorServiceImpl implements DoctorService {
                                 doctor.getContact().getEmail(),
                                 doctor.getStatus());
         }
+
 }

@@ -1,8 +1,15 @@
 "use client";
 
 import CreateDoctorModal from "@/components/admin/CreateDoctorModal";
+import DeleteDoctorModal from "@/components/doctor/DeleteDoctorModal";
+import EditDoctorModal from "@/components/doctor/EditDoctorModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { fetchDoctors, searchDoctors } from "@/lib/api/doctor.api";
+import {
+  deleteDoctor,
+  fetchDoctors,
+  searchDoctors,
+  updateDoctor,
+} from "@/lib/api/doctor.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { DoctorResponse, DoctorSearchFilter } from "@/types/doctor";
 import { useEffect, useState } from "react";
@@ -17,6 +24,11 @@ const AdminDoctorsPage = () => {
 
   const [filters, setFilters] = useState<DoctorSearchFilter>({});
 
+  const [editDoctor, setEditDoctor] = useState<DoctorResponse | null>(null);
+  const [deleteDoctorState, setDeleteDoctorState] =
+    useState<DoctorResponse | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const pageSize = 10;
@@ -24,6 +36,8 @@ const AdminDoctorsPage = () => {
   const loadAllDoctors = () => {
     handleSearch(0);
   };
+
+  const refresh = () => handleSearch(page);
 
   const handleSearch = async (pageNo = 0) => {
     setLoading(true);
@@ -39,8 +53,6 @@ const AdminDoctorsPage = () => {
       setDoctors(result.items);
       setTotal(result.total);
       setPage(pageNo);
-
-      console.log({ total, pageSize, page });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
@@ -50,6 +62,33 @@ const AdminDoctorsPage = () => {
       console.log(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateDoctor = async (form: any) => {
+    if (!editDoctor) return;
+
+    try {
+      await updateDoctor(editDoctor.id, form);
+      setEditDoctor(null);
+      refresh();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to update doctor");
+    }
+  };
+
+  const handleDeleteDoctor = async () => {
+    if (!deleteDoctorState) return;
+
+    setDeleting(true);
+    try {
+      await deleteDoctor(deleteDoctorState.id);
+      setDeleteDoctorState(null);
+      refresh();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to delete doctor");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -229,6 +268,7 @@ const AdminDoctorsPage = () => {
                   <th className="px-4 py-3 font-medium">Specialization</th>
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
 
@@ -258,6 +298,20 @@ const AdminDoctorsPage = () => {
                       >
                         {doctor.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 space-x-2">
+                      <button
+                        onClick={() => setEditDoctor(doctor)}
+                        className="text-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteDoctorState(doctor)}
+                        className="text-red-600"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -302,6 +356,25 @@ const AdminDoctorsPage = () => {
           fetchDoctors();
         }}
       />
+
+      {editDoctor && (
+        <EditDoctorModal
+          open={!!editDoctor}
+          doctor={editDoctor}
+          onSave={handleUpdateDoctor}
+          onClose={() => setEditDoctor(null)}
+        />
+      )}
+
+      {deleteDoctorState && (
+        <DeleteDoctorModal
+          open={!!deleteDoctorState}
+          doctorName={deleteDoctorState.fullName}
+          onConfirm={handleDeleteDoctor}
+          onClose={() => setDeleteDoctorState(null)}
+          loading={deleting}
+        />
+      )}
     </DashboardLayout>
   );
 };

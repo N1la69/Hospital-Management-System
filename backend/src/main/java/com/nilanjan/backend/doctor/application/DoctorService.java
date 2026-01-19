@@ -7,10 +7,15 @@ import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
+import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
 
 public interface DoctorService {
 
     DoctorResponse createDoctor(CreateDoctorRequest request);
+
+    DoctorResponse updateDoctor(String doctorId, UpdateDoctorRequest request);
+
+    void deleteDoctor(String doctorId);
 
     List<SimpleOption> doctorOptions();
 

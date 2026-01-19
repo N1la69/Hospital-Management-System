@@ -14,4 +14,6 @@ public interface DoctorAvailabilityRepository extends MongoRepository<DoctorAvai
     List<DoctorAvailability> findByDayOfWeek(DayOfWeek dayOfWeek);
 
     List<DoctorAvailability> findByDoctorIdAndDayOfWeek(ObjectId doctorId, DayOfWeek dayOfWeek);
+
+    void deleteByDoctorId(ObjectId doctorId);
 }

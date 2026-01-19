@@ -4,8 +4,11 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +19,7 @@ import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
+import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
 import com.nilanjan.backend.doctor.application.DoctorService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +35,20 @@ public class DoctorController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DoctorResponse> create(@RequestBody CreateDoctorRequest request) {
         return ResponseEntity.ok(doctorService.createDoctor(request));
+    }
+
+    @PutMapping("/{doctorId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<DoctorResponse> update(@PathVariable String doctorId,
+            @RequestBody UpdateDoctorRequest request) {
+        return ResponseEntity.ok(doctorService.updateDoctor(doctorId, request));
+    }
+
+    @DeleteMapping("/{doctorId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> delete(@PathVariable String doctorId) {
+        doctorService.deleteDoctor(doctorId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")
