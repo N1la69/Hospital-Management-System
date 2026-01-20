@@ -2,7 +2,14 @@
 
 import CreatePatientModal from "@/components/admin/CreatePatientModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { fetchPatients, searchPatients } from "@/lib/api/patient.api";
+import DeletePatientModal from "@/components/patient/DeletePatientModal";
+import EditPatientModal from "@/components/patient/EditPatientModal";
+import {
+  deletePatient,
+  fetchPatients,
+  searchPatients,
+  updatePatient,
+} from "@/lib/api/patient.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { PatientResponse, PatientSearchFilter } from "@/types/patient";
 import { useEffect, useState } from "react";
@@ -17,6 +24,11 @@ const AdminPatientsPage = () => {
 
   const [filters, setFilters] = useState<PatientSearchFilter>({});
 
+  const [editPatient, setEditPatient] = useState<PatientResponse | null>(null);
+  const [deletePatientState, setDeletePatientState] =
+    useState<PatientResponse | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const pageSize = 3;
@@ -24,6 +36,8 @@ const AdminPatientsPage = () => {
   const loadAllPatients = () => {
     handleSearch(0);
   };
+
+  const refresh = () => handleSearch(page);
 
   const dateToInstant = (dateStr: string, endOfDay = false) => {
     const date = new Date(dateStr);
@@ -59,6 +73,33 @@ const AdminPatientsPage = () => {
       console.log(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdatePatient = async (form: any) => {
+    if (!editPatient) return;
+
+    try {
+      await updatePatient(editPatient.id, form);
+      setEditPatient(null);
+      refresh();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to update patient");
+    }
+  };
+
+  const handleDeletePatient = async () => {
+    if (!deletePatientState) return;
+
+    setDeleting(true);
+    try {
+      await deletePatient(deletePatientState.id);
+      setDeletePatientState(null);
+      refresh();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to delete patient");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -253,6 +294,7 @@ const AdminPatientsPage = () => {
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Blood Group</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
 
@@ -287,6 +329,20 @@ const AdminPatientsPage = () => {
                       >
                         {patient.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 space-x-2">
+                      <button
+                        onClick={() => setEditPatient(patient)}
+                        className="text-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeletePatientState(patient)}
+                        className="text-red-600"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -331,6 +387,25 @@ const AdminPatientsPage = () => {
           fetchPatients();
         }}
       />
+
+      {editPatient && (
+        <EditPatientModal
+          open={!!editPatient}
+          patient={editPatient}
+          onSave={handleUpdatePatient}
+          onClose={() => setEditPatient(null)}
+        />
+      )}
+
+      {deletePatientState && (
+        <DeletePatientModal
+          open={!!deletePatientState}
+          patientName={deletePatientState.fullName}
+          onConfirm={handleDeletePatient}
+          onClose={() => setDeletePatientState(null)}
+          loading={deleting}
+        />
+      )}
     </DashboardLayout>
   );
 };

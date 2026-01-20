@@ -7,19 +7,19 @@ import Field from "../ui/Field";
 const inputClass =
   "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600";
 
-const EditDoctorModal = ({ open, doctor, onSave, onClose }: any) => {
+const EditPatientModal = ({ open, patient, onSave, onClose }: any) => {
   const [form, setForm] = useState<any>(null);
 
   useEffect(() => {
-    if (doctor) setForm(doctor);
-  }, [doctor]);
+    if (patient) setForm(patient);
+  }, [patient]);
 
   const update = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }));
 
   if (!form) return null;
 
   return (
-    <Modal open={open} onClose={onClose} title="Edit Doctor" size="lg">
+    <Modal open={open} onClose={onClose} title="Edit Patient" size="lg">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* First Name */}
         <Field label="First Name">
@@ -39,41 +39,47 @@ const EditDoctorModal = ({ open, doctor, onSave, onClose }: any) => {
           />
         </Field>
 
-        {/* Specialization */}
-        <Field label="Specialization">
+        {/* Gender */}
+        <Field label="Gender">
           <select
-            value={form.specialization}
-            onChange={(e) => update("specialization", e.target.value as any)}
+            value={form.gender}
+            onChange={(e) => update("gender", e.target.value as any)}
             className={inputClass}
           >
-            <option value="">Select specialization</option>
-            <option value="CARDIOLOGY">Cardiology</option>
-            <option value="NEUROLOGY">Neurology</option>
-            <option value="ORTHOPEDICS">Orthopedics</option>
-            <option value="PEDIATRICS">Pediatrics</option>
-            <option value="GENERAL_MEDICINE">General Medicine</option>
-            <option value="DERMATOLOGY">Dermatology</option>
-            <option value="PSYCHIATRY">Psychiatry</option>
+            <option value="">Select gender</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Others</option>
           </select>
         </Field>
 
-        {/* Qualification */}
-        <Field label="Qualification">
+        {/* DOB */}
+        <Field label="Date of Birth">
           <input
-            value={form.qualification}
-            onChange={(e) => update("qualification", e.target.value)}
+            type="date"
+            value={form.dateOfBirth}
+            onChange={(e) => update("dateOfBirth", e.target.value as any)}
             className={inputClass}
           />
         </Field>
 
-        {/* Experience */}
-        <Field label="Experience (Years)">
-          <input
-            type="number"
-            value={form.experienceYears}
-            onChange={(e) => update("experienceYears", e.target.value)}
+        {/* Blood Group */}
+        <Field label="Blood Group">
+          <select
+            value={form.bloodGroup}
+            onChange={(e) => update("bloodGroup", e.target.value as any)}
             className={inputClass}
-          />
+          >
+            <option value="">Select blood group</option>
+            <option value="A_POS">A+</option>
+            <option value="A_NEG">A-</option>
+            <option value="B_POS">B+</option>
+            <option value="B_NEG">B-</option>
+            <option value="O_POS">O+</option>
+            <option value="O_NEG">O-</option>
+            <option value="AB_POS">AB+</option>
+            <option value="AB_NEG">AB-</option>
+          </select>
         </Field>
 
         {/* Phone */}
@@ -125,4 +131,4 @@ const EditDoctorModal = ({ open, doctor, onSave, onClose }: any) => {
   );
 };
 
-export default EditDoctorModal;
+export default EditPatientModal;
