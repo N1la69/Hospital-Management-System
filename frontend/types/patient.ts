@@ -1,9 +1,14 @@
 export interface PatientResponse {
   id: string;
   patientCode: string;
+  firstName: string;
+  lastName: string;
   fullName: string;
   gender: "MALE" | "FEMALE" | "OTHER";
+  dateOfBirth: string;
+  phone: string;
   email: string;
+  address: string;
   bloodGroup: string;
   status: string;
 }

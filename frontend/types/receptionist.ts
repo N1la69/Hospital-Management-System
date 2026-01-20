@@ -1,9 +1,21 @@
 export interface ReceptionistResponse {
   id: string;
   receptionistCode: string;
+  firstName: string;
+  lastName: string;
   fullName: string;
+  phone: string;
   email: string;
+  address: string;
   status: string;
+}
+
+export interface UpdateReceptionistRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  address: string;
 }
 
 export interface CreateReceptionistRequest {

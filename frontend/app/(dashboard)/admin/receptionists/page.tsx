@@ -2,9 +2,13 @@
 
 import CreateReceptionistModal from "@/components/admin/CreateReceptionistModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import DeleteReceptionistModal from "@/components/receptionist/DeleteReceptionistModal";
+import EditReceptionistModal from "@/components/receptionist/EditReceptionistModal";
 import {
+  deleteReceptionist,
   fetchReceptionists,
   searchReceptionists,
+  updateReceptionist,
 } from "@/lib/api/receptionist.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
 import {
@@ -25,6 +29,12 @@ const AdminReceptionistsPage = () => {
 
   const [filters, setFilters] = useState<ReceptionistSearchFilter>({});
 
+  const [editReceptionist, setEditReceptionist] =
+    useState<ReceptionistResponse | null>(null);
+  const [deleteReceptionistState, setDeleteReceptionistState] =
+    useState<ReceptionistResponse | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const pageSize = 10;
@@ -32,6 +42,8 @@ const AdminReceptionistsPage = () => {
   const loadAllReceptionists = () => {
     handleSearch(0);
   };
+
+  const refresh = () => handleSearch(page);
 
   const handleSearch = async (pageNo = 0) => {
     setLoading(true);
@@ -56,6 +68,33 @@ const AdminReceptionistsPage = () => {
       console.log(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateReceptionist = async (form: any) => {
+    if (!editReceptionist) return;
+
+    try {
+      await updateReceptionist(editReceptionist.id, form);
+      setEditReceptionist(null);
+      refresh();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to update Receptionist");
+    }
+  };
+
+  const handleDeleteReceptionist = async () => {
+    if (!deleteReceptionistState) return;
+
+    setDeleting(true);
+    try {
+      await deleteReceptionist(deleteReceptionistState.id);
+      setDeleteReceptionistState(null);
+      refresh();
+    } catch (e: any) {
+      alert(e?.response?.data?.message || "Failed to delete Receptionist");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -185,6 +224,7 @@ const AdminReceptionistsPage = () => {
                   <th className="px-4 py-3 font-medium">Name</th>
                   <th className="px-4 py-3 font-medium">Email</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
 
@@ -213,6 +253,20 @@ const AdminReceptionistsPage = () => {
                       >
                         {receptionist.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 space-x-2">
+                      <button
+                        onClick={() => setEditReceptionist(receptionist)}
+                        className="text-blue-600"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setDeleteReceptionistState(receptionist)}
+                        className="text-red-600"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -257,6 +311,25 @@ const AdminReceptionistsPage = () => {
           fetchReceptionists();
         }}
       />
+
+      {editReceptionist && (
+        <EditReceptionistModal
+          open={!!editReceptionist}
+          receptionist={editReceptionist}
+          onSave={handleUpdateReceptionist}
+          onClose={() => setEditReceptionist(null)}
+        />
+      )}
+
+      {deleteReceptionistState && (
+        <DeleteReceptionistModal
+          open={!!deleteReceptionistState}
+          receptionistName={deleteReceptionistState.fullName}
+          onConfirm={handleDeleteReceptionist}
+          onClose={() => setDeleteReceptionistState(null)}
+          loading={deleting}
+        />
+      )}
     </DashboardLayout>
   );
 };
