@@ -1,9 +1,15 @@
 export interface DoctorResponse {
   id: string;
   doctorCode: string;
+  firstName: string;
+  lastName: string;
   fullName: string;
   specialization: string;
+  qualification: string;
+  experienceYears: number;
+  phone: string;
   email: string;
+  address: string;
   status: string;
 }
 

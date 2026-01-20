@@ -141,9 +141,15 @@ public class DoctorServiceImpl implements DoctorService {
                 return new DoctorResponse(
                                 doctor.getId().toHexString(),
                                 doctor.getDoctorCode(),
+                                doctor.getFirstName(),
+                                doctor.getLastName(),
                                 doctor.getFirstName() + " " + doctor.getLastName(),
                                 doctor.getSpecialization(),
+                                doctor.getQualification(),
+                                doctor.getExperienceYears(),
+                                doctor.getContact().getPhone(),
                                 doctor.getContact().getEmail(),
+                                doctor.getContact().getAddress(),
                                 doctor.getStatus());
         }
 

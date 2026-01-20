@@ -19,22 +19,28 @@ const DeleteDoctorModal = ({
 }: Props) => {
   return (
     <Modal open={open} onClose={onClose} title="Delete Doctor" size="sm">
-      <div className="space-y-4">
-        <p className="text-sm text-slate-700">
-          Are you sure you want to delete <b>{doctorName}</b>?
+      <div className="space-y-5">
+        {/* Main message */}
+        <p className="text-sm text-slate-800">
+          Are you sure you want to delete{" "}
+          <span className="font-semibold">{doctorName}</span>?
         </p>
 
-        <p className="text-xs text-red-600">
-          This will permanently delete:
-          <br />• Doctor profile
-          <br />• All availability slots
-          <br />• Linked user account
-        </p>
+        {/* Warning box */}
+        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p className="font-medium mb-2">This action cannot be undone.</p>
+          <ul className="list-disc list-inside space-y-1 text-xs">
+            <li>Doctor profile will be permanently deleted</li>
+            <li>All availability slots will be removed</li>
+            <li>Linked user account will be deleted</li>
+          </ul>
+        </div>
 
-        <div className="flex justify-end gap-2">
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
           <button
             onClick={onClose}
-            className="px-3 py-1.5 text-sm border rounded-md"
+            className="rounded-md border px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
           >
             Cancel
           </button>
@@ -42,9 +48,9 @@ const DeleteDoctorModal = ({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-60"
+            className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
           >
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? "Deleting..." : "Delete Doctor"}
           </button>
         </div>
       </div>
