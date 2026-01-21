@@ -5,6 +5,7 @@ import { searchDoctors } from "@/lib/api/doctor.api";
 import { receptionistMenu } from "@/lib/constants/sidebarMenus";
 import { DoctorResponse, DoctorSearchFilter } from "@/types/doctor";
 import { useState } from "react";
+import { FiFilter, FiSearch } from "react-icons/fi";
 
 const ReceptionistDoctorsPage = () => {
   const [doctors, setDoctors] = useState<DoctorResponse[]>([]);
@@ -73,8 +74,8 @@ const ReceptionistDoctorsPage = () => {
             placeholder="Search by doctor name, code or email..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-            🔍
+          <span className="absolute top-2.75 left-3 text-slate-900 text-sm">
+            <FiSearch size={17} />
           </span>
         </div>
 
@@ -82,7 +83,10 @@ const ReceptionistDoctorsPage = () => {
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
         >
-          ⚙ Filters
+          <span>
+            <FiFilter size={17} color="blue" />
+          </span>{" "}
+          Filters
         </button>
 
         <button

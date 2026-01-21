@@ -2,10 +2,7 @@
 
 import BookAppointmentModal from "@/components/appointment/BookAppointmentModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import {
-  fetchAppointments,
-  searchAppointments,
-} from "@/lib/api/appointment.api";
+import { searchAppointments } from "@/lib/api/appointment.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { formatAppointmentDate, formatLocalTimeRange } from "@/lib/utils/time";
 import {
@@ -13,6 +10,9 @@ import {
   AppointmentSearchFilter,
 } from "@/types/appointment";
 import { useEffect, useState } from "react";
+import { FiFilter, FiSearch } from "react-icons/fi";
+import { IoAddCircle } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 const AdminAppointmentsPage = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
@@ -45,9 +45,7 @@ const AdminAppointmentsPage = () => {
     return localDateTime.toISOString();
   }
 
-  const loadAllAppointments = () => {
-    handleSearch(0);
-  };
+  const refresh = () => handleSearch(page);
 
   const handleSearch = async (pageNo = 0) => {
     setLoading(true);
@@ -86,7 +84,7 @@ const AdminAppointmentsPage = () => {
   };
 
   useEffect(() => {
-    loadAllAppointments();
+    refresh();
   }, []);
 
   return (
@@ -104,9 +102,12 @@ const AdminAppointmentsPage = () => {
 
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
+          className="inline-flex gap-2 items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
         >
-          + Book Appointment
+          <span>
+            <IoAddCircle size={18} />
+          </span>
+          Book Appointment
         </button>
       </div>
 
@@ -120,8 +121,8 @@ const AdminAppointmentsPage = () => {
             placeholder="Search by appointment code..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-            🔍
+          <span className="absolute top-2.75 left-3 text-slate-900 text-sm">
+            <FiSearch size={17} />
           </span>
         </div>
 
@@ -134,8 +135,8 @@ const AdminAppointmentsPage = () => {
             placeholder="Search by doctor name..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-            🔍
+          <span className="absolute top-2.75 left-3 text-slate-900 text-sm">
+            <FiSearch size={17} />
           </span>
         </div>
 
@@ -148,8 +149,8 @@ const AdminAppointmentsPage = () => {
             placeholder="Search by patient name..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-            🔍
+          <span className="absolute top-2.75 left-3 text-slate-900 text-sm">
+            <FiSearch size={17} />
           </span>
         </div>
 
@@ -157,7 +158,10 @@ const AdminAppointmentsPage = () => {
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
         >
-          ⚙ Filters
+          <span>
+            <FiFilter size={17} color="blue" />
+          </span>{" "}
+          Filters
         </button>
 
         <button
@@ -232,7 +236,7 @@ const AdminAppointmentsPage = () => {
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                Appointment Start Date
+                Appointment Start Time
               </label>
               <input
                 type="time"
@@ -245,7 +249,7 @@ const AdminAppointmentsPage = () => {
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                Appointment End Date
+                Appointment End Time
               </label>
               <input
                 type="time"
@@ -347,7 +351,7 @@ const AdminAppointmentsPage = () => {
       </div>
 
       {/* PAGINATION */}
-      {Math.ceil(total / pageSize) > 1 && (
+      {total > 0 && (
         <div className="flex justify-between mt-4 text-sm">
           <span>
             Page {page + 1} of {Math.ceil(total / pageSize)}
@@ -357,7 +361,7 @@ const AdminAppointmentsPage = () => {
             <button
               disabled={page === 0}
               onClick={() => handleSearch(page - 1)}
-              className="border px-3 py-1 rounded"
+              className="border px-3 py-1 rounded disabled:opacity-50"
             >
               Prev
             </button>
@@ -365,7 +369,7 @@ const AdminAppointmentsPage = () => {
             <button
               disabled={(page + 1) * pageSize >= total}
               onClick={() => handleSearch(page + 1)}
-              className="border px-3 py-1 rounded"
+              className="border px-3 py-1 rounded disabled:opacity-50"
             >
               Next
             </button>
@@ -378,7 +382,8 @@ const AdminAppointmentsPage = () => {
         onClose={() => setOpen(false)}
         onSuccess={() => {
           setOpen(false);
-          fetchAppointments();
+          refresh();
+          toast.success("Appointment Booked");
         }}
       />
     </DashboardLayout>

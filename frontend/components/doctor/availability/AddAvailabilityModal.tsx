@@ -3,6 +3,7 @@
 import Modal from "@/components/ui/Modal";
 import { createAvailability } from "@/lib/api/availability.api";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -98,11 +99,13 @@ const AddAvailabilityModal = ({
       });
 
       onSuccess();
+      toast.success("Availability created successfully");
       onClose();
     } catch (error: any) {
       setError(
-        error?.response?.data?.message || "Failed to create availability"
+        error?.response?.data?.message || "Failed to create availability",
       );
+      toast.error(error);
     } finally {
       setLoading(false);
     }

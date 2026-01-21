@@ -6,13 +6,17 @@ import DeletePatientModal from "@/components/patient/DeletePatientModal";
 import EditPatientModal from "@/components/patient/EditPatientModal";
 import {
   deletePatient,
-  fetchPatients,
   searchPatients,
   updatePatient,
 } from "@/lib/api/patient.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { PatientResponse, PatientSearchFilter } from "@/types/patient";
 import { useEffect, useState } from "react";
+import { FaUserEdit } from "react-icons/fa";
+import { FiFilter, FiSearch } from "react-icons/fi";
+import { IoPersonAddSharp } from "react-icons/io5";
+import { MdDelete } from "react-icons/md";
+import { toast } from "react-toastify";
 
 const AdminPatientsPage = () => {
   const [patients, setPatients] = useState<PatientResponse[]>([]);
@@ -32,10 +36,6 @@ const AdminPatientsPage = () => {
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const pageSize = 3;
-
-  const loadAllPatients = () => {
-    handleSearch(0);
-  };
 
   const refresh = () => handleSearch(page);
 
@@ -83,8 +83,9 @@ const AdminPatientsPage = () => {
       await updatePatient(editPatient.id, form);
       setEditPatient(null);
       refresh();
+      toast.success("Patient updated successfully");
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Failed to update patient");
+      toast.error(e?.response?.data?.message || "Failed to update patient");
     }
   };
 
@@ -96,8 +97,9 @@ const AdminPatientsPage = () => {
       await deletePatient(deletePatientState.id);
       setDeletePatientState(null);
       refresh();
+      toast.success("Patient deleted successfully");
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Failed to delete patient");
+      toast.error(e?.response?.data?.message || "Failed to delete patient");
     } finally {
       setDeleting(false);
     }
@@ -110,7 +112,7 @@ const AdminPatientsPage = () => {
   };
 
   useEffect(() => {
-    loadAllPatients();
+    refresh();
   }, []);
 
   return (
@@ -128,9 +130,12 @@ const AdminPatientsPage = () => {
 
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
+          className="inline-flex gap-2 items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
         >
-          + Add Patient
+          <span>
+            <IoPersonAddSharp size={17} />
+          </span>
+          Add Patient
         </button>
       </div>
 
@@ -144,8 +149,8 @@ const AdminPatientsPage = () => {
             placeholder="Search by name, code or email..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-            🔍
+          <span className="absolute top-2.75 left-3 text-slate-900 text-sm">
+            <FiSearch size={17} />
           </span>
         </div>
 
@@ -153,7 +158,10 @@ const AdminPatientsPage = () => {
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
         >
-          ⚙ Filters
+          <span>
+            <FiFilter size={17} color="blue" />
+          </span>{" "}
+          Filters
         </button>
 
         <button
@@ -330,19 +338,24 @@ const AdminPatientsPage = () => {
                         {patient.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 space-x-2">
-                      <button
-                        onClick={() => setEditPatient(patient)}
-                        className="text-blue-600"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setDeletePatientState(patient)}
-                        className="text-red-600"
-                      >
-                        Delete
-                      </button>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setEditPatient(patient)}
+                          className="flex items-center justify-center rounded-md bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 transition focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          title="Edit patient"
+                        >
+                          <FaUserEdit size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => setDeletePatientState(patient)}
+                          className="flex items-center justify-center rounded-md bg-red-50 p-2 text-red-700 hover:bg-red-100 transition focus:outline-none focus:ring-2 focus:ring-red-300"
+                          title="Delete patient"
+                        >
+                          <MdDelete size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -353,7 +366,7 @@ const AdminPatientsPage = () => {
       </div>
 
       {/* PAGINATION */}
-      {Math.ceil(total / pageSize) > 1 && (
+      {total > 0 && (
         <div className="flex justify-between items-center mt-4 text-sm">
           <span>
             Page {page + 1} of {Math.ceil(total / pageSize)}
@@ -384,7 +397,8 @@ const AdminPatientsPage = () => {
         onClose={() => setOpen(false)}
         onSuccess={() => {
           setOpen(false);
-          fetchPatients();
+          refresh();
+          toast.success("Patient created successfully");
         }}
       />
 

@@ -6,13 +6,17 @@ import EditDoctorModal from "@/components/doctor/EditDoctorModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
   deleteDoctor,
-  fetchDoctors,
   searchDoctors,
   updateDoctor,
 } from "@/lib/api/doctor.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
 import { DoctorResponse, DoctorSearchFilter } from "@/types/doctor";
 import { useEffect, useState } from "react";
+import { FaUserEdit } from "react-icons/fa";
+import { FiFilter, FiSearch } from "react-icons/fi";
+import { IoPersonAddSharp } from "react-icons/io5";
+import { MdDelete } from "react-icons/md";
+import { toast } from "react-toastify";
 
 const AdminDoctorsPage = () => {
   const [doctors, setDoctors] = useState<DoctorResponse[]>([]);
@@ -32,10 +36,6 @@ const AdminDoctorsPage = () => {
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const pageSize = 10;
-
-  const loadAllDoctors = () => {
-    handleSearch(0);
-  };
 
   const refresh = () => handleSearch(page);
 
@@ -72,8 +72,9 @@ const AdminDoctorsPage = () => {
       await updateDoctor(editDoctor.id, form);
       setEditDoctor(null);
       refresh();
+      toast.success("Doctor updated successfully");
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Failed to update doctor");
+      toast.error(e?.response?.data?.message || "Failed to update doctor");
     }
   };
 
@@ -85,8 +86,9 @@ const AdminDoctorsPage = () => {
       await deleteDoctor(deleteDoctorState.id);
       setDeleteDoctorState(null);
       refresh();
+      toast.success("Doctor deleted successfully");
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Failed to delete doctor");
+      toast.error(e?.response?.data?.message || "Failed to delete doctor");
     } finally {
       setDeleting(false);
     }
@@ -99,11 +101,12 @@ const AdminDoctorsPage = () => {
   };
 
   useEffect(() => {
-    loadAllDoctors();
+    refresh();
   }, []);
 
   return (
     <DashboardLayout title="Doctors" menuItems={adminMenu}>
+      {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h2 className="text-lg font-semibold text-slate-800">
@@ -116,9 +119,12 @@ const AdminDoctorsPage = () => {
 
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
+          className="inline-flex gap-2 items-center justify-center rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 transition"
         >
-          + Add Doctor
+          <span>
+            <IoPersonAddSharp size={17} />
+          </span>
+          Add Doctor
         </button>
       </div>
 
@@ -132,8 +138,8 @@ const AdminDoctorsPage = () => {
             placeholder="Search by doctor name, code or email..."
             className="w-full rounded-md border border-slate-300 pl-10 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
           />
-          <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
-            🔍
+          <span className="absolute top-2.75 left-3 text-slate-900 text-sm">
+            <FiSearch size={17} />
           </span>
         </div>
 
@@ -141,7 +147,10 @@ const AdminDoctorsPage = () => {
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
         >
-          ⚙ Filters
+          <span>
+            <FiFilter size={17} color="blue" />
+          </span>{" "}
+          Filters
         </button>
 
         <button
@@ -299,19 +308,24 @@ const AdminDoctorsPage = () => {
                         {doctor.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 space-x-2">
-                      <button
-                        onClick={() => setEditDoctor(doctor)}
-                        className="text-blue-600"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setDeleteDoctorState(doctor)}
-                        className="text-red-600"
-                      >
-                        Delete
-                      </button>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setEditDoctor(doctor)}
+                          className="flex items-center justify-center rounded-md bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 transition focus:outline-none focus:ring-2 focus:ring-blue-300"
+                          title="Edit doctor"
+                        >
+                          <FaUserEdit size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => setDeleteDoctorState(doctor)}
+                          className="flex items-center justify-center rounded-md bg-red-50 p-2 text-red-700 hover:bg-red-100 transition focus:outline-none focus:ring-2 focus:ring-red-300"
+                          title="Delete doctor"
+                        >
+                          <MdDelete size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -322,7 +336,7 @@ const AdminDoctorsPage = () => {
       </div>
 
       {/* PAGINATION */}
-      {Math.ceil(total / pageSize) > 1 && (
+      {total > 0 && (
         <div className="flex justify-between items-center mt-4 text-sm">
           <span>
             Page {page + 1} of {Math.ceil(total / pageSize)}
@@ -353,7 +367,8 @@ const AdminDoctorsPage = () => {
         onClose={() => setOpen(false)}
         onSuccess={() => {
           setOpen(false);
-          fetchDoctors();
+          refresh();
+          toast.success("Doctor created successfully");
         }}
       />
 

@@ -33,14 +33,9 @@ const DoctorDashboard = () => {
   const todayAppointments = useMemo(
     () =>
       appointments.filter(
-        (a) => getLocalDateStringFromInstant(a.scheduledStart) === todayLocal
+        (a) => getLocalDateStringFromInstant(a.scheduledStart) === todayLocal,
       ),
-    [appointments, todayLocal]
-  );
-
-  console.log("TODAY LOCAL =", todayLocal);
-  appointments.forEach((a) =>
-    console.log("APPT LOCAL =", getLocalDateStringFromInstant(a.scheduledStart))
+    [appointments, todayLocal],
   );
 
   const stats = {

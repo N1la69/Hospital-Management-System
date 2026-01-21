@@ -5,6 +5,7 @@ import Modal from "../ui/Modal";
 import { bookAppointments } from "@/lib/api/appointment.api";
 import { fetchPatientOptions } from "@/lib/api/patient.api";
 import { fetchDoctorOptions } from "@/lib/api/doctor.api";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -126,13 +127,11 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
       onSuccess();
       onClose();
     } catch (error: any) {
-      const message =
+      toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Failed to book appointment";
-
-      alert(message);
-      console.log(message);
+          error?.message ||
+          "Failed to book appointment",
+      );
     } finally {
       setLoading(false);
     }

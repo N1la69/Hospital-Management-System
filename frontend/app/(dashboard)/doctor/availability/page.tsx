@@ -9,6 +9,7 @@ import AddAvailabilityModal from "@/components/doctor/availability/AddAvailabili
 import { getMyDoctorProfile } from "@/lib/api/doctor.api";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { doctorMenu } from "@/lib/constants/sidebarMenus";
+import { toast } from "react-toastify";
 
 const DoctorAvailabilityPage = () => {
   const [doctorId, setDoctorId] = useState<string | null>(null);
@@ -47,13 +48,11 @@ const DoctorAvailabilityPage = () => {
       const data = await getDoctorAvailability(doctorId);
       setAvailability(data);
     } catch (error: any) {
-      const message =
+      toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Failed to get availabilities";
-
-      alert(message);
-      console.log(message);
+          error?.message ||
+          "Failed to get availabilities",
+      );
     } finally {
       setLoading(false);
     }
@@ -86,7 +85,7 @@ const DoctorAvailabilityPage = () => {
                       | "THURSDAY"
                       | "FRIDAY"
                       | "SATURDAY"
-                      | "SUNDAY"
+                      | "SUNDAY",
                   );
                   setModalOpen(true);
                 }

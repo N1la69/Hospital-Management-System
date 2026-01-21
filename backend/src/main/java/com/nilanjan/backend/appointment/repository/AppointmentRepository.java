@@ -14,6 +14,8 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Obje
 
         List<Appointment> findByPatientIdAndStatus(ObjectId patientId, AppointmentStatus status);
 
+        void deleteByPatientIdAndStatus(ObjectId patientId, AppointmentStatus status);
+
         List<Appointment> findByDoctorIdAndScheduledStartLessThanAndScheduledEndGreaterThan(
                         ObjectId doctorId,
                         Instant end,

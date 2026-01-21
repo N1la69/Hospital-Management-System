@@ -6,6 +6,7 @@ import { useState } from "react";
 import Modal from "../ui/Modal";
 import Input from "../ui/Input";
 import Select from "../ui/Select";
+import { toast } from "react-toastify";
 
 interface Props {
   open: boolean;
@@ -21,7 +22,7 @@ const CreatePatientModal = ({ open, onClose, onSuccess }: Props) => {
 
   function update<K extends keyof CreatePatientRequest>(
     key: K,
-    value: CreatePatientRequest[K]
+    value: CreatePatientRequest[K],
   ) {
     setForm((f) => ({ ...f, [key]: value }));
   }
@@ -34,13 +35,11 @@ const CreatePatientModal = ({ open, onClose, onSuccess }: Props) => {
       onSuccess();
       onClose();
     } catch (error: any) {
-      const message =
+      toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Failed to create patient";
-
-      alert(message);
-      console.log(message);
+          error?.message ||
+          "Failed to create patient",
+      );
     } finally {
       setLoading(false);
     }

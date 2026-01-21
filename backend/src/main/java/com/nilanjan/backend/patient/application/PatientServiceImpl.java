@@ -8,6 +8,8 @@ import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import com.nilanjan.backend.appointment.domain.AppointmentStatus;
+import com.nilanjan.backend.appointment.repository.AppointmentRepository;
 import com.nilanjan.backend.auth.application.UserAccountService;
 import com.nilanjan.backend.auth.domain.Role;
 import com.nilanjan.backend.auth.domain.User;
@@ -32,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class PatientServiceImpl implements PatientService {
 
         private final PatientRepository patientRepository;
+        private final AppointmentRepository appointmentRepository;
         private final ApplicationEventPublisher eventPublisher;
         private final UserAccountService userAccountService;
         private final UserRepository userRepository;
@@ -103,7 +106,10 @@ public class PatientServiceImpl implements PatientService {
 
                 ObjectId linkedUserId = patient.getLinkedUserId();
 
+                appointmentRepository.deleteByPatientIdAndStatus(patient.getId(), AppointmentStatus.SCHEDULED);
+
                 patientRepository.deleteById(patient.getId());
+
                 if (linkedUserId != null)
                         userRepository.deleteById(linkedUserId);
         }

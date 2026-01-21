@@ -18,7 +18,7 @@ const CreateReceptionistModal = ({ open, onClose, onSuccess }: Props) => {
 
   function update<K extends keyof CreateReceptionistRequest>(
     key: K,
-    value: CreateReceptionistRequest[K]
+    value: CreateReceptionistRequest[K],
   ) {
     setForm((f) => ({ ...f, [key]: value }));
   }
@@ -31,13 +31,11 @@ const CreateReceptionistModal = ({ open, onClose, onSuccess }: Props) => {
       onSuccess();
       onClose();
     } catch (error: any) {
-      const message =
+      alert(
         error?.response?.data?.message ||
-        error?.message ||
-        "Failed to create receptionist";
-
-      alert(message);
-      console.log(message);
+          error?.message ||
+          "Failed to create receptionist",
+      );
     } finally {
       setLoading(false);
     }
