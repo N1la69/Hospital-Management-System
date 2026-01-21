@@ -34,6 +34,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setRoles([]);
 
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+
     document.cookie = "accessToken=; Max-Age=0; path=/";
     window.location.href = "/login";
   }

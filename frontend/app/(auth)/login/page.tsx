@@ -4,6 +4,7 @@ import { loginApi } from "@/lib/api/auth.api";
 import { decodeToken, getPrimaryRole } from "@/lib/auth/auth.utils";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -11,18 +12,28 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-    const res = await loginApi({ username, password });
-    login(res.accessToken);
+    try {
+      const res = await loginApi({ username, password });
 
-    document.cookie = `accessToken=${res.accessToken}; path=/`;
+      localStorage.setItem("accessToken", res.accessToken);
+      localStorage.setItem("refreshToken", res.refreshToken);
 
-    const decoded = decodeToken(res.accessToken);
-    const role = getPrimaryRole(decoded.roles);
+      login(res.accessToken);
 
-    if (role === "ADMIN") window.location.href = "/admin";
-    else if (role === "DOCTOR") window.location.href = "/doctor";
-    else if (role === "PATIENT") window.location.href = "/patient";
-    else if (role === "RECEPTIONIST") window.location.href = "/receptionist";
+      document.cookie = `accessToken=${res.accessToken}; path=/`;
+
+      const decoded = decodeToken(res.accessToken);
+      const role = getPrimaryRole(decoded.roles);
+
+      if (role === "ADMIN") window.location.href = "/admin";
+      else if (role === "DOCTOR") window.location.href = "/doctor";
+      else if (role === "PATIENT") window.location.href = "/patient";
+      else if (role === "RECEPTIONIST") window.location.href = "/receptionist";
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || error?.message || "Login failed",
+      );
+    }
   };
 
   return (

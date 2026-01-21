@@ -5,6 +5,6 @@ export interface LoginRequest {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken?: string | null;
+  refreshToken: string;
   expiresIn: number;
 }
