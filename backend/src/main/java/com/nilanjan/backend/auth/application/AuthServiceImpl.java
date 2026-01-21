@@ -84,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse refreshToken(String refreshToken) {
 
+        System.out.println("🔄 Refresh token request received");
         RefreshToken stored = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Invalid Refresh Token"));
 
@@ -95,6 +96,7 @@ public class AuthServiceImpl implements AuthService {
 
         String newAccessToken = jwtTokenProvider.generateToken(user);
 
+        System.out.println("✅ New access token generated for user " + user.getId());
         return new AuthResponse(newAccessToken, refreshToken, 900);
     }
 

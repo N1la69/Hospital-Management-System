@@ -43,6 +43,20 @@ public class JwtTokenProvider {
         return UUID.randomUUID().toString() + UUID.randomUUID().toString();
     }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token);
+
+            return true;
+        } catch (Exception e) {
+            System.out.println("❌ JWT INVALID / EXPIRED: " + e.getClass().getSimpleName());
+            return false;
+        }
+    }
+
     public String getUserId(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
