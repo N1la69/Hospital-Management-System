@@ -3,7 +3,6 @@ package com.nilanjan.backend.auth.application;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,6 @@ import com.nilanjan.backend.auth.domain.RefreshToken;
 import com.nilanjan.backend.auth.domain.RoleMapper;
 import com.nilanjan.backend.auth.domain.User;
 import com.nilanjan.backend.auth.domain.UserStatus;
-import com.nilanjan.backend.auth.event.UserRegisteredEvent;
 import com.nilanjan.backend.auth.repository.RefreshTokenRepository;
 import com.nilanjan.backend.auth.repository.UserRepository;
 import com.nilanjan.backend.security.JwtTokenProvider;
@@ -29,7 +27,6 @@ public class AuthServiceImpl implements AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public AuthResponse login(LoginRequest request) {
@@ -78,7 +75,6 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        applicationEventPublisher.publishEvent(new UserRegisteredEvent(user.getId(), user.getUsername()));
     }
 
     @Override

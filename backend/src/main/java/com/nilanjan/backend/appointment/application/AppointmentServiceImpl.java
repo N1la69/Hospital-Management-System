@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
@@ -18,7 +17,6 @@ import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
 import com.nilanjan.backend.appointment.domain.Appointment;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
-import com.nilanjan.backend.appointment.event.AppointmentBookedEvent;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
@@ -40,7 +38,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DoctorAvailabilityRepository doctorAvailabilityRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public AppointmentResponse bookAppointment(CreateAppointmentRequest request) {
@@ -120,9 +117,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
-
-        eventPublisher
-                .publishEvent(new AppointmentBookedEvent(saved.getId().toHexString(), saved.getAppointmentCode()));
 
         return mapToResponse(saved);
     }

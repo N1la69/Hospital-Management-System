@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.bson.types.ObjectId;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
@@ -24,7 +23,6 @@ import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
 import com.nilanjan.backend.patient.api.dto.UpdatePatientRequest;
 import com.nilanjan.backend.patient.domain.Patient;
 import com.nilanjan.backend.patient.domain.PatientStatus;
-import com.nilanjan.backend.patient.event.PatientCreatedEvent;
 import com.nilanjan.backend.patient.repository.PatientRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -35,7 +33,6 @@ public class PatientServiceImpl implements PatientService {
 
         private final PatientRepository patientRepository;
         private final AppointmentRepository appointmentRepository;
-        private final ApplicationEventPublisher eventPublisher;
         private final UserAccountService userAccountService;
         private final UserRepository userRepository;
 
@@ -69,9 +66,6 @@ public class PatientServiceImpl implements PatientService {
                                 .build();
 
                 Patient saved = patientRepository.save(patient);
-
-                eventPublisher.publishEvent(
-                                new PatientCreatedEvent(saved.getId().toHexString(), saved.getPatientCode()));
 
                 return mapToResponse(saved);
         }

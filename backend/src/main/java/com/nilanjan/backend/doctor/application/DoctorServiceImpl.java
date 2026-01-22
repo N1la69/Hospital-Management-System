@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.bson.types.ObjectId;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.nilanjan.backend.auth.application.UserAccountService;
@@ -23,7 +22,6 @@ import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
 import com.nilanjan.backend.doctor.availability.repository.DoctorAvailabilityRepository;
 import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.domain.DoctorStatus;
-import com.nilanjan.backend.doctor.event.DoctorCreatedEvent;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.security.SecurityUtil;
 
@@ -34,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 public class DoctorServiceImpl implements DoctorService {
 
         private final DoctorRepository doctorRepository;
-        private final ApplicationEventPublisher eventPublisher;
         private final UserAccountService userAccountService;
         private final UserRepository userRepository;
         private final DoctorAvailabilityRepository doctorAvailabilityRepository;
@@ -63,9 +60,6 @@ public class DoctorServiceImpl implements DoctorService {
                                 .build();
 
                 Doctor saved = doctorRepository.save(doctor);
-
-                eventPublisher.publishEvent(
-                                new DoctorCreatedEvent(saved.getId().toHexString(), saved.getDoctorCode()));
 
                 return mapToResponse(saved);
         }
