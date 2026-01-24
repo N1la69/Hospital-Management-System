@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
 import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
+import com.nilanjan.backend.appointment.api.dto.DoctorPatientRowResponse;
+import com.nilanjan.backend.appointment.api.dto.DoctorPatientSearchFilter;
 import com.nilanjan.backend.appointment.domain.Appointment;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
@@ -203,6 +206,78 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public PageResponse<DoctorPatientRowResponse> getMyPatients(
+            DoctorPatientSearchFilter filter, int page, int size) {
+
+        if (!SecurityUtil.hasRole("DOCTOR"))
+            throw new SecurityException("Access Denied");
+
+        ObjectId userId = SecurityUtil.currentUserId();
+
+        Doctor doctor = doctorRepository.findByLinkedUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+        String search = filter.searchText();
+
+        boolean searchByAppointmentCode = looksLikeAppointmentCode(search);
+
+        // Build appointment filter
+        AppointmentSearchFilter appointmentSearchFilter = new AppointmentSearchFilter(
+                searchByAppointmentCode ? search : null, // appointmentCode
+                null, // patientName (unused by repo)
+                null,
+                null,
+                filter.fromDate(),
+                filter.toDate(),
+                null,
+                null);
+
+        // Build patientIds only if NOT appointment search
+        final Set<ObjectId> patientIds;
+
+        if (!searchByAppointmentCode && search != null && !search.isBlank()) {
+
+            patientIds = new HashSet<>();
+
+            patientIds.addAll(
+                    patientRepository.searchByName(search)
+                            .stream()
+                            .map(Patient::getId)
+                            .toList());
+
+            patientRepository.findByPatientCodeRegex(search)
+                    .forEach(p -> patientIds.add(p.getId()));
+
+            if (patientIds.isEmpty()) {
+                return new PageResponse<>(List.of(), 0, page, size);
+            }
+        } else {
+            patientIds = null;
+        }
+
+        Set<ObjectId> doctorIds = Set.of(doctor.getId());
+
+        PageResult<Appointment> result = appointmentRepository.search(
+                appointmentSearchFilter,
+                page,
+                size,
+                patientIds,
+                doctorIds);
+
+        List<DoctorPatientRowResponse> rows = result.data().stream().map(a -> {
+            Patient p = patientRepository.findById(a.getPatientId()).orElseThrow();
+
+            return new DoctorPatientRowResponse(
+                    p.getPatientCode(),
+                    a.getAppointmentCode(),
+                    p.getFirstName() + " " + p.getLastName(),
+                    a.getScheduledStart());
+        }).toList();
+
+        return new PageResponse<>(rows, result.total(), page, size);
+    }
+
+    @Override
     public void cancelAppointment(String appointmentId, String reason) {
 
         Appointment appointment = getAppointment(appointmentId);
@@ -289,6 +364,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.NO_SHOW);
 
         appointmentRepository.save(appointment);
+    }
+
+    private boolean looksLikeAppointmentCode(String s) {
+        return s != null && s.toUpperCase().startsWith("APT-");
     }
 
     private AppointmentResponse mapToResponse(Appointment appointment) {

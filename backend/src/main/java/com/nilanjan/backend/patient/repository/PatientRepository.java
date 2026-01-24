@@ -16,4 +16,7 @@ public interface PatientRepository extends MongoRepository<Patient, ObjectId>, P
     @Query("{ $or: [ { firstName: { $regex: ?0, $options: 'i' } }, { lastName: { $regex: ?0, $options: 'i' } } ] }")
     List<Patient> searchByName(String name);
 
+    @Query("{ 'patientCode': { $regex: ?0, $options: 'i' } }")
+    List<Patient> findByPatientCodeRegex(String code);
+
 }

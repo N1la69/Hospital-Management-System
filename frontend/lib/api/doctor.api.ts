@@ -6,6 +6,11 @@ import {
 } from "@/types/doctor";
 import api from "../utils/axios";
 import { SimpleOption } from "@/types/options";
+import {
+  DoctorPatientRowResponse,
+  DoctorPatientSearchFilter,
+} from "@/types/appointment";
+import { PageResponse } from "@/types/pagination";
 
 export const fetchDoctors = async (): Promise<DoctorResponse[]> => {
   const res = await api.get<DoctorResponse[]>("/api/doctors");
@@ -43,6 +48,18 @@ export const searchDoctors = async (
 
 export const getMyDoctorProfile = async () => {
   const res = await api.get("/api/doctors/me");
+  return res.data;
+};
+
+export const searchMyPatients = async (
+  payload: DoctorPatientSearchFilter,
+  page: number,
+  size: number,
+) => {
+  const res = await api.post(
+    `/api/doctors/me/patients/search?page=${page}&size=${size}`,
+    payload,
+  );
   return res.data;
 };
 

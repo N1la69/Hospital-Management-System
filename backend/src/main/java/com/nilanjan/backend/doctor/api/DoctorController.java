@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nilanjan.backend.appointment.api.dto.DoctorPatientRowResponse;
+import com.nilanjan.backend.appointment.api.dto.DoctorPatientSearchFilter;
+import com.nilanjan.backend.appointment.application.AppointmentService;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
@@ -30,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 public class DoctorController {
 
     private final DoctorService doctorService;
+    private final AppointmentService appointmentService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -54,6 +58,15 @@ public class DoctorController {
     @GetMapping("/me")
     public ResponseEntity<DoctorResponse> getMyProfile() {
         return ResponseEntity.ok(doctorService.getMyDoctorProfile());
+    }
+
+    @PostMapping("/me/patients/search")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public ResponseEntity<PageResponse<DoctorPatientRowResponse>> searchMyPatients(
+            @RequestBody DoctorPatientSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(appointmentService.getMyPatients(filter, page, size));
     }
 
     @PostMapping("/search")

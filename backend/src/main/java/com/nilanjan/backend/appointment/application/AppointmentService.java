@@ -5,6 +5,8 @@ import java.util.List;
 import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
 import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
+import com.nilanjan.backend.appointment.api.dto.DoctorPatientRowResponse;
+import com.nilanjan.backend.appointment.api.dto.DoctorPatientSearchFilter;
 import com.nilanjan.backend.common.dto.PageResponse;
 
 public interface AppointmentService {
@@ -16,6 +18,8 @@ public interface AppointmentService {
     List<AppointmentResponse> getAppointments();
 
     PageResponse<AppointmentResponse> advancedSearch(AppointmentSearchFilter filter, int page, int size);
+
+    PageResponse<DoctorPatientRowResponse> getMyPatients(DoctorPatientSearchFilter filter, int page, int size);
 
     void checkInAppointment(String appointmentId);
 

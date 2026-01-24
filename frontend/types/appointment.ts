@@ -43,3 +43,16 @@ export interface AppointmentSearchFilter {
     | "SUNDAY";
   date?: string;
 }
+
+export interface DoctorPatientSearchFilter {
+  searchText?: string;
+  fromDate?: string;
+  toDate?: string;
+}
+
+export interface DoctorPatientRowResponse {
+  patientCode: string;
+  appointmentCode: string;
+  patientName: string;
+  appointmentDateTime: string;
+}
