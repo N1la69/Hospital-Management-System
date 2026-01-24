@@ -268,6 +268,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             Patient p = patientRepository.findById(a.getPatientId()).orElseThrow();
 
             return new DoctorPatientRowResponse(
+                    p.getId().toHexString(),
                     p.getPatientCode(),
                     a.getAppointmentCode(),
                     p.getFirstName() + " " + p.getLastName(),

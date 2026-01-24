@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { doctorMenu } from "@/lib/constants/sidebarMenus";
@@ -10,8 +10,11 @@ import {
 } from "@/types/appointment";
 import { toast } from "react-toastify";
 import { searchMyPatients } from "@/lib/api/doctor.api";
+import { useRouter } from "next/navigation";
 
 export default function DoctorPatientsPage() {
+  const router = useRouter();
+
   const [rows, setRows] = useState<DoctorPatientRowResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -58,6 +61,10 @@ export default function DoctorPatientsPage() {
     setToDate("");
     setShowFilters(false);
     handleSearch(0);
+  };
+
+  const goToPatient = (patientId: string) => {
+    router.push(`/doctor/patients/${patientId}`);
   };
 
   return (
@@ -194,7 +201,8 @@ export default function DoctorPatientsPage() {
                     return (
                       <tr
                         key={idx}
-                        className="border-b last:border-b-0 hover:bg-slate-50 transition"
+                        className="border-b last:border-b-0 hover:bg-slate-50 transition cursor-pointer"
+                        onClick={() => goToPatient(item.patientId)}
                       >
                         <td className="px-4 py-3 font-mono text-slate-700">
                           {item.patientCode}

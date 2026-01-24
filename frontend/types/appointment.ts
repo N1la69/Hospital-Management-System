@@ -51,6 +51,7 @@ export interface DoctorPatientSearchFilter {
 }
 
 export interface DoctorPatientRowResponse {
+  patientId: string;
   patientCode: string;
   appointmentCode: string;
   patientName: string;
