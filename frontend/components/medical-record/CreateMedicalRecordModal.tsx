@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import Field from "../ui/Field";
+import { toast } from "react-toastify";
+import { createMedicalRecord } from "@/lib/api/medical-record.api";
 
 interface Props {
   open: boolean;
@@ -41,6 +43,8 @@ const CreateMedicalRecordModal = ({
   onClose,
   onSuccess,
 }: Props) => {
+  const [loading, setLoading] = useState(false);
+
   const [primaryDiagnosis, setPrimaryDiagnosis] = useState("");
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [secondaryDiagnosis, setSecondaryDiagnosis] = useState<string[]>([]);
@@ -70,7 +74,79 @@ const CreateMedicalRecordModal = ({
     );
   };
 
-  const submit = async () => {};
+  const submit = async () => {
+    setLoading(true);
+
+    try {
+      if (!primaryDiagnosis.trim()) {
+        alert("Primary diagnosis is required");
+        return;
+      }
+
+      if (symptoms.length === 0 || symptoms.every((s) => !s.trim())) {
+        alert("Please enter at least one symptom");
+        return;
+      }
+
+      const payload = {
+        patientId,
+        manualEntry: true,
+        visitDate: new Date().toISOString(),
+
+        diagnosis: {
+          primaryDiagnosis: primaryDiagnosis.trim(),
+          secondaryDiagnosis: secondaryDiagnosis.filter(Boolean),
+          symptoms: symptoms.filter(Boolean),
+          clinicalNotes: clinicalNotes.trim(),
+        },
+
+        vitals: {
+          height: height || 0.0,
+          weight: weight || 0,
+          bloodPressure: bloodPressure || "120/80",
+          temperature: temperature || undefined,
+          pulse: pulse || 72,
+          oxygenSaturation: oxygenSaturation || undefined,
+        },
+
+        medications: medications
+          .filter((m) => m.name || m.dosage || m.frequency || m.duration)
+          .map((m) => ({
+            name: m.name || undefined,
+            dosage: m.dosage || undefined,
+            frequency: m.frequency || undefined,
+            duration: m.duration || undefined,
+          })),
+
+        notes: clinicalNotes.trim() || undefined,
+      };
+
+      await createMedicalRecord(payload);
+
+      onSuccess();
+      onClose();
+
+      setPrimaryDiagnosis("");
+      setSymptoms([]);
+      setSecondaryDiagnosis([]);
+      setClinicalNotes("");
+      setHeight("");
+      setWeight("");
+      setBloodPressure("120/80");
+      setTemperature("");
+      setPulse("");
+      setOxygenSaturation("");
+      setMedications([{ name: "", dosage: "", frequency: "", duration: "" }]);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Error creating medical record",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Modal
@@ -83,7 +159,7 @@ const CreateMedicalRecordModal = ({
         {/* DIAGNOSIS */}
         <Section title="Diagnosis">
           <Grid>
-            <Field label="Primary Diagnosis">
+            <Field label="Primary Diagnosis*">
               <input
                 value={primaryDiagnosis}
                 onChange={(e) => setPrimaryDiagnosis(e.target.value)}
@@ -104,7 +180,7 @@ const CreateMedicalRecordModal = ({
             </Field>
           </Grid>
 
-          <Field label="Symptoms (comma separated)">
+          <Field label="Symptoms* (comma separated)">
             <input
               value={symptoms}
               onChange={(e) =>
@@ -114,7 +190,7 @@ const CreateMedicalRecordModal = ({
             />
           </Field>
 
-          <Field label="Clinical Notes">
+          <Field label="Clinical Notes*">
             <textarea
               value={clinicalNotes}
               onChange={(e) => setClinicalNotes(e.target.value)}
@@ -237,7 +313,7 @@ const CreateMedicalRecordModal = ({
             onClick={submit}
             className="rounded-md bg-blue-700 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-800"
           >
-            Save Medical Record
+            {loading ? "Saving..." : "Save Medical Record"}
           </button>
         </div>
       </div>

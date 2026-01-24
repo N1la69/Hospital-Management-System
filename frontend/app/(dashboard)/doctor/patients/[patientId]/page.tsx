@@ -43,7 +43,7 @@ const DoctorPatientMedicalPage = () => {
     <DashboardLayout title="Patient Medical Record" menuItems={doctorMenu}>
       {loading && <div className="text-sm text-slate-500">Loading...</div>}
 
-      {!loading && !record && (
+      {!loading && record && record.length === 0 && (
         <div className="bg-white border rounded-xl p-8 text-center space-y-4">
           <p className="text-slate-600">No medical record found.</p>
 
@@ -56,7 +56,7 @@ const DoctorPatientMedicalPage = () => {
         </div>
       )}
 
-      {!loading && record && (
+      {!loading && record && record.length > 0 && (
         <div className="bg-white border rounded-xl p-6 space-y-6">
           {record.map((r, idx) => (
             <div key={idx}>
@@ -155,6 +155,7 @@ const DoctorPatientMedicalPage = () => {
         onSuccess={() => {
           setShowCreateModal(false);
           fetchMedicalRecord();
+          toast.success("Medical record created successfully.");
         }}
       />
     </DashboardLayout>
