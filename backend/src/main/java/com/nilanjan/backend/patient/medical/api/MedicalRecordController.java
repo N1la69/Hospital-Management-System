@@ -36,9 +36,4 @@ public class MedicalRecordController {
         return ResponseEntity.ok(medicalRecordService.getByPatientId(patientId));
     }
 
-    @GetMapping("/appointment/{appointmentId}")
-    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
-    public ResponseEntity<MedicalRecordResponse> getByAppointment(@PathVariable String appointmentId) {
-        return ResponseEntity.ok(medicalRecordService.getByAppointmentId(appointmentId));
-    }
 }

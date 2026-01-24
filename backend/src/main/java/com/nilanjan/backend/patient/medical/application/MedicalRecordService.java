@@ -11,5 +11,4 @@ public interface MedicalRecordService {
 
     List<MedicalRecordResponse> getByPatientId(String patientId);
 
-    MedicalRecordResponse getByAppointmentId(String appointmentId);
 }

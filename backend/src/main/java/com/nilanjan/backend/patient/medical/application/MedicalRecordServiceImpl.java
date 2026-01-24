@@ -24,99 +24,86 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MedicalRecordServiceImpl implements MedicalRecordService {
 
-    private final MedicalRecordRepository medicalRecordRepository;
+        private final MedicalRecordRepository medicalRecordRepository;
 
-    @Override
-    public MedicalRecordResponse create(CreateMedicalRecordRequest request) {
+        @Override
+        public MedicalRecordResponse create(CreateMedicalRecordRequest request) {
 
-        MedicalRecord record = MedicalRecord.builder()
-                .patientId(new ObjectId(request.patientId()))
-                .doctorId(request.doctorId() != null ? new ObjectId(request.doctorId()) : null)
-                .appointmentId(request.appointmentId() != null ? new ObjectId(request.appointmentId()) : null)
-                .manualEntry(request.manualEntry())
-                .visitDate(request.visitDate())
-                .diagnosis(mapDiagnosis(request.diagnosis()))
-                .vitals(mapVitals(request.vitals()))
-                .medications(mapMedications(request.medications()))
-                .notes(request.notes())
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .build();
+                MedicalRecord record = MedicalRecord.builder()
+                                .patientId(new ObjectId(request.patientId()))
+                                .manualEntry(request.manualEntry())
+                                .visitDate(request.visitDate())
+                                .diagnosis(mapDiagnosis(request.diagnosis()))
+                                .vitals(mapVitals(request.vitals()))
+                                .medications(mapMedications(request.medications()))
+                                .notes(request.notes())
+                                .createdAt(Instant.now())
+                                .updatedAt(Instant.now())
+                                .build();
 
-        MedicalRecord saved = medicalRecordRepository.save(record);
-        return mapToResponse(saved);
+                MedicalRecord saved = medicalRecordRepository.save(record);
+                return mapToResponse(saved);
 
-    }
+        }
 
-    @Override
-    public List<MedicalRecordResponse> getByPatientId(String patientId) {
+        @Override
+        public List<MedicalRecordResponse> getByPatientId(String patientId) {
 
-        return medicalRecordRepository.findByPatientIdOrderByVisitDateDesc(new ObjectId(patientId))
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
+                return medicalRecordRepository.findByPatientIdOrderByVisitDateDesc(new ObjectId(patientId))
+                                .stream()
+                                .map(this::mapToResponse)
+                                .collect(Collectors.toList());
+        }
 
-    @Override
-    public MedicalRecordResponse getByAppointmentId(String appointmentId) {
+        private Diagnosis mapDiagnosis(DiagnosisDto dto) {
+                return new Diagnosis(
+                                dto.primaryDiagnosis(),
+                                dto.secondaryDiagnosis(),
+                                dto.symptoms(),
+                                dto.clinicalNotes());
+        }
 
-        MedicalRecord record = medicalRecordRepository.findByAppointmentId(new ObjectId(appointmentId))
-                .orElseThrow(() -> new RuntimeException(
-                        "Medical record does not esist for this appointment: " + appointmentId));
+        private Vitals mapVitals(VitalsDto dto) {
+                return new Vitals(
+                                dto.height(), dto.weight(), dto.bloodPressure(),
+                                dto.temperature(), dto.pulse(), dto.oxygenSaturation());
+        }
 
-        return mapToResponse(record);
-    }
+        private List<Medication> mapMedications(List<MedicationDto> list) {
+                if (list == null)
+                        return List.of();
 
-    private Diagnosis mapDiagnosis(DiagnosisDto dto) {
-        return new Diagnosis(
-                dto.primaryDiagnosis(),
-                dto.secondaryDiagnosis(),
-                dto.symptoms(),
-                dto.clinicalNotes());
-    }
+                return list.stream()
+                                .map(m -> new Medication(
+                                                m.name(), m.dosage(), m.frequency(), m.duration()))
+                                .collect(Collectors.toList());
+        }
 
-    private Vitals mapVitals(VitalsDto dto) {
-        return new Vitals(
-                dto.height(), dto.weight(), dto.bloodPressure(),
-                dto.temperature(), dto.pulse(), dto.oxygenSaturation());
-    }
-
-    private List<Medication> mapMedications(List<MedicationDto> list) {
-        if (list == null)
-            return List.of();
-
-        return list.stream()
-                .map(m -> new Medication(
-                        m.name(), m.dosage(), m.frequency(), m.duration()))
-                .collect(Collectors.toList());
-    }
-
-    private MedicalRecordResponse mapToResponse(MedicalRecord record) {
-        return new MedicalRecordResponse(
-                record.getId().toHexString(),
-                record.getPatientId().toHexString(),
-                record.getDoctorId() != null ? record.getDoctorId().toHexString() : null,
-                record.getAppointmentId() != null ? record.getAppointmentId().toHexString() : null,
-                record.isManualEntry(),
-                record.getVisitDate(),
-                new DiagnosisDto(
-                        record.getDiagnosis().getPrimaryDiagnosis(),
-                        record.getDiagnosis().getSecondaryDiagnosis(),
-                        record.getDiagnosis().getSymptoms(),
-                        record.getDiagnosis().getClinicalNotes()),
-                new VitalsDto(
-                        record.getVitals().getHeight(),
-                        record.getVitals().getWeight(),
-                        record.getVitals().getBloodPressure(),
-                        record.getVitals().getTemperature(),
-                        record.getVitals().getPulse(),
-                        record.getVitals().getOxygenSaturation()),
-                record.getMedications().stream()
-                        .map(m -> new MedicationDto(m.getName(), m.getDosage(), m.getFrequency(), m.getDuration()))
-                        .collect(Collectors.toList()),
-                record.getNotes(),
-                record.getCreatedAt(),
-                record.getUpdatedAt());
-    }
+        private MedicalRecordResponse mapToResponse(MedicalRecord record) {
+                return new MedicalRecordResponse(
+                                record.getId().toHexString(),
+                                record.getPatientId().toHexString(),
+                                record.isManualEntry(),
+                                record.getVisitDate(),
+                                new DiagnosisDto(
+                                                record.getDiagnosis().getPrimaryDiagnosis(),
+                                                record.getDiagnosis().getSecondaryDiagnosis(),
+                                                record.getDiagnosis().getSymptoms(),
+                                                record.getDiagnosis().getClinicalNotes()),
+                                new VitalsDto(
+                                                record.getVitals().getHeight(),
+                                                record.getVitals().getWeight(),
+                                                record.getVitals().getBloodPressure(),
+                                                record.getVitals().getTemperature(),
+                                                record.getVitals().getPulse(),
+                                                record.getVitals().getOxygenSaturation()),
+                                record.getMedications().stream()
+                                                .map(m -> new MedicationDto(m.getName(), m.getDosage(),
+                                                                m.getFrequency(), m.getDuration()))
+                                                .collect(Collectors.toList()),
+                                record.getNotes(),
+                                record.getCreatedAt(),
+                                record.getUpdatedAt());
+        }
 
 }

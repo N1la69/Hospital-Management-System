@@ -23,8 +23,6 @@ public class MedicalRecord {
     private ObjectId id;
 
     private ObjectId patientId;
-    private ObjectId doctorId;
-    private ObjectId appointmentId;
 
     private boolean manualEntry;
 

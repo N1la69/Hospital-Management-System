@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { IoMdCloseCircle } from "react-icons/io";
 
 interface ModalProps {
   open: boolean;
@@ -49,23 +50,22 @@ const Modal = ({ open, onClose, title, children, size = "md" }: ModalProps) => {
       />
 
       <div
-        className={`relative w-full ${sizeMap[size]} bg-white rounded-xl shadow-xl border`}
-        onClick={(e) => e.stopPropagation()}
+        className={`relative w-full ${sizeMap[size]} bg-white rounded-xl shadow-xl border flex flex-col max-h-[95vh]`}
       >
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b bg-slate-50 rounded-t-xl">
             <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
             <button
               className="text-slate-400 hover:text-slate-700 text-xl leading-none"
-              aria-label="Close"
               onClick={onClose}
             >
-              X
+              <IoMdCloseCircle size={18} />
             </button>
           </div>
         )}
 
-        <div className="p-6">{children}</div>
+        {/* SCROLLABLE CONTENT */}
+        <div className="p-6 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
   );

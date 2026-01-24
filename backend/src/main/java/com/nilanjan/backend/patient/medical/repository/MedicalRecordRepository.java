@@ -1,7 +1,6 @@
 package com.nilanjan.backend.patient.medical.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -12,5 +11,4 @@ public interface MedicalRecordRepository extends MongoRepository<MedicalRecord, 
 
     List<MedicalRecord> findByPatientIdOrderByVisitDateDesc(ObjectId patientId);
 
-    Optional<MedicalRecord> findByAppointmentId(ObjectId appointmentId);
 }
