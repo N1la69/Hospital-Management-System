@@ -11,6 +11,7 @@ import com.nilanjan.backend.patient.medical.api.dto.CreateMedicalRecordRequest;
 import com.nilanjan.backend.patient.medical.api.dto.DiagnosisDto;
 import com.nilanjan.backend.patient.medical.api.dto.MedicalRecordResponse;
 import com.nilanjan.backend.patient.medical.api.dto.MedicationDto;
+import com.nilanjan.backend.patient.medical.api.dto.UpdateMedicalRecordRequest;
 import com.nilanjan.backend.patient.medical.api.dto.VitalsDto;
 import com.nilanjan.backend.patient.medical.domain.Diagnosis;
 import com.nilanjan.backend.patient.medical.domain.MedicalRecord;
@@ -42,6 +43,31 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                                 .build();
 
                 MedicalRecord saved = medicalRecordRepository.save(record);
+                return mapToResponse(saved);
+
+        }
+
+        @Override
+        public MedicalRecordResponse update(UpdateMedicalRecordRequest request) {
+
+                MedicalRecord record = medicalRecordRepository.findById(new ObjectId(request.recordId()))
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Medical record not found: " + request.recordId()));
+
+                if (request.diagnosis() != null)
+                        record.setDiagnosis(mapDiagnosis(request.diagnosis()));
+
+                if (request.vitals() != null)
+                        record.setVitals(mapVitals(request.vitals()));
+
+                if (request.medications() != null)
+                        record.setMedications(mapMedications(request.medications()));
+
+                record.setNotes(request.notes());
+                record.setUpdatedAt(Instant.now());
+
+                MedicalRecord saved = medicalRecordRepository.save(record);
+
                 return mapToResponse(saved);
 
         }

@@ -2,6 +2,7 @@
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import CreateMedicalRecordModal from "@/components/medical-record/CreateMedicalRecordModal";
+import UpdateMedicalRecordModal from "@/components/medical-record/UpdateMedicalRecordModal";
 import { getMedicalHistoryByPatient } from "@/lib/api/medical-record.api";
 import { doctorMenu } from "@/lib/constants/sidebarMenus";
 import { MedicalRecordResponse } from "@/types/medical-record";
@@ -11,10 +12,12 @@ import { toast } from "react-toastify";
 
 const DoctorPatientMedicalPage = () => {
   const { patientId } = useParams<{ patientId: string }>();
+  const [recordId, setRecordId] = useState<string>("");
 
   const [record, setRecord] = useState<MedicalRecordResponse[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const fetchMedicalRecord = async () => {
     setLoading(true);
@@ -23,8 +26,15 @@ const DoctorPatientMedicalPage = () => {
       const res = await getMedicalHistoryByPatient(patientId);
 
       setRecord(res);
+
+      if (res.length > 0) {
+        setRecordId(res[0].id); // ✅ latest record
+      } else {
+        setRecordId("");
+      }
     } catch (error: any) {
       setRecord(null);
+      setRecordId("");
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
@@ -138,7 +148,11 @@ const DoctorPatientMedicalPage = () => {
               <div className="pt-4 border-t flex justify-end">
                 <button
                   className="border px-4 py-2 rounded-md"
-                  onClick={() => alert("Edit medical record modal coming next")}
+                  disabled={!recordId}
+                  onClick={() => {
+                    setRecordId(r.id);
+                    setShowUpdateModal(true);
+                  }}
                 >
                   Edit Medical Record
                 </button>
@@ -156,6 +170,18 @@ const DoctorPatientMedicalPage = () => {
           setShowCreateModal(false);
           fetchMedicalRecord();
           toast.success("Medical record created successfully.");
+        }}
+      />
+
+      <UpdateMedicalRecordModal
+        open={showUpdateModal}
+        recordId={recordId}
+        patientId={patientId}
+        onClose={() => setShowUpdateModal(false)}
+        onSuccess={() => {
+          setShowUpdateModal(false);
+          fetchMedicalRecord();
+          toast.success("Medical record updated successfully.");
         }}
       />
     </DashboardLayout>

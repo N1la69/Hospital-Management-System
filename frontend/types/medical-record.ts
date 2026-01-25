@@ -43,3 +43,11 @@ export interface CreateMedicalRecordRequest {
   medications: MedicationDto[];
   notes?: string;
 }
+
+export interface UpdateMedicalRecordRequest {
+  recordId: string;
+  diagnosis: DiagnosisDto;
+  vitals: VitalsDto;
+  medications: MedicationDto[];
+  notes?: string;
+}
