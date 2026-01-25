@@ -63,7 +63,13 @@ export default function DoctorPatientsPage() {
     handleSearch(0);
   };
 
-  const goToPatient = (patientId: string) => {
+  const goToPatient = (
+    patientId: string,
+    patientName: string,
+    patientCode: string,
+  ) => {
+    sessionStorage.setItem("currentPatientName", patientName);
+    sessionStorage.setItem("currentPatientCode", patientCode);
     router.push(`/doctor/patients/${patientId}`);
   };
 
@@ -202,7 +208,13 @@ export default function DoctorPatientsPage() {
                       <tr
                         key={idx}
                         className="border-b last:border-b-0 hover:bg-slate-50 transition cursor-pointer"
-                        onClick={() => goToPatient(item.patientId)}
+                        onClick={() =>
+                          goToPatient(
+                            item.patientId,
+                            item.patientName,
+                            item.patientCode,
+                          )
+                        }
                       >
                         <td className="px-4 py-3 font-mono text-slate-700">
                           {item.patientCode}

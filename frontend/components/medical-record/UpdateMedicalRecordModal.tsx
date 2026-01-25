@@ -9,6 +9,7 @@ import {
 } from "@/lib/api/medical-record.api";
 import { MedicalRecordResponse } from "@/types/medical-record";
 import Field from "../ui/Field";
+import { IoMdAddCircle } from "react-icons/io";
 
 interface Props {
   open: boolean;
@@ -26,8 +27,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-slate-50 border rounded-xl p-4">
-      <h3 className="text-sm font-semibold text-slate-800 mb-3">{title}</h3>
+    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+      <h3 className="mb-4 text-sm font-semibold text-blue-900 tracking-wide">
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -40,7 +43,9 @@ function Grid({ children }: { children: React.ReactNode }) {
 }
 
 const inputClass =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600";
+  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 " +
+  "placeholder:text-slate-400 bg-white";
 
 const UpdateMedicalRecordModal = ({
   open,
@@ -187,9 +192,19 @@ const UpdateMedicalRecordModal = ({
       size="lg"
     >
       <div className="space-y-6">
+        <div className="text-xs text-slate-500">
+          Fields marked with <span className="text-red-600">*</span> are
+          mandatory
+        </div>
+
         <Section title="Diagnosis">
           <Grid>
-            <Field label="Primary Diagnosis">
+            <Field
+              label="Primary Diagnosis"
+              required
+              hint="Main confirmed diagnosis for this visit"
+              className="mb-3"
+            >
               <input
                 value={primaryDiagnosis}
                 onChange={(e) => setPrimaryDiagnosis(e.target.value)}
@@ -197,7 +212,10 @@ const UpdateMedicalRecordModal = ({
               />
             </Field>
 
-            <Field label="Secondary Diagnosis">
+            <Field
+              label="Secondary Diagnosis"
+              hint="Comma separated if multiple"
+            >
               <input
                 value={secondaryDiagnosis.join(", ")}
                 onChange={(e) =>
@@ -210,7 +228,12 @@ const UpdateMedicalRecordModal = ({
             </Field>
           </Grid>
 
-          <Field label="Symptoms">
+          <Field
+            label="Symptoms"
+            required
+            hint="Comma separated (e.g. fever, cough, headache)"
+            className="mb-3"
+          >
             <input
               value={symptoms.join(", ")}
               onChange={(e) =>
@@ -220,18 +243,22 @@ const UpdateMedicalRecordModal = ({
             />
           </Field>
 
-          <Field label="Clinical Notes">
+          <Field
+            label="Clinical Notes"
+            required
+            hint="Doctor's clinical observations"
+          >
             <textarea
               value={clinicalNotes}
               onChange={(e) => setClinicalNotes(e.target.value)}
-              className={`${inputClass} min-h-20`}
+              className={`${inputClass} min-h-24`}
             />
           </Field>
         </Section>
 
         <Section title="Vitals">
           <Grid>
-            <Field label="Height">
+            <Field label="Height (cm)">
               <input
                 type="number"
                 value={height}
@@ -239,7 +266,8 @@ const UpdateMedicalRecordModal = ({
                 className={inputClass}
               />
             </Field>
-            <Field label="Weight">
+
+            <Field label="Weight (kg)">
               <input
                 type="number"
                 value={weight}
@@ -247,14 +275,16 @@ const UpdateMedicalRecordModal = ({
                 className={inputClass}
               />
             </Field>
-            <Field label="BP">
+
+            <Field label="Blood Pressure">
               <input
                 value={bloodPressure}
                 onChange={(e) => setBloodPressure(e.target.value)}
                 className={inputClass}
               />
             </Field>
-            <Field label="Temperature">
+
+            <Field label="Temperature (°F)">
               <input
                 type="number"
                 value={temperature}
@@ -262,7 +292,8 @@ const UpdateMedicalRecordModal = ({
                 className={inputClass}
               />
             </Field>
-            <Field label="Pulse">
+
+            <Field label="Pulse (bpm)">
               <input
                 type="number"
                 value={pulse}
@@ -270,7 +301,8 @@ const UpdateMedicalRecordModal = ({
                 className={inputClass}
               />
             </Field>
-            <Field label="O₂">
+
+            <Field label="Oxygen Saturation (%)">
               <input
                 type="number"
                 value={oxygenSaturation}
@@ -283,25 +315,35 @@ const UpdateMedicalRecordModal = ({
 
         <Section title="Medications">
           {medications.map((m, i) => (
-            <div key={i} className="grid grid-cols-4 gap-2 mb-2">
+            <div
+              key={i}
+              className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4 p-3 border rounded-lg bg-slate-50"
+            >
               <input
+                placeholder="Medicine name"
                 value={m.name}
                 onChange={(e) => updateMedication(i, "name", e.target.value)}
                 className={inputClass}
               />
+
               <input
+                placeholder="Dosage (e.g. 500mg)"
                 value={m.dosage}
                 onChange={(e) => updateMedication(i, "dosage", e.target.value)}
                 className={inputClass}
               />
+
               <input
+                placeholder="Frequency (e.g. 2x daily)"
                 value={m.frequency}
                 onChange={(e) =>
                   updateMedication(i, "frequency", e.target.value)
                 }
                 className={inputClass}
               />
+
               <input
+                placeholder="Duration (e.g. 5 days)"
                 value={m.duration}
                 onChange={(e) =>
                   updateMedication(i, "duration", e.target.value)
@@ -311,22 +353,32 @@ const UpdateMedicalRecordModal = ({
             </div>
           ))}
 
-          <button onClick={addMedication} className="text-sm text-blue-700">
-            + Add medication
+          <button
+            type="button"
+            onClick={addMedication}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-500 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-blue-600"
+          >
+            <span>
+              <IoMdAddCircle size={17} />
+            </span>{" "}
+            Add another medication
           </button>
         </Section>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <button onClick={onClose} className="border px-4 py-2 rounded-md">
+        <div className="flex justify-end gap-3 pt-5 border-t">
+          <button
+            onClick={onClose}
+            className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
             Cancel
           </button>
 
           <button
             disabled={loading}
             onClick={submit}
-            className="bg-blue-700 text-white px-5 py-2 rounded-md disabled:opacity-50"
+            className="rounded-md bg-blue-700 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60"
           >
-            {loading ? "Updating..." : "Update Record"}
+            {loading ? "Updating..." : "Update Medical Record"}
           </button>
         </div>
       </div>

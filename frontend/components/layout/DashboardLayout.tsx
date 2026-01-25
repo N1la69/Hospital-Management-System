@@ -33,13 +33,14 @@ const DashboardLayout = ({ title, children, menuItems = [] }: Props) => {
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed md:static z-50 md:z-auto top-0 left-0 h-screen md:h-screen w-64 bg-blue-900 text-white flex flex-col
-                    transform transition-transform duration-300 ${
-                      mobileOpen
-                        ? "translate-x-0"
-                        : "-translate-x-full md:translate-x-0"
-                    }
-                  `}
+        className={`fixed md:sticky md:top-0 z-50 md:z-auto top-0 left-0
+            h-screen md:h-auto min-h-screen
+            w-64 bg-blue-900 text-white flex flex-col
+            transform transition-transform duration-300 ${
+              mobileOpen
+                ? "translate-x-0"
+                : "-translate-x-full md:translate-x-0"
+            }`}
       >
         <div className="p-6 border-b border-blue-800 flex justify-between items-center">
           <div>
