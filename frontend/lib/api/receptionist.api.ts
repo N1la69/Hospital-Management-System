@@ -30,6 +30,13 @@ export const deleteReceptionist = async (
   await api.delete(`/api/receptionists/${receptionistId}`);
 };
 
+export const getReceptionistDetails = async (receptionistId: string) => {
+  const res = await api.get<ReceptionistResponse>(
+    `/api/receptionists/${receptionistId}/details`,
+  );
+  return res.data;
+};
+
 export const searchReceptionists = async (
   filter: ReceptionistSearchFilter,
   page: number,

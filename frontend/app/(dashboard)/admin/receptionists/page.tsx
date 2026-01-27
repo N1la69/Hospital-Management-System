@@ -4,8 +4,10 @@ import CreateReceptionistModal from "@/components/admin/CreateReceptionistModal"
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import DeleteReceptionistModal from "@/components/receptionist/DeleteReceptionistModal";
 import EditReceptionistModal from "@/components/receptionist/EditReceptionistModal";
+import ReceptionistDetailsModal from "@/components/receptionist/ReceptionistDetailsModal";
 import {
   deleteReceptionist,
+  getReceptionistDetails,
   searchReceptionists,
   updateReceptionist,
 } from "@/lib/api/receptionist.api";
@@ -27,6 +29,10 @@ const AdminReceptionistsPage = () => {
   );
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+
+  const [selectedReceptionist, setSelectedReceptionist] =
+    useState<ReceptionistResponse | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const [showFilters, setShowFilters] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -108,6 +114,20 @@ const AdminReceptionistsPage = () => {
     setFilters({});
     setSearchText("");
     handleSearch(0);
+  };
+
+  const openReceptionistDetails = async (receptionistId: string) => {
+    try {
+      const res = await getReceptionistDetails(receptionistId);
+      setSelectedReceptionist(res);
+      setDetailsOpen(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load receptionist details",
+      );
+    }
   };
 
   useEffect(() => {
@@ -245,12 +265,15 @@ const AdminReceptionistsPage = () => {
                 {receptionists.map((receptionist) => (
                   <tr
                     key={receptionist.id}
-                    className="border-b last:border-b-0 hover:bg-slate-50 transition"
+                    className="border-b last:border-b-0 transition"
                   >
                     <td className="px-4 py-3 font-mono text-slate-700">
                       {receptionist.receptionistCode}
                     </td>
-                    <td className="px-4 py-3 text-slate-800">
+                    <td
+                      className="px-4 py-3 text-blue-800 underline cursor-pointer"
+                      onClick={() => openReceptionistDetails(receptionist.id)}
+                    >
                       {receptionist.fullName}
                     </td>
                     <td className="px-4 py-3 text-slate-800">
@@ -351,6 +374,15 @@ const AdminReceptionistsPage = () => {
           loading={deleting}
         />
       )}
+
+      <ReceptionistDetailsModal
+        open={detailsOpen}
+        data={selectedReceptionist}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedReceptionist(null);
+        }}
+      />
     </DashboardLayout>
   );
 };

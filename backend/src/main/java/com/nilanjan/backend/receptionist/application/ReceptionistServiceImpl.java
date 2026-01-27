@@ -92,6 +92,15 @@ public class ReceptionistServiceImpl implements ReceptionistService {
         }
 
         @Override
+        public ReceptionistResponse getReceptionistDetails(String receptionistId) {
+
+                Receptionist receptionist = receptionistRepository.findById(new ObjectId(receptionistId))
+                                .orElseThrow(() -> new RuntimeException("Receptionist not found: " + receptionistId));
+
+                return mapToResponse(receptionist);
+        }
+
+        @Override
         public List<ReceptionistResponse> getAllReceptionists() {
 
                 return receptionistRepository.findAll()

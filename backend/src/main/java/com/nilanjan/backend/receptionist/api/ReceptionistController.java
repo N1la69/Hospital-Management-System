@@ -52,6 +52,12 @@ public class ReceptionistController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{receptionistId}/details")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ReceptionistResponse> getDetails(@PathVariable String receptionistId) {
+        return ResponseEntity.ok(receptionistService.getReceptionistDetails(receptionistId));
+    }
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ReceptionistResponse>> getAllReceptionists() {

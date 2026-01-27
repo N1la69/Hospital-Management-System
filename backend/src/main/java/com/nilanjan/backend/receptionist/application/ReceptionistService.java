@@ -15,6 +15,8 @@ public interface ReceptionistService {
 
     void deleteReceptionist(String receptionistId);
 
+    ReceptionistResponse getReceptionistDetails(String receptionistId);
+
     List<ReceptionistResponse> getAllReceptionists();
 
     PageResponse<ReceptionistResponse> advancedSearch(ReceptionistSearchFilter filter, int page, int size);
