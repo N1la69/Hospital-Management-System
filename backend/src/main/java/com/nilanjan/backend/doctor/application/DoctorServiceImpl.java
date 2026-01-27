@@ -16,9 +16,11 @@ import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
+import com.nilanjan.backend.doctor.api.dto.DoctorDetailsResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
 import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
+import com.nilanjan.backend.doctor.availability.api.dto.DoctorAvailabilityResponse;
 import com.nilanjan.backend.doctor.availability.repository.DoctorAvailabilityRepository;
 import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.domain.DoctorStatus;
@@ -99,6 +101,28 @@ public class DoctorServiceImpl implements DoctorService {
 
                 if (linkedUserId != null)
                         userRepository.deleteById(linkedUserId);
+        }
+
+        @Override
+        public DoctorDetailsResponse getDoctorDetails(String doctorId) {
+
+                Doctor doctor = doctorRepository.findById(new ObjectId(doctorId))
+                                .orElseThrow(() -> new RuntimeException("Doctor not found: " + doctorId));
+
+                DoctorResponse doctorResponse = mapToResponse(doctor);
+
+                List<DoctorAvailabilityResponse> availability = doctorAvailabilityRepository
+                                .findByDoctorId(new ObjectId(doctorId))
+                                .stream()
+                                .map(a -> new DoctorAvailabilityResponse(
+                                                a.getId().toHexString(),
+                                                a.getDayOfWeek(),
+                                                a.getStartTime(),
+                                                a.getEndTime(),
+                                                a.getSlotMinutes()))
+                                .toList();
+
+                return new DoctorDetailsResponse(doctorResponse, availability);
         }
 
         @Override

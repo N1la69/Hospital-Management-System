@@ -20,6 +20,7 @@ import com.nilanjan.backend.appointment.application.AppointmentService;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
+import com.nilanjan.backend.doctor.api.dto.DoctorDetailsResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
 import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
@@ -53,6 +54,12 @@ public class DoctorController {
     public ResponseEntity<Void> delete(@PathVariable String doctorId) {
         doctorService.deleteDoctor(doctorId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{doctorId}/details")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<DoctorDetailsResponse> getDoctorDetails(@PathVariable String doctorId) {
+        return ResponseEntity.ok(doctorService.getDoctorDetails(doctorId));
     }
 
     @GetMapping("/me")

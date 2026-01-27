@@ -1,3 +1,5 @@
+import { DoctorAvailabilityResponse } from "./availability";
+
 export interface DoctorResponse {
   id: string;
   doctorCode: string;
@@ -49,6 +51,11 @@ export interface UpdateDoctorRequest {
   phone: string;
   email: string;
   address: string;
+}
+
+export interface DoctorDetailsResponse {
+  doctor: DoctorResponse;
+  availability: DoctorAvailabilityResponse[];
 }
 
 export interface DoctorSearchFilter {

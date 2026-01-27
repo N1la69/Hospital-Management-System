@@ -1,15 +1,25 @@
 "use client";
 
+import DoctorDetailsModal from "@/components/doctor/DoctorDetailsModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { searchDoctors } from "@/lib/api/doctor.api";
+import { getDoctorDetails, searchDoctors } from "@/lib/api/doctor.api";
 import { receptionistMenu } from "@/lib/constants/sidebarMenus";
-import { DoctorResponse, DoctorSearchFilter } from "@/types/doctor";
+import {
+  DoctorDetailsResponse,
+  DoctorResponse,
+  DoctorSearchFilter,
+} from "@/types/doctor";
 import { useState } from "react";
 import { FiFilter, FiSearch } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const ReceptionistDoctorsPage = () => {
   const [doctors, setDoctors] = useState<DoctorResponse[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [selectedDoctor, setSelectedDoctor] =
+    useState<DoctorDetailsResponse | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const [showFilters, setShowFilters] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -19,7 +29,7 @@ const ReceptionistDoctorsPage = () => {
 
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
-  const pageSize = 10;
+  const pageSize = 5;
 
   const handleSearch = async (pageNo = 0) => {
     setLoading(true);
@@ -54,6 +64,20 @@ const ReceptionistDoctorsPage = () => {
     setSearchText("");
     setShowFilters(false);
     handleSearch(0);
+  };
+
+  const openDoctorDetails = async (doctorId: string) => {
+    try {
+      const res = await getDoctorDetails(doctorId);
+      setSelectedDoctor(res);
+      setDetailsOpen(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load doctor details",
+      );
+    }
   };
 
   return (
@@ -228,7 +252,8 @@ const ReceptionistDoctorsPage = () => {
                   {doctors.map((doctor) => (
                     <tr
                       key={doctor.id}
-                      className="border-b last:border-b-0 hover:bg-slate-50 transition"
+                      onClick={() => openDoctorDetails(doctor.id)}
+                      className="border-b last:border-b-0 hover:bg-blue-50 cursor-pointer transition"
                     >
                       <td className="px-4 py-3 font-mono text-slate-700">
                         {doctor.doctorCode}
@@ -288,6 +313,15 @@ const ReceptionistDoctorsPage = () => {
           </div>
         </div>
       )}
+
+      <DoctorDetailsModal
+        open={detailsOpen}
+        data={selectedDoctor}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedDoctor(null);
+        }}
+      />
     </DashboardLayout>
   );
 };

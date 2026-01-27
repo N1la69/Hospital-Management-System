@@ -46,6 +46,11 @@ export const searchDoctors = async (
   return res.data;
 };
 
+export const getDoctorDetails = async (doctorId: string) => {
+  const res = await api.get(`/api/doctors/${doctorId}/details`);
+  return res.data;
+};
+
 export const getMyDoctorProfile = async () => {
   const res = await api.get("/api/doctors/me");
   return res.data;

@@ -5,6 +5,7 @@ import java.util.List;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.doctor.api.dto.CreateDoctorRequest;
+import com.nilanjan.backend.doctor.api.dto.DoctorDetailsResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorResponse;
 import com.nilanjan.backend.doctor.api.dto.DoctorSearchFilter;
 import com.nilanjan.backend.doctor.api.dto.UpdateDoctorRequest;
@@ -16,6 +17,8 @@ public interface DoctorService {
     DoctorResponse updateDoctor(String doctorId, UpdateDoctorRequest request);
 
     void deleteDoctor(String doctorId);
+
+    DoctorDetailsResponse getDoctorDetails(String doctorId);
 
     List<SimpleOption> doctorOptions();
 
