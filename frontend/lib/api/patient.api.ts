@@ -29,6 +29,11 @@ export const deletePatient = async (patientId: string): Promise<void> => {
   await api.delete(`/api/patients/${patientId}`);
 };
 
+export const getPatientDetails = async (patientId: string) => {
+  const res = await api.get(`/api/patients/${patientId}/details`);
+  return res.data;
+};
+
 export const searchPatients = async (
   filter: PatientSearchFilter,
   page: number,

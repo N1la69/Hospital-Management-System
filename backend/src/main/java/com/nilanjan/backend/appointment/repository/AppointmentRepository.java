@@ -2,6 +2,7 @@ package com.nilanjan.backend.appointment.repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -20,6 +21,8 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Obje
                         ObjectId doctorId,
                         Instant end,
                         Instant start);
+
+        Optional<Appointment> findTopByPatientIdOrderByScheduledStartDesc(ObjectId patientId);
 
         List<Appointment> findByPatientIdAndScheduledStartLessThanAndScheduledEndGreaterThan(
                         ObjectId patientId,

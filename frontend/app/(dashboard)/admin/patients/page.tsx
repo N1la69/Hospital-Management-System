@@ -4,13 +4,20 @@ import CreatePatientModal from "@/components/admin/CreatePatientModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import DeletePatientModal from "@/components/patient/DeletePatientModal";
 import EditPatientModal from "@/components/patient/EditPatientModal";
+import PatientDetailsModal from "@/components/patient/PatientDetailsModal";
 import {
   deletePatient,
+  getPatientDetails,
   searchPatients,
   updatePatient,
 } from "@/lib/api/patient.api";
 import { adminMenu } from "@/lib/constants/sidebarMenus";
-import { PatientResponse, PatientSearchFilter } from "@/types/patient";
+import {
+  bloodGroupMapper,
+  PatientDetailsResponse,
+  PatientResponse,
+  PatientSearchFilter,
+} from "@/types/patient";
 import { useEffect, useState } from "react";
 import { FaUserEdit } from "react-icons/fa";
 import { FiFilter, FiSearch } from "react-icons/fi";
@@ -33,9 +40,13 @@ const AdminPatientsPage = () => {
     useState<PatientResponse | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [selectedPatient, setSelectedPatient] =
+    useState<PatientDetailsResponse | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
-  const pageSize = 3;
+  const pageSize = 5;
 
   const refresh = () => handleSearch(page);
 
@@ -109,6 +120,20 @@ const AdminPatientsPage = () => {
     setFilters({});
     setSearchText("");
     handleSearch(0);
+  };
+
+  const openPatientDetails = async (patientId: string) => {
+    try {
+      const res = await getPatientDetails(patientId);
+      setSelectedPatient(res);
+      setDetailsOpen(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load patient details",
+      );
+    }
   };
 
   useEffect(() => {
@@ -310,12 +335,15 @@ const AdminPatientsPage = () => {
                 {patients.map((patient) => (
                   <tr
                     key={patient.id}
-                    className="border-b last:border-b-0 hover:bg-slate-50 transition"
+                    className="border-b last:border-b-0 hover:bg-blue-50 transition"
                   >
                     <td className="px-4 py-3 font-mono text-slate-700">
                       {patient.patientCode}
                     </td>
-                    <td className="px-4 py-3 text-slate-800">
+                    <td
+                      className="px-4 py-3 text-blue-800 underline cursor-pointer"
+                      onClick={() => openPatientDetails(patient.id)}
+                    >
                       {patient.fullName}
                     </td>
                     <td className="px-4 py-3 text-slate-800">
@@ -325,7 +353,9 @@ const AdminPatientsPage = () => {
                       {patient.email}
                     </td>
                     <td className="px-4 py-3 text-slate-700">
-                      {patient.bloodGroup}
+                      {bloodGroupMapper[
+                        patient.bloodGroup as keyof typeof bloodGroupMapper
+                      ] || patient.bloodGroup}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -420,6 +450,15 @@ const AdminPatientsPage = () => {
           loading={deleting}
         />
       )}
+
+      <PatientDetailsModal
+        open={detailsOpen}
+        data={selectedPatient}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedPatient(null);
+        }}
+      />
     </DashboardLayout>
   );
 };

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.SimpleOption;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
+import com.nilanjan.backend.patient.api.dto.PatientDetailsResponse;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
 import com.nilanjan.backend.patient.api.dto.UpdatePatientRequest;
@@ -49,6 +50,11 @@ public class PatientController {
     public ResponseEntity<Void> delete(@PathVariable String patientId) {
         patientService.deletePatient(patientId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{patientId}/details")
+    public ResponseEntity<PatientDetailsResponse> getDetails(@PathVariable String patientId) {
+        return ResponseEntity.ok(patientService.getPatientDetails(patientId));
     }
 
     @PostMapping("/search")

@@ -309,7 +309,7 @@ const AdminDoctorsPage = () => {
                 {doctors.map((doctor) => (
                   <tr
                     key={doctor.id}
-                    className="border-b last:border-b-0 hover:bg-blue-50 cursor-pointer transition"
+                    className="border-b last:border-b-0 hover:bg-blue-50 transition"
                   >
                     <td className="px-4 py-3 font-mono text-slate-700">
                       {doctor.doctorCode}

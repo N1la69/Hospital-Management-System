@@ -2,11 +2,14 @@ package com.nilanjan.backend.patient.application;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
+import com.nilanjan.backend.appointment.domain.Appointment;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
 import com.nilanjan.backend.auth.application.UserAccountService;
@@ -17,7 +20,9 @@ import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.common.dto.SimpleOption;
+import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.patient.api.dto.CreatePatientRequest;
+import com.nilanjan.backend.patient.api.dto.PatientDetailsResponse;
 import com.nilanjan.backend.patient.api.dto.PatientResponse;
 import com.nilanjan.backend.patient.api.dto.PatientSearchFilter;
 import com.nilanjan.backend.patient.api.dto.UpdatePatientRequest;
@@ -33,6 +38,7 @@ public class PatientServiceImpl implements PatientService {
 
         private final PatientRepository patientRepository;
         private final AppointmentRepository appointmentRepository;
+        private final DoctorRepository doctorRepository;
         private final UserAccountService userAccountService;
         private final UserRepository userRepository;
 
@@ -109,6 +115,23 @@ public class PatientServiceImpl implements PatientService {
         }
 
         @Override
+        public PatientDetailsResponse getPatientDetails(String patientId) {
+
+                Patient patient = patientRepository.findById(new ObjectId(patientId))
+                                .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
+
+                PatientResponse patientResponse = mapToResponse(patient);
+
+                Optional<Appointment> lastAppointmentOpt = appointmentRepository
+                                .findTopByPatientIdOrderByScheduledStartDesc(new ObjectId(patientId));
+
+                AppointmentResponse appointmentResponse = lastAppointmentOpt.map(
+                                this::mapAppointmentToResponse).orElse(null);
+
+                return new PatientDetailsResponse(patientResponse, appointmentResponse);
+        }
+
+        @Override
         public PageResponse<PatientResponse> advancedSearch(PatientSearchFilter filter, int page, int size) {
 
                 PageResult<Patient> result = patientRepository.search(filter, page, size);
@@ -143,6 +166,28 @@ public class PatientServiceImpl implements PatientService {
                                 patient.getContact().getEmail(),
                                 patient.getContact().getAddress(),
                                 patient.getStatus());
+        }
+
+        private AppointmentResponse mapAppointmentToResponse(Appointment appointment) {
+
+                String patientName = patientRepository.findById(appointment.getPatientId())
+                                .map(p -> p.getFirstName() + " " + p.getLastName())
+                                .orElse("Unknown Patient");
+
+                String doctorName = doctorRepository.findById(appointment.getDoctorId())
+                                .map(d -> d.getFirstName() + " " + d.getLastName())
+                                .orElse("Unknown Doctor");
+
+                return new AppointmentResponse(
+                                appointment.getId().toHexString(),
+                                appointment.getAppointmentCode(),
+                                appointment.getPatientId().toHexString(),
+                                patientName,
+                                appointment.getDoctorId().toHexString(),
+                                doctorName,
+                                appointment.getScheduledStart(),
+                                appointment.getScheduledEnd(),
+                                appointment.getStatus());
         }
 
 }
