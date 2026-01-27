@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"today" | "upcoming">("today");
 
   const todayLocal = (() => {
     const d = new Date();
@@ -37,6 +38,14 @@ const DoctorDashboard = () => {
       ),
     [appointments, todayLocal],
   );
+
+  const upcomingAppointments = useMemo(() => {
+    const now = new Date();
+    return appointments.filter((a) => new Date(a.scheduledStart) > now);
+  }, [appointments]);
+
+  const displayedAppointments =
+    view === "today" ? todayAppointments : upcomingAppointments;
 
   const stats = {
     todayAppointments: todayAppointments.length,
@@ -72,28 +81,63 @@ const DoctorDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white border rounded-xl shadow-sm">
           <div className="px-5 py-4 border-b">
-            <h3 className="font-semibold text-slate-800">
-              Today's Appointments
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-slate-800">
+                {view === "today"
+                  ? "Today's Appointments"
+                  : "Upcoming Appointments"}
+              </h3>
+
+              <div className="flex gap-2 text-sm">
+                <button
+                  onClick={() => setView("today")}
+                  className={`px-3 py-1 rounded-md border ${
+                    view === "today"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  Today
+                </button>
+
+                <button
+                  onClick={() => setView("upcoming")}
+                  className={`px-3 py-1 rounded-md border ${
+                    view === "upcoming"
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  Upcoming
+                </button>
+              </div>
+            </div>
           </div>
 
           {loading && <p className="p-4 text-sm text-slate-500">Loading...</p>}
 
-          {!loading && todayAppointments.length === 0 && (
-            <p className="p-4 text-sm text-slate-500">No appointments today</p>
+          {!loading && displayedAppointments.length === 0 && (
+            <p className="p-4 text-sm text-slate-500">
+              {view === "today"
+                ? "No appointments today"
+                : "No upcoming appointments"}
+            </p>
           )}
 
           <div className="divide-y">
-            {todayAppointments.map((a, idx) => (
+            {displayedAppointments.map((a, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between px-5 py-3 text-sm"
               >
-                <div>
-                  <p className="font-medium text-slate-800">
-                    Patiend ID: {a.patientId}
+                <div className="space-y-1">
+                  <p className="font-medium text-base text-slate-800">
+                    Patient Name: {a.patientName}
                   </p>
-                  <p className="text-slate-500">{a.status}</p>
+                  <p className="font-medium text-slate-700">
+                    Date:{" "}
+                    {new Date(a.scheduledStart).toLocaleDateString("en-GB")}
+                  </p>
                 </div>
                 <span className="text-blue-700 font-medium">
                   {formatInstantToLocalTime(a.scheduledStart)}

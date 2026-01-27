@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import { bookAppointments } from "@/lib/api/appointment.api";
 import { fetchPatientOptions } from "@/lib/api/patient.api";
-import { fetchDoctorOptions } from "@/lib/api/doctor.api";
+import { fetchDoctorOptions, getDoctorDetails } from "@/lib/api/doctor.api";
 import { toast } from "react-toastify";
+import { DoctorDetailsResponse } from "@/types/doctor";
 
 interface Props {
   open: boolean;
@@ -83,6 +84,12 @@ function SearchSelect({
   );
 }
 
+const formatTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
 const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
   const [patients, setPatients] = useState<Option[]>([]);
   const [doctors, setDoctors] = useState<Option[]>([]);
@@ -99,6 +106,10 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
   const [reason, setReason] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [doctorDetails, setDoctorDetails] =
+    useState<DoctorDetailsResponse | null>(null);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -179,11 +190,63 @@ const BookAppointmentModal = ({ open, onClose, onSuccess }: Props) => {
           setQuery={setDoctorQuery}
           options={filteredDoctors}
           selectedId={doctorId}
-          onSelect={(id, name) => {
+          onSelect={async (id, name) => {
             setDoctorId(id);
             setDoctorQuery(name ?? "");
+
+            try {
+              setLoadingSlots(true);
+              const details = await getDoctorDetails(id);
+              setDoctorDetails(details);
+            } catch {
+              toast.error("Failed to load doctor availability");
+              setDoctorDetails(null);
+            } finally {
+              setLoadingSlots(false);
+            }
           }}
         />
+
+        {doctorId && (
+          <div className="md:col-span-2 bg-slate-50 border rounded-xl p-4">
+            <h3 className="text-sm font-semibold text-slate-800 mb-3">
+              Doctor Availability
+            </h3>
+
+            {loadingSlots && (
+              <p className="text-sm text-slate-500">Loading availability...</p>
+            )}
+
+            {!loadingSlots && doctorDetails?.availability.length === 0 && (
+              <p className="text-sm text-slate-500">
+                No availability slots configured for this doctor.
+              </p>
+            )}
+
+            {!loadingSlots && doctorDetails?.availability && (
+              <div className="space-y-3">
+                {doctorDetails.availability.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="flex items-center justify-between bg-white border rounded-md px-3 py-2 text-sm"
+                  >
+                    <div>
+                      <div className="font-medium">{slot.dayOfWeek}</div>
+                      <div className="text-slate-600">
+                        {formatTime(slot.startTime)} –{" "}
+                        {formatTime(slot.endTime)}
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-slate-500">
+                      {slot.slotMinutes} min slots
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Date */}
         <div>
