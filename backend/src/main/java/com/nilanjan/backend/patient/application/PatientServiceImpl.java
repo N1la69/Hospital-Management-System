@@ -3,7 +3,6 @@ package com.nilanjan.backend.patient.application;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -12,10 +11,6 @@ import com.nilanjan.backend.appointment.api.dto.AppointmentResponse;
 import com.nilanjan.backend.appointment.domain.Appointment;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
-import com.nilanjan.backend.auth.application.UserAccountService;
-import com.nilanjan.backend.auth.domain.Role;
-import com.nilanjan.backend.auth.domain.User;
-import com.nilanjan.backend.auth.repository.UserRepository;
 import com.nilanjan.backend.common.ContactInfo;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
@@ -39,20 +34,9 @@ public class PatientServiceImpl implements PatientService {
         private final PatientRepository patientRepository;
         private final AppointmentRepository appointmentRepository;
         private final DoctorRepository doctorRepository;
-        private final UserAccountService userAccountService;
-        private final UserRepository userRepository;
 
         @Override
         public PatientResponse createPatient(CreatePatientRequest request) {
-
-                ObjectId linkedUserId = null;
-
-                if (request.createLogin()) {
-                        User user = userAccountService.createUser(request.username(), request.email(),
-                                        request.password(),
-                                        Set.of(Role.PATIENT));
-                        linkedUserId = user.getId();
-                }
 
                 Patient patient = Patient.builder()
                                 .patientCode(PatientCodeGenerator.generate())
@@ -66,7 +50,6 @@ public class PatientServiceImpl implements PatientService {
                                                 .email(request.email())
                                                 .address(request.address())
                                                 .build())
-                                .linkedUserId(linkedUserId)
                                 .status(PatientStatus.ACTIVE)
                                 .createdAt(Instant.now())
                                 .build();
@@ -104,14 +87,10 @@ public class PatientServiceImpl implements PatientService {
                 Patient patient = patientRepository.findById(new ObjectId(patientId))
                                 .orElseThrow(() -> new RuntimeException("Patient not found: " + patientId));
 
-                ObjectId linkedUserId = patient.getLinkedUserId();
-
                 appointmentRepository.deleteByPatientIdAndStatus(patient.getId(), AppointmentStatus.SCHEDULED);
 
                 patientRepository.deleteById(patient.getId());
 
-                if (linkedUserId != null)
-                        userRepository.deleteById(linkedUserId);
         }
 
         @Override
@@ -152,6 +131,7 @@ public class PatientServiceImpl implements PatientService {
                                 .toList();
         }
 
+        // HELPERS
         private PatientResponse mapToResponse(Patient patient) {
                 return new PatientResponse(
                                 patient.getId().toHexString(),

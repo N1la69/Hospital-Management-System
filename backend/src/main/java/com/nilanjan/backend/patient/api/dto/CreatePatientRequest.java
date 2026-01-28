@@ -6,16 +6,15 @@ import com.nilanjan.backend.patient.domain.BloodGroup;
 import com.nilanjan.backend.patient.domain.Gender;
 
 public record CreatePatientRequest(
-        String firstName,
-        String lastName,
-        Gender gender,
-        LocalDate dateOfBirth,
-        BloodGroup bloodGroup,
-        String phone,
-        String email,
-        String address,
-        boolean createLogin,
-        String username,
-        String password) {
+                String firstName,
+                String lastName,
+                Gender gender,
+                LocalDate dateOfBirth,
+                BloodGroup bloodGroup,
+                String phone,
+                String email,
+                String address
+
+) {
 
 }

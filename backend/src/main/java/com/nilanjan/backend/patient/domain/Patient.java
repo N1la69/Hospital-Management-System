@@ -38,7 +38,6 @@ public class Patient {
     private BloodGroup bloodGroup;
     private ContactInfo contact;
 
-    private ObjectId linkedUserId;
     private Set<ObjectId> assignedDoctorIds;
 
     private PatientStatus status;

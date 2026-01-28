@@ -134,9 +134,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             Doctor doctor = doctorRepository.findByLinkedUserId(currentUserId)
                     .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
             appointments = appointmentRepository.findByDoctorIdAndStatus(doctor.getId(), AppointmentStatus.SCHEDULED);
-        } else if (SecurityUtil.hasRole("PATIENT"))
-            appointments = appointmentRepository.findByPatientIdAndStatus(currentUserId, AppointmentStatus.SCHEDULED);
-        else
+        } else
             throw new RuntimeException("Access Denied");
 
         return appointments.stream()
@@ -367,6 +365,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.save(appointment);
     }
 
+    // HELPERS
     private boolean looksLikeAppointmentCode(String s) {
         return s != null && s.toUpperCase().startsWith("APT-");
     }

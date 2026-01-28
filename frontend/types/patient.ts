@@ -43,9 +43,6 @@ export interface CreatePatientRequest {
   phone: string;
   email: string;
   address: string;
-  createLogin: boolean;
-  username?: string;
-  password?: string;
 }
 
 export interface UpdatePatientRequest {

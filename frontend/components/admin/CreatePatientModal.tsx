@@ -15,9 +15,7 @@ interface Props {
 }
 
 const CreatePatientModal = ({ open, onClose, onSuccess }: Props) => {
-  const [form, setForm] = useState<Partial<CreatePatientRequest>>({
-    createLogin: true,
-  });
+  const [form, setForm] = useState<Partial<CreatePatientRequest>>({});
   const [loading, setLoading] = useState(false);
 
   function update<K extends keyof CreatePatientRequest>(
@@ -94,13 +92,6 @@ const CreatePatientModal = ({ open, onClose, onSuccess }: Props) => {
           label="Address"
           className="md:col-span-2"
           onChange={(v) => update("address", v)}
-        />
-
-        <Input label="Username" onChange={(v) => update("username", v)} />
-        <Input
-          label="Password"
-          type="password"
-          onChange={(v) => update("password", v)}
         />
       </div>
 
