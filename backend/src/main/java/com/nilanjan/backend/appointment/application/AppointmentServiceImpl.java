@@ -5,8 +5,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
 import com.nilanjan.backend.appointment.api.dto.DoctorPatientRowResponse;
 import com.nilanjan.backend.appointment.api.dto.DoctorPatientSearchFilter;
 import com.nilanjan.backend.appointment.domain.Appointment;
+import com.nilanjan.backend.appointment.domain.AppointmentStateMachine;
 import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
 import com.nilanjan.backend.common.dto.PageResponse;
@@ -36,6 +39,9 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AppointmentServiceImpl implements AppointmentService {
+
+    private static final List<AppointmentStatus> BLOCKING_STATUSES = List.of(AppointmentStatus.SCHEDULED,
+            AppointmentStatus.CHECKED_IN);
 
     private final AppointmentRepository appointmentRepository;
     private final DoctorAvailabilityRepository doctorAvailabilityRepository;
@@ -98,12 +104,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Doctor not found");
 
         if (!appointmentRepository
-                .findByDoctorIdAndScheduledStartLessThanAndScheduledEndGreaterThan(doctorId, endInstant, startInstant)
+                .findByDoctorIdAndStatusInAndScheduledStartLessThanAndScheduledEndGreaterThan(doctorId,
+                        BLOCKING_STATUSES, endInstant, startInstant)
                 .isEmpty())
             throw new RuntimeException("Doctor is not available in this time slot");
 
         if (!appointmentRepository
-                .findByPatientIdAndScheduledStartLessThanAndScheduledEndGreaterThan(patientId, endInstant, startInstant)
+                .findByPatientIdAndStatusInAndScheduledStartLessThanAndScheduledEndGreaterThan(patientId,
+                        BLOCKING_STATUSES, endInstant, startInstant)
                 .isEmpty())
             throw new RuntimeException("Patient already has an appointment in this time slot");
 
@@ -125,21 +133,59 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentResponse> getMyAppointments() {
+    public void updateStatus(String appointmentId, AppointmentStatus newStatus, String reason) {
+
+        Appointment appointment = getAppointment(appointmentId);
+        AppointmentStatus current = appointment.getStatus();
+
+        if (!AppointmentStateMachine.canTransition(current, newStatus))
+            throw new IllegalStateException("Invalid transition from " + current + " to " + newStatus);
+
+        validateRoleForTransition(newStatus);
+
+        appointment.setStatus(newStatus);
+
+        Instant now = Instant.now();
+
+        switch (newStatus) {
+            case CANCELLED -> {
+                appointment.setCancelledAt(now);
+                appointment.setCancelledReason(reason);
+            }
+            case CHECKED_IN -> appointment.setCheckedInAt(now);
+            case COMPLETED -> appointment.setCompletedAt(now);
+            case NO_SHOW -> appointment.setNoShowAt(now);
+            default -> throw new RuntimeException("No functions to perform, unsupported error at ServiceImpl");
+        }
+
+        appointmentRepository.save(appointment);
+
+    }
+
+    @Override
+    public Map<String, List<AppointmentResponse>> getMyAppointments() {
 
         ObjectId currentUserId = SecurityUtil.currentUserId();
-        List<Appointment> appointments;
 
-        if (SecurityUtil.hasRole("DOCTOR")) {
-            Doctor doctor = doctorRepository.findByLinkedUserId(currentUserId)
-                    .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
-            appointments = appointmentRepository.findByDoctorIdAndStatus(doctor.getId(), AppointmentStatus.SCHEDULED);
-        } else
-            throw new RuntimeException("Access Denied");
+        if (!SecurityUtil.hasRole("DOCTOR"))
+            throw new SecurityException("Access Denied");
 
-        return appointments.stream()
+        Doctor doctor = doctorRepository.findByLinkedUserId(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
+
+        List<Appointment> appointments = appointmentRepository.findByDoctorIdAndStatusIn(doctor.getId(),
+                List.of(AppointmentStatus.SCHEDULED, AppointmentStatus.COMPLETED));
+
+        List<AppointmentResponse> responses = appointments.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+
+        Map<String, List<AppointmentResponse>> result = new HashMap<>();
+
+        result.put("scheduled", responses.stream().filter(a -> a.status() == AppointmentStatus.SCHEDULED).toList());
+        result.put("completed", responses.stream().filter(a -> a.status() == AppointmentStatus.COMPLETED).toList());
+
+        return result;
     }
 
     @Override
@@ -278,91 +324,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void cancelAppointment(String appointmentId, String reason) {
-
-        Appointment appointment = getAppointment(appointmentId);
-        AppointmentStatus status = appointment.getStatus();
-
-        if (SecurityUtil.hasRole("ADMIN")) {
-            // ADMIN CANCELS ANYTIME
-        } else if (SecurityUtil.hasRole("RECEPTIONIST") && status == AppointmentStatus.SCHEDULED) {
-            // RECEPTIONIST ALLOWED TO CANCEL AFTER APPOINTMENT IS SCHEDULED
-        } else {
-            throw new SecurityException("Access Denied: Not permitted to cancel appointment");
-        }
-
-        appointment.setStatus(AppointmentStatus.CANCELED);
-        appointment.setCancelledAt(Instant.now());
-        appointment.setCancelledReason(reason);
-        appointment.setCancelledByRole(SecurityUtil.currentUserId().toHexString());
-
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    public void checkInAppointment(String appointmentId) {
-
-        Appointment appointment = getAppointment(appointmentId);
-
-        if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
-            throw new IllegalStateException("Cannot check-in from status: " + appointment.getStatus());
-
-        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
-            throw new SecurityException("Only receptionist or admin can check-in");
-
-        appointment.setStatus(AppointmentStatus.CHECKED_IN);
-        appointment.setCheckedInAt(Instant.now());
-
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    public void startAppointment(String appointmentId) {
-
-        Appointment appointment = getAppointment(appointmentId);
-
-        if (appointment.getStatus() != AppointmentStatus.CHECKED_IN)
-            throw new IllegalStateException("Cannot start appointment from status: " + appointment.getStatus());
-
-        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
-            throw new SecurityException("Only receptionist or admin can start the appointment");
-
-        appointment.setStatus(AppointmentStatus.IN_PROGRESS);
-        appointment.setStartedAt(Instant.now());
-
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    public void completeAppointment(String appointmentId) {
-
-        Appointment appointment = getAppointment(appointmentId);
-
-        if (appointment.getStatus() != AppointmentStatus.IN_PROGRESS)
-            throw new IllegalStateException("Cannot end appointment from status: " + appointment.getStatus());
-
-        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
-            throw new SecurityException("Only receptionist or admin can end the appointment");
-
-        appointment.setStatus(AppointmentStatus.COMPLETED);
-        appointment.setCompletedAt(Instant.now());
-
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    public void markNoShow(String appointmentId) {
-
-        Appointment appointment = getAppointment(appointmentId);
-
-        if (appointment.getStatus() != AppointmentStatus.SCHEDULED)
-            throw new IllegalStateException("Cannot mark no-show from status: " + appointment.getStatus());
-
-        if (!SecurityUtil.hasRole("RECEPTIONIST") && !SecurityUtil.hasRole("ADMIN"))
-            throw new SecurityException("Only receptionist or admin can mark no-show");
-
-        appointment.setStatus(AppointmentStatus.NO_SHOW);
-
-        appointmentRepository.save(appointment);
+        updateStatus(appointmentId, AppointmentStatus.CANCELLED, reason);
     }
 
     // HELPERS
@@ -395,6 +357,26 @@ public class AppointmentServiceImpl implements AppointmentService {
     private Appointment getAppointment(String id) {
         return appointmentRepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new RuntimeException("Appointment not found: " + id));
+    }
+
+    private void validateRoleForTransition(AppointmentStatus newStatus) {
+
+        boolean isAdmin = SecurityUtil.hasRole("ADMIN");
+        boolean isReceptionist = SecurityUtil.hasRole("RECEPTIONIST");
+
+        switch (newStatus) {
+            case CANCELLED -> {
+                if (!isAdmin && !isReceptionist)
+                    throw new SecurityException("Only ADMIN or RECEPTIONIST can cancel appointments");
+
+            }
+            case CHECKED_IN, COMPLETED, NO_SHOW -> {
+                if (!isReceptionist)
+                    throw new SecurityException("Only RECEPTIONIST can perform this action");
+
+            }
+            default -> throw new SecurityException("Unsupported transition");
+        }
     }
 
 }

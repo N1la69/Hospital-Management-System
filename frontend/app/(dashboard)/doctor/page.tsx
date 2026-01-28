@@ -11,6 +11,8 @@ import {
 import { AppointmentResponse } from "@/types/appointment";
 import { useEffect, useMemo, useState } from "react";
 
+const ACTIVE_STATUSES = ["SCHEDULED", "CHECKED_IN", "IN_PROGRESS"];
+
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,17 +33,21 @@ const DoctorDashboard = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const todayAppointments = useMemo(
-    () =>
-      appointments.filter(
-        (a) => getLocalDateStringFromInstant(a.scheduledStart) === todayLocal,
-      ),
-    [appointments, todayLocal],
-  );
+  const todayAppointments = useMemo(() => {
+    return appointments.filter(
+      (a) =>
+        ACTIVE_STATUSES.includes(a.status) &&
+        getLocalDateStringFromInstant(a.scheduledStart) === todayLocal,
+    );
+  }, [appointments, todayLocal]);
 
   const upcomingAppointments = useMemo(() => {
     const now = new Date();
-    return appointments.filter((a) => new Date(a.scheduledStart) > now);
+
+    return appointments.filter(
+      (a) =>
+        ACTIVE_STATUSES.includes(a.status) && new Date(a.scheduledStart) > now,
+    );
   }, [appointments]);
 
   const displayedAppointments =

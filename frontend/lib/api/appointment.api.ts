@@ -11,12 +11,12 @@ export const fetchAppointments = async (): Promise<AppointmentResponse[]> => {
 };
 
 export const bookAppointments = async (
-  payload: CreateAppointmentRequest
+  payload: CreateAppointmentRequest,
 ): Promise<void> => {
   await api.post("/api/appointments", payload);
 };
 
-export const fetchMyAppointments = async (): Promise<AppointmentResponse[]> => {
+export const fetchMyAppointments = async () => {
   const res = await api.get("/api/appointments/my");
   return res.data;
 };
@@ -24,21 +24,17 @@ export const fetchMyAppointments = async (): Promise<AppointmentResponse[]> => {
 export const searchAppointments = async (
   filter: AppointmentSearchFilter,
   page: number,
-  size: number
+  size: number,
 ) => {
   const res = await api.post(
     `/api/appointments/search?page=${page}&size=${size}`,
-    filter
+    filter,
   );
   return res.data;
 };
 
 export const checkInAppointment = async (id: string) => {
   await api.post(`/api/appointments/${id}/check-in`);
-};
-
-export const startAppointment = async (id: string) => {
-  await api.post(`/api/appointments/${id}/start`);
 };
 
 export const completeAppointment = async (id: string) => {

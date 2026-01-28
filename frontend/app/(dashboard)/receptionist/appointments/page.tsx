@@ -1,13 +1,21 @@
 "use client";
 
 import BookAppointmentModal from "@/components/appointment/BookAppointmentModal";
+import CancelAppointmentModal from "@/components/appointment/CancelAppointmentModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { searchAppointments } from "@/lib/api/appointment.api";
+import {
+  cancelAppointment,
+  checkInAppointment,
+  completeAppointment,
+  markNoShow,
+  searchAppointments,
+} from "@/lib/api/appointment.api";
 import { receptionistMenu } from "@/lib/constants/sidebarMenus";
 import { formatAppointmentDate, formatLocalTimeRange } from "@/lib/utils/time";
 import {
   AppointmentResponse,
   AppointmentSearchFilter,
+  AppointmentStatus,
 } from "@/types/appointment";
 import { useState } from "react";
 import { FiFilter, FiSearch } from "react-icons/fi";
@@ -16,6 +24,11 @@ import { toast } from "react-toastify";
 
 const ReceptionistAppointmentPage = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelAppointmentId, setCancelAppointmentId] = useState<string | null>(
+    null,
+  );
+
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -44,6 +57,17 @@ const ReceptionistAppointmentPage = () => {
     );
 
     return localDateTime.toISOString();
+  }
+
+  function getAllowedActions(status: AppointmentStatus) {
+    switch (status) {
+      case "SCHEDULED":
+        return ["CHECK_IN", "NO_SHOW", "CANCEL"] as const;
+      case "CHECKED_IN":
+        return ["COMPLETE", "CANCEL"] as const;
+      default:
+        return [] as const;
+    }
   }
 
   const handleSearch = async (pageNo = 0) => {
@@ -75,6 +99,41 @@ const ReceptionistAppointmentPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCheckIn = async (id: string) => {
+    await checkInAppointment(id);
+    toast.success("Patient checked in");
+    handleSearch(page);
+  };
+
+  const handleComplete = async (id: string) => {
+    await completeAppointment(id);
+    toast.success("Appointment completed");
+    handleSearch(page);
+  };
+
+  const handleNoShow = async (id: string) => {
+    await markNoShow(id);
+    toast.info("Marked as no-show");
+    handleSearch(page);
+  };
+
+  const handleCancel = async (id: string) => {
+    setCancelAppointmentId(id);
+    setCancelModalOpen(true);
+  };
+
+  const confirmCancel = async (reason: string) => {
+    if (!cancelAppointmentId) return;
+
+    await cancelAppointment(cancelAppointmentId, reason);
+    toast.success("Appointment cancelled");
+
+    setCancelModalOpen(false);
+    setCancelAppointmentId(null);
+
+    handleSearch(page);
   };
 
   const clearFilters = () => {
@@ -308,6 +367,7 @@ const ReceptionistAppointmentPage = () => {
                     <th className="px-4 py-3 font-medium">Patient Name</th>
                     <th className="px-4 py-3 font-medium">Doctor Name</th>
                     <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">Actions</th>
                   </tr>
                 </thead>
 
@@ -340,11 +400,69 @@ const ReceptionistAppointmentPage = () => {
                           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                             appointment.status === "SCHEDULED"
                               ? "bg-green-100 text-green-700"
-                              : "bg-slate-200 text-slate-600"
+                              : appointment.status === "CHECKED_IN"
+                                ? "bg-blue-100 text-blue-700"
+                                : appointment.status === "COMPLETED"
+                                  ? "bg-gray-200 text-gray-700"
+                                  : appointment.status === "CANCELLED"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
                           {appointment.status}
                         </span>
+                      </td>
+                      <td className="px-4 py-3 space-x-2">
+                        {getAllowedActions(appointment.status).map((action) => {
+                          switch (action) {
+                            case "CHECK_IN":
+                              return (
+                                <button
+                                  key={action}
+                                  onClick={() => handleCheckIn(appointment.id)}
+                                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                                >
+                                  Check-in
+                                </button>
+                              );
+
+                            case "COMPLETE":
+                              return (
+                                <button
+                                  key={action}
+                                  onClick={() => handleComplete(appointment.id)}
+                                  className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                                >
+                                  Complete
+                                </button>
+                              );
+
+                            case "NO_SHOW":
+                              return (
+                                <button
+                                  key={action}
+                                  onClick={() => handleNoShow(appointment.id)}
+                                  className="px-2 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                >
+                                  No-show
+                                </button>
+                              );
+
+                            case "CANCEL":
+                              return (
+                                <button
+                                  key={action}
+                                  onClick={() => handleCancel(appointment.id)}
+                                  className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                                >
+                                  Cancel
+                                </button>
+                              );
+
+                            default:
+                              return null;
+                          }
+                        })}
                       </td>
                     </tr>
                   ))}
@@ -389,6 +507,15 @@ const ReceptionistAppointmentPage = () => {
           setOpen(false);
           toast.success("Appointment booked successfully");
         }}
+      />
+
+      <CancelAppointmentModal
+        open={cancelModalOpen}
+        onClose={() => {
+          setCancelModalOpen(false);
+          setCancelAppointmentId(null);
+        }}
+        onConfirm={confirmCancel}
       />
     </DashboardLayout>
   );

@@ -1,6 +1,7 @@
 package com.nilanjan.backend.appointment.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,7 @@ import com.nilanjan.backend.appointment.api.dto.AppointmentSearchFilter;
 import com.nilanjan.backend.appointment.api.dto.CancelAppointmentRequest;
 import com.nilanjan.backend.appointment.api.dto.CreateAppointmentRequest;
 import com.nilanjan.backend.appointment.application.AppointmentService;
+import com.nilanjan.backend.appointment.domain.AppointmentStatus;
 import com.nilanjan.backend.common.dto.PageResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,34 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.bookAppointment(request));
     }
 
+    @PostMapping("/{id}/check-in")
+    @PreAuthorize("hasRole('RECEPTIONIST')")
+    public ResponseEntity<Void> checkIn(@PathVariable String id) {
+        appointmentService.updateStatus(id, AppointmentStatus.CHECKED_IN, null);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/complete")
+    @PreAuthorize("hasRole('RECEPTIONIST')")
+    public ResponseEntity<Void> complete(@PathVariable String id) {
+        appointmentService.updateStatus(id, AppointmentStatus.COMPLETED, null);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/no-show")
+    @PreAuthorize("hasRole('RECEPTIONIST')")
+    public ResponseEntity<Void> noShow(@PathVariable String id) {
+        appointmentService.updateStatus(id, AppointmentStatus.NO_SHOW, null);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<Void> cancel(@PathVariable String id, @RequestBody CancelAppointmentRequest request) {
+        appointmentService.cancelAppointment(id, request.reason());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
     public ResponseEntity<List<AppointmentResponse>> getAppointments() {
@@ -42,7 +72,7 @@ public class AppointmentController {
 
     @GetMapping("/my")
     @PreAuthorize("hasAnyRole('DOCTOR','PATIENT')")
-    public ResponseEntity<List<AppointmentResponse>> myAppointments() {
+    public ResponseEntity<Map<String, List<AppointmentResponse>>> myAppointments() {
         return ResponseEntity.ok(appointmentService.getMyAppointments());
     }
 
@@ -56,38 +86,4 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.advancedSearch(filter, page, size));
     }
 
-    @PostMapping("/{id}/check-in")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
-    public ResponseEntity<Void> checkIn(@PathVariable String id) {
-        appointmentService.checkInAppointment(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/start")
-    @PreAuthorize("hasAnyRole('ADMIN', 'RECEPTIONIST')")
-    public ResponseEntity<Void> start(@PathVariable String id) {
-        appointmentService.startAppointment(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/complete")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
-    public ResponseEntity<Void> complete(@PathVariable String id) {
-        appointmentService.completeAppointment(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
-    public ResponseEntity<Void> cancel(@PathVariable String id, @RequestBody CancelAppointmentRequest request) {
-        appointmentService.cancelAppointment(id, request.reason());
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{id}/no-show")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
-    public ResponseEntity<Void> noShow(@PathVariable String id) {
-        appointmentService.markNoShow(id);
-        return ResponseEntity.ok().build();
-    }
 }

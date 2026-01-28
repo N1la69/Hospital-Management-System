@@ -2,20 +2,24 @@
 
 import CreatePatientModal from "@/components/admin/CreatePatientModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import DeletePatientModal from "@/components/patient/DeletePatientModal";
 import EditPatientModal from "@/components/patient/EditPatientModal";
+import PatientDetailsModal from "@/components/patient/PatientDetailsModal";
 import {
-  deletePatient,
+  getPatientDetails,
   searchPatients,
   updatePatient,
 } from "@/lib/api/patient.api";
 import { receptionistMenu } from "@/lib/constants/sidebarMenus";
-import { PatientResponse, PatientSearchFilter } from "@/types/patient";
+import {
+  bloodGroupMapper,
+  PatientDetailsResponse,
+  PatientResponse,
+  PatientSearchFilter,
+} from "@/types/patient";
 import { useState } from "react";
 import { FaUserEdit } from "react-icons/fa";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import { IoPersonAddSharp } from "react-icons/io5";
-import { MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
 
 const ReceptionistPatientPage = () => {
@@ -30,9 +34,9 @@ const ReceptionistPatientPage = () => {
   const [filters, setFilters] = useState<PatientSearchFilter>({});
 
   const [editPatient, setEditPatient] = useState<PatientResponse | null>(null);
-  const [deletePatientState, setDeletePatientState] =
-    useState<PatientResponse | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] =
+    useState<PatientDetailsResponse | null>(null);
 
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -92,19 +96,17 @@ const ReceptionistPatientPage = () => {
     }
   };
 
-  const handleDeletePatient = async () => {
-    if (!deletePatientState) return;
-
-    setDeleting(true);
+  const openPatientDetails = async (patientId: string) => {
     try {
-      await deletePatient(deletePatientState.id);
-      setDeletePatientState(null);
-      refresh();
-      toast.success("Patient deleted successfully");
-    } catch (e: any) {
-      toast.error(e?.response?.data?.message || "Failed to delete patient");
-    } finally {
-      setDeleting(false);
+      const res = await getPatientDetails(patientId);
+      setSelectedPatient(res);
+      setDetailsOpen(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load patient details",
+      );
     }
   };
 
@@ -330,7 +332,10 @@ const ReceptionistPatientPage = () => {
                       <td className="px-4 py-3 font-mono text-slate-700">
                         {patient.patientCode}
                       </td>
-                      <td className="px-4 py-3 text-slate-800">
+                      <td
+                        className="px-4 py-3 text-blue-800 underline cursor-pointer"
+                        onClick={() => openPatientDetails(patient.id)}
+                      >
                         {patient.fullName}
                       </td>
                       <td className="px-4 py-3 text-slate-800">
@@ -340,7 +345,9 @@ const ReceptionistPatientPage = () => {
                         {patient.email}
                       </td>
                       <td className="px-4 py-3 text-slate-700">
-                        {patient.bloodGroup}
+                        {bloodGroupMapper[
+                          patient.bloodGroup as keyof typeof bloodGroupMapper
+                        ] || patient.bloodGroup}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -361,14 +368,6 @@ const ReceptionistPatientPage = () => {
                             title="Edit patient"
                           >
                             <FaUserEdit size={16} />
-                          </button>
-
-                          <button
-                            onClick={() => setDeletePatientState(patient)}
-                            className="flex items-center justify-center rounded-md bg-red-50 p-2 text-red-700 hover:bg-red-100 transition focus:outline-none focus:ring-2 focus:ring-red-300"
-                            title="Delete patient"
-                          >
-                            <MdDelete size={16} />
                           </button>
                         </div>
                       </td>
@@ -427,15 +426,14 @@ const ReceptionistPatientPage = () => {
         />
       )}
 
-      {deletePatientState && (
-        <DeletePatientModal
-          open={!!deletePatientState}
-          patientName={deletePatientState.fullName}
-          onConfirm={handleDeletePatient}
-          onClose={() => setDeletePatientState(null)}
-          loading={deleting}
-        />
-      )}
+      <PatientDetailsModal
+        open={detailsOpen}
+        data={selectedPatient}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedPatient(null);
+        }}
+      />
     </DashboardLayout>
   );
 };
