@@ -2,7 +2,9 @@
 
 import BookAppointmentModal from "@/components/appointment/BookAppointmentModal";
 import CancelAppointmentModal from "@/components/appointment/CancelAppointmentModal";
+import BillingPanel from "@/components/billing/BillingPanel";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import Modal from "@/components/ui/Modal";
 import {
   cancelAppointment,
   checkInAppointment,
@@ -37,6 +39,10 @@ const ReceptionistAppointmentPage = () => {
   const [searchText, setSearchText] = useState("");
 
   const [filters, setFilters] = useState<AppointmentSearchFilter>({});
+
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [billingAppointment, setBillingAppointment] =
+    useState<AppointmentResponse | null>(null);
 
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -101,9 +107,13 @@ const ReceptionistAppointmentPage = () => {
     }
   };
 
-  const handleCheckIn = async (id: string) => {
-    await checkInAppointment(id);
+  const handleCheckIn = async (appointment: AppointmentResponse) => {
+    await checkInAppointment(appointment.id);
     toast.success("Patient checked in");
+
+    setBillingAppointment(appointment);
+    setBillingOpen(true);
+
     handleSearch(page);
   };
 
@@ -419,7 +429,7 @@ const ReceptionistAppointmentPage = () => {
                               return (
                                 <button
                                   key={action}
-                                  onClick={() => handleCheckIn(appointment.id)}
+                                  onClick={() => handleCheckIn(appointment)}
                                   className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
                                 >
                                   Check-in
@@ -517,6 +527,31 @@ const ReceptionistAppointmentPage = () => {
         }}
         onConfirm={confirmCancel}
       />
+
+      {billingOpen && billingAppointment && (
+        <Modal
+          open={billingOpen}
+          onClose={() => {
+            setBillingOpen(false);
+            setBillingAppointment(null);
+          }}
+          title="Billing & Payment"
+          size="lg"
+        >
+          <BillingPanel
+            patientId={billingAppointment.patientId}
+            appointmentId={billingAppointment.id}
+            defaultItems={[
+              {
+                description: "Consultation Fee",
+                type: "CONSULTATION",
+                quantity: 1,
+                unitPrice: 500, // consulation fee
+              },
+            ]}
+          />
+        </Modal>
+      )}
     </DashboardLayout>
   );
 };
