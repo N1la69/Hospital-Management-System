@@ -158,6 +158,10 @@ public class PatientServiceImpl implements PatientService {
                                 .map(d -> d.getFirstName() + " " + d.getLastName())
                                 .orElse("Unknown Doctor");
 
+                int consultationFees = doctorRepository.findById(appointment.getDoctorId())
+                                .map(d -> d.getConsultationFees())
+                                .orElse(0);
+
                 return new AppointmentResponse(
                                 appointment.getId().toHexString(),
                                 appointment.getAppointmentCode(),
@@ -165,6 +169,7 @@ public class PatientServiceImpl implements PatientService {
                                 patientName,
                                 appointment.getDoctorId().toHexString(),
                                 doctorName,
+                                consultationFees,
                                 appointment.getScheduledStart(),
                                 appointment.getScheduledEnd(),
                                 appointment.getStatus());

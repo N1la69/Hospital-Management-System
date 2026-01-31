@@ -546,7 +546,7 @@ const ReceptionistAppointmentPage = () => {
                 description: "Consultation Fee",
                 type: "CONSULTATION",
                 quantity: 1,
-                unitPrice: 500, // consulation fee
+                unitPrice: billingAppointment.consultationFees || 500,
               },
             ]}
           />

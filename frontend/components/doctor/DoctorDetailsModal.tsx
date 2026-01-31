@@ -16,7 +16,7 @@ const InfoItem = ({
   full = false,
 }: {
   label: string;
-  value: string;
+  value: string | number;
   full?: boolean;
 }) => (
   <div className={full ? "sm:col-span-2" : ""}>
@@ -61,6 +61,10 @@ const DoctorDetailsModal = ({ open, data, onClose }: Props) => {
             <InfoItem
               label="Experience"
               value={`${doctor.experienceYears} years`}
+            />
+            <InfoItem
+              label="Consultation Fees"
+              value={`₹${doctor.consultationFees}`}
             />
             <InfoItem label="Email" value={doctor.email} />
             <InfoItem label="Phone" value={doctor.phone} />

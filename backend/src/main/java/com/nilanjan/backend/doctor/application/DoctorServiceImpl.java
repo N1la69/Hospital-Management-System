@@ -51,6 +51,7 @@ public class DoctorServiceImpl implements DoctorService {
                                 .specialization(request.specialization())
                                 .qualification(request.qualification())
                                 .experienceYears(request.experienceYears())
+                                .consultationFees(request.consultationFees())
                                 .contact(ContactInfo.builder()
                                                 .phone(request.phone())
                                                 .email(request.email())
@@ -77,6 +78,7 @@ public class DoctorServiceImpl implements DoctorService {
                 doctor.setSpecialization(request.specialization());
                 doctor.setQualification(request.qualification());
                 doctor.setExperienceYears(request.experienceYears());
+                doctor.setConsultationFees(request.consultationFees());
 
                 ContactInfo contact = doctor.getContact();
                 contact.setPhone(request.phone());
@@ -155,6 +157,7 @@ public class DoctorServiceImpl implements DoctorService {
                                 .toList();
         }
 
+        // HELPERS
         private DoctorResponse mapToResponse(Doctor doctor) {
                 return new DoctorResponse(
                                 doctor.getId().toHexString(),
@@ -165,6 +168,7 @@ public class DoctorServiceImpl implements DoctorService {
                                 doctor.getSpecialization(),
                                 doctor.getQualification(),
                                 doctor.getExperienceYears(),
+                                doctor.getConsultationFees(),
                                 doctor.getContact().getPhone(),
                                 doctor.getContact().getEmail(),
                                 doctor.getContact().getAddress(),

@@ -1,6 +1,6 @@
 "use client";
 
-import CreatePatientModal from "@/components/admin/CreatePatientModal";
+import CreatePatientModal from "@/components/patient/CreatePatientModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import DeletePatientModal from "@/components/patient/DeletePatientModal";
 import EditPatientModal from "@/components/patient/EditPatientModal";

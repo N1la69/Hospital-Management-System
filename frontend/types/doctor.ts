@@ -9,6 +9,7 @@ export interface DoctorResponse {
   specialization: string;
   qualification: string;
   experienceYears: number;
+  consultationFees: number;
   phone: string;
   email: string;
   address: string;
@@ -28,6 +29,7 @@ export interface CreateDoctorRequest {
     | "PSYCHIATRY";
   qualification: string;
   experienceYears: number;
+  consultationFees: number;
   phone: string;
   email: string;
   address: string;
@@ -48,6 +50,7 @@ export interface UpdateDoctorRequest {
     | "PSYCHIATRY";
   qualification: string;
   experienceYears: number;
+  consultationFees: number;
   phone: string;
   email: string;
   address: string;

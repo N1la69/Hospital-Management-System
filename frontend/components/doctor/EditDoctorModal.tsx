@@ -95,6 +95,15 @@ const EditDoctorModal = ({ open, doctor, onSave, onClose }: any) => {
           />
         </Field>
 
+        <Field label="Consultation Fee">
+          <input
+            type="number"
+            value={form.consultationFees}
+            onChange={(e) => update("consultationFees", e.target.value)}
+            className={inputClass}
+          />
+        </Field>
+
         {/* Address */}
         <Field label="Address" className="md:col-span-2">
           <input

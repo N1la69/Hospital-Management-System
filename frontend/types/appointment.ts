@@ -12,6 +12,7 @@ export interface AppointmentResponse {
   patientName: string;
   doctorId: string;
   doctorName: string;
+  consultationFees: number;
   scheduledStart: string;
   scheduledEnd: string;
   status: AppointmentStatus;

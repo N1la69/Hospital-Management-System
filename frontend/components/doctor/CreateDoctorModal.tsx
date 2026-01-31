@@ -73,6 +73,11 @@ const CreateDoctorModal = ({ open, onClose, onSuccess }: Props) => {
           type="number"
           onChange={(v) => update("experienceYears", v as number)}
         />
+        <Input
+          label="Consultation Fees"
+          type="number"
+          onChange={(v) => update("consultationFees", v as number)}
+        />
 
         <Input label="Phone" onChange={(v) => update("phone", v)} />
         <Input

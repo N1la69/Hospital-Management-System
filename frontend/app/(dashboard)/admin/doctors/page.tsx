@@ -1,6 +1,6 @@
 "use client";
 
-import CreateDoctorModal from "@/components/admin/CreateDoctorModal";
+import CreateDoctorModal from "@/components/doctor/CreateDoctorModal";
 import DeleteDoctorModal from "@/components/doctor/DeleteDoctorModal";
 import DoctorDetailsModal from "@/components/doctor/DoctorDetailsModal";
 import EditDoctorModal from "@/components/doctor/EditDoctorModal";

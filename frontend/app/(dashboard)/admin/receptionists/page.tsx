@@ -1,6 +1,6 @@
 "use client";
 
-import CreateReceptionistModal from "@/components/admin/CreateReceptionistModal";
+import CreateReceptionistModal from "@/components/receptionist/CreateReceptionistModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import DeleteReceptionistModal from "@/components/receptionist/DeleteReceptionistModal";
 import EditReceptionistModal from "@/components/receptionist/EditReceptionistModal";
