@@ -10,8 +10,12 @@ interface Props {
   defaultItems?: AddBillItemRequest[];
 }
 
-const BillingPanel = ({ patientId, appointmentId, defaultItems = [] }: Props) => {
-    const { bill, createNewBill, addPayment } = useBilling();
+const BillingPanel = ({
+  patientId,
+  appointmentId,
+  defaultItems = [],
+}: Props) => {
+  const { bill, createNewBill, addPayment } = useBilling();
 
   const handleCreateBill = async (items: AddBillItemRequest[]) => {
     await createNewBill(patientId, items, appointmentId);
@@ -22,8 +26,19 @@ const BillingPanel = ({ patientId, appointmentId, defaultItems = [] }: Props) =>
   };
 
   return (
-    <div className="space-y-4">
-        {!bill && (
+    <div className="space-y-6">
+      {/* Step header */}
+      <div className="flex items-center justify-between border-b pb-3">
+        <h2 className="text-lg font-semibold text-slate-800">
+          Billing & Payments
+        </h2>
+
+        <span className="text-xs text-slate-600">
+          {bill ? "Step 2 · Payment" : "Step 1 · Create Bill"}
+        </span>
+      </div>
+
+      {!bill && (
         <BillItemsForm
           defaultItems={defaultItems}
           onSubmit={handleCreateBill}
@@ -31,13 +46,20 @@ const BillingPanel = ({ patientId, appointmentId, defaultItems = [] }: Props) =>
       )}
 
       {bill && (
-        <>
-          <BillSummary bill={bill} />
-          <PaymentModal bill={bill} onPay={handleAddPayment} />
-        </>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <BillSummary bill={bill} />
+          </div>
+
+          {bill.status !== "PAID" && (
+            <div className="lg:col-span-1 flex flex-col gap-4">
+              <PaymentModal bill={bill} onPay={handleAddPayment} />
+            </div>
+          )}
+        </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default BillingPanel
+export default BillingPanel;

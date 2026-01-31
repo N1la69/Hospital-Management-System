@@ -52,7 +52,7 @@ public class BillingServiceImpl implements BillingService {
                 .amountPaid(BigDecimal.ZERO)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
-                .status(null)
+                .status(BillStatus.UNPAID)
                 .build();
 
         for (AddBillItemRequest itemRequest : request.items()) {

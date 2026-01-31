@@ -4,6 +4,7 @@ import { BillingResponse, PaymentRequestInterface } from "@/types/billing";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Modal from "../ui/Modal";
+import { IoAddCircle } from "react-icons/io5";
 
 interface Props {
   bill: BillingResponse;
@@ -43,8 +44,11 @@ const PaymentModal = ({ bill, onPay }: Props) => {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-green-600 text-white rounded"
+        className="w-full inline-flex gap-1 items-center justify-center rounded-md bg-green-600 py-3 text-sm font-semibold text-white hover:bg-green-700"
       >
+        <span>
+          <IoAddCircle size={17} />
+        </span>{" "}
         Add Payment
       </button>
 
@@ -55,16 +59,20 @@ const PaymentModal = ({ bill, onPay }: Props) => {
         size="sm"
       >
         <div className="space-y-4">
-          <div className="text-sm text-slate-600">
-            Remaining amount: <b>₹{remaining}</b>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm">
+            Remaining amount:
+            <span className="font-semibold text-green-700 ml-1">
+              ₹{remaining}
+            </span>
           </div>
 
           <input
             type="number"
-            className="border p-2 w-full rounded"
+            className="border p-2 w-full rounded-md"
             placeholder="Amount"
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
+            onFocus={() => amount === 0 && setAmount(remaining)}
           />
 
           <select
