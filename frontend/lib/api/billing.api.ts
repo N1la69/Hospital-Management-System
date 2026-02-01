@@ -1,4 +1,4 @@
-import { CreateBillRequest } from "@/types/billing";
+import { BillSearchFilter, CreateBillRequest } from "@/types/billing";
 import api from "../utils/axios";
 
 export const createBill = async (payload: CreateBillRequest) => {
@@ -14,4 +14,16 @@ export const payment = async (
 
 export const cancelBill = async (billId: string): Promise<void> => {
   await api.post(`/api/billing/${billId}/cancel`);
+};
+
+export const searchBills = async (
+  filter: BillSearchFilter,
+  page: number,
+  size: number,
+) => {
+  const res = await api.post(
+    `/api/billing/search?page=${page}&size=${size}`,
+    filter,
+  );
+  return res.data;
 };

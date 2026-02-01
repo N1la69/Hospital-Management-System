@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.nilanjan.backend.billing.domain.Bill;
 
-public interface BillRepository extends MongoRepository<Bill, ObjectId> {
+public interface BillRepository extends MongoRepository<Bill, ObjectId>, BillSearchRepository {
 
     Optional<Bill> findByBillNumber(String billNumber);
 

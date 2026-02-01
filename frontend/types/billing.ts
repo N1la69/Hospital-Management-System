@@ -50,7 +50,15 @@ export interface BillingResponse {
   discount: number;
   totalAmount: number;
   amountPaid: number;
-  status: "PAID" | "PARTIALLY_PAID" | "CANCELLED";
+  status: "UNPAID" | "PAID" | "PARTIALLY_PAID" | "CANCELLED";
   updatedAt: string;
   payments: Payment[];
+}
+
+export interface BillSearchFilter {
+  name?: string;
+  paymentStatus?: "UNPAID" | "PAID" | "PARTIALLY_PAID" | "CANCELLED";
+  paymentMethod?: string;
+  fromDate?: string;
+  toDate?: string;
 }

@@ -71,13 +71,11 @@ const ReceptionistPatientPage = () => {
       setPage(pageNo);
       setSearched(true);
     } catch (error: any) {
-      const message =
+      toast.error(
         error?.response?.data?.message ||
-        error?.message ||
-        "Failed to search patient";
-
-      alert(message);
-      console.log(message);
+          error?.message ||
+          "Failed to search patient",
+      );
     } finally {
       setLoading(false);
     }

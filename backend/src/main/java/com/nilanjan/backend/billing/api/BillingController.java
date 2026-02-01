@@ -1,16 +1,20 @@
 package com.nilanjan.backend.billing.api;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nilanjan.backend.billing.api.dto.BillSearchFilter;
 import com.nilanjan.backend.billing.api.dto.BillingResponse;
 import com.nilanjan.backend.billing.api.dto.CreateBillRequest;
 import com.nilanjan.backend.billing.api.dto.PaymentRequest;
 import com.nilanjan.backend.billing.application.BillingService;
+import com.nilanjan.backend.common.dto.PageResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,5 +39,14 @@ public class BillingController {
     public ResponseEntity<Void> cancel(@PathVariable String billId) {
         billingService.cancelBill(billId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<PageResponse<BillingResponse>> search(
+            @RequestBody BillSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(billingService.advancedSearch(filter, page, size));
     }
 }

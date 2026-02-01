@@ -20,4 +20,5 @@ export const receptionistMenu: SidebarItem[] = [
   { label: "Patient Utils", href: "/receptionist/patients" },
   { label: "View Doctors", href: "/receptionist/doctors" },
   { label: "Appointments", href: "/receptionist/appointments" },
+  { label: "Billing", href: "/receptionist/billing" },
 ];

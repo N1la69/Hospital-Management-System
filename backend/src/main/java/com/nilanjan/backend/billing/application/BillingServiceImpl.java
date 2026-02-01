@@ -3,12 +3,14 @@ package com.nilanjan.backend.billing.application;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import com.nilanjan.backend.appointment.repository.AppointmentRepository;
 import com.nilanjan.backend.billing.api.dto.AddBillItemRequest;
+import com.nilanjan.backend.billing.api.dto.BillSearchFilter;
 import com.nilanjan.backend.billing.api.dto.BillingResponse;
 import com.nilanjan.backend.billing.api.dto.CreateBillRequest;
 import com.nilanjan.backend.billing.api.dto.PaymentRequest;
@@ -18,6 +20,8 @@ import com.nilanjan.backend.billing.domain.BillItemType;
 import com.nilanjan.backend.billing.domain.BillStatus;
 import com.nilanjan.backend.billing.domain.Payment;
 import com.nilanjan.backend.billing.repository.BillRepository;
+import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.patient.repository.PatientRepository;
 
@@ -122,6 +126,17 @@ public class BillingServiceImpl implements BillingService {
         bill.setUpdatedAt(Instant.now());
 
         billRepository.save(bill);
+    }
+
+    @Override
+    public PageResponse<BillingResponse> advancedSearch(BillSearchFilter filter, int page, int size) {
+
+        PageResult<Bill> result = billRepository.search(filter, page, size);
+        List<BillingResponse> items = result.data().stream()
+                .map(this::mapToResponse)
+                .toList();
+
+        return new PageResponse<>(items, result.total(), page, size);
     }
 
     // HELPERS
