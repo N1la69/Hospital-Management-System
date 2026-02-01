@@ -16,6 +16,11 @@ export const cancelBill = async (billId: string): Promise<void> => {
   await api.post(`/api/billing/${billId}/cancel`);
 };
 
+export const getBillDetails = async (billId: string) => {
+  const res = await api.get(`/api/billing/${billId}/details`);
+  return res.data;
+};
+
 export const searchBills = async (
   filter: BillSearchFilter,
   page: number,

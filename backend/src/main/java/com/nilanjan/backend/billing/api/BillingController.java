@@ -2,6 +2,7 @@ package com.nilanjan.backend.billing.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,6 +40,12 @@ public class BillingController {
     public ResponseEntity<Void> cancel(@PathVariable String billId) {
         billingService.cancelBill(billId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{billId}/details")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    public ResponseEntity<BillingResponse> getDetails(@PathVariable String billId) {
+        return ResponseEntity.ok(billingService.getBillDetails(billId));
     }
 
     @PostMapping("/search")

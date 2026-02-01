@@ -2,9 +2,9 @@
 
 import { BillingResponse, PaymentRequestInterface } from "@/types/billing";
 import { useState } from "react";
-import { toast } from "react-toastify";
 import Modal from "../ui/Modal";
 import { IoAddCircle } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 interface Props {
   bill: BillingResponse;
@@ -14,26 +14,31 @@ interface Props {
 const PaymentModal = ({ bill, onPay }: Props) => {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState<number>(0);
-  const [method, setMethod] = useState("CASH");
+  const [method, setMethod] = useState<"CASH" | "UPI" | "CARD">("CASH");
   const [reference, setReference] = useState("");
   const [loading, setLoading] = useState(false);
 
   const remaining = bill.totalAmount - bill.amountPaid;
 
   const handlePay = async () => {
-    if (amount <= 0) {
-      alert("Invalid amount");
+    if (amount <= 0 || amount > remaining) {
+      toast.error("Invalid payment amount");
       return;
     }
-    setLoading(true);
 
+    setLoading(true);
     try {
-      await onPay(bill.id, { amount, method, reference });
+      await onPay(bill.id, {
+        amount,
+        method,
+        reference: reference || undefined,
+      });
+
       setOpen(false);
       setAmount(0);
       setReference("");
-    } catch (err: any) {
-      toast.error("Error paying: ", err);
+    } catch {
+      toast.error("Payment failed");
     } finally {
       setLoading(false);
     }
@@ -41,44 +46,43 @@ const PaymentModal = ({ bill, onPay }: Props) => {
 
   return (
     <>
-      {/* Trigger button */}
       <button
         onClick={() => setOpen(true)}
         className="w-full inline-flex gap-1 items-center justify-center rounded-md bg-green-600 py-3 text-sm font-semibold text-white hover:bg-green-700"
       >
-        <span>
-          <IoAddCircle size={17} />
-        </span>{" "}
+        <IoAddCircle size={17} />
         Add Payment
       </button>
 
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        title="Add payment"
+        title="Add Payment"
         size="sm"
       >
         <div className="space-y-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm">
             Remaining amount:
-            <span className="font-semibold text-green-700 ml-1">
+            <span className="ml-1 font-semibold text-green-700">
               ₹{remaining}
             </span>
           </div>
 
           <input
             type="number"
-            className="border p-2 w-full rounded-md"
-            placeholder="Amount"
+            min={1}
+            max={remaining}
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
             onFocus={() => amount === 0 && setAmount(remaining)}
+            className="border p-2 w-full rounded-md"
+            placeholder="Amount"
           />
 
           <select
-            className="border p-2 w-full rounded"
             value={method}
-            onChange={(e) => setMethod(e.target.value)}
+            onChange={(e) => setMethod(e.target.value as any)}
+            className="border p-2 w-full rounded-md"
           >
             <option value="CASH">CASH</option>
             <option value="UPI">UPI</option>
@@ -86,16 +90,16 @@ const PaymentModal = ({ bill, onPay }: Props) => {
           </select>
 
           <input
-            className="border p-2 w-full rounded"
-            placeholder="Reference (optional)"
             value={reference}
             onChange={(e) => setReference(e.target.value)}
+            placeholder="Reference (optional)"
+            className="border p-2 w-full rounded-md"
           />
 
           <div className="flex justify-end gap-2 pt-2">
             <button
               onClick={() => setOpen(false)}
-              className="px-4 py-2 border rounded"
+              className="border px-4 py-2 rounded"
               disabled={loading}
             >
               Cancel
@@ -104,7 +108,7 @@ const PaymentModal = ({ bill, onPay }: Props) => {
             <button
               onClick={handlePay}
               disabled={loading}
-              className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-60"
+              className="bg-green-600 px-4 py-2 text-white rounded disabled:opacity-60"
             >
               {loading ? "Processing..." : "Pay"}
             </button>

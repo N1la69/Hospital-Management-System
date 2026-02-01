@@ -133,6 +133,15 @@ public class BillingServiceImpl implements BillingService {
     }
 
     @Override
+    public BillingResponse getBillDetails(String billId) {
+
+        Bill bill = billRepository.findById(new ObjectId(billId))
+                .orElseThrow(() -> new RuntimeException("Bill not found: " + billId));
+
+        return mapToResponse(bill);
+    }
+
+    @Override
     public PageResponse<BillingResponse> advancedSearch(BillSearchFilter filter, int page, int size) {
 
         Set<ObjectId> patientIds = new HashSet<>();

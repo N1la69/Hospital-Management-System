@@ -1,15 +1,21 @@
 "use client";
 
+import BillDetailsModal from "@/components/billing/BillDetailsModal";
+import CompletePaymentModal from "@/components/billing/CompletePaymentModal";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import { searchBills } from "@/lib/api/billing.api";
+import { getBillDetails, searchBills } from "@/lib/api/billing.api";
 import { receptionistMenu } from "@/lib/constants/sidebarMenus";
 import { BillingResponse, BillSearchFilter } from "@/types/billing";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 const ReceptionistBillingPage = () => {
   const [bills, setBills] = useState<BillingResponse[]>([]);
+
+  const [paymentBillId, setPaymentBillId] = useState<string | null>(null);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -18,6 +24,11 @@ const ReceptionistBillingPage = () => {
   const [searchText, setSearchText] = useState("");
 
   const [filters, setFilters] = useState<BillSearchFilter>({});
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<BillingResponse | null>(
+    null,
+  );
 
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -28,6 +39,25 @@ const ReceptionistBillingPage = () => {
     if (endOfDay) date.setHours(23, 59, 59, 999);
     else date.setHours(0, 0, 0, 0);
     return date.toISOString();
+  };
+
+  const openBillDetails = async (billId: string) => {
+    try {
+      const res = await getBillDetails(billId);
+      setSelectedBill(res);
+      setDetailsOpen(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load bill details",
+      );
+    }
+  };
+
+  const openCompletePayment = (billId: string) => {
+    setPaymentBillId(billId);
+    setPaymentOpen(true);
   };
 
   const handleSearch = async (pageNo = 0) => {
@@ -63,6 +93,10 @@ const ReceptionistBillingPage = () => {
   const clearFilters = () => {
     setFilters({});
     setSearchText("");
+    handleSearch(0);
+  };
+
+  const refresh = () => {
     handleSearch(0);
   };
 
@@ -232,12 +266,12 @@ const ReceptionistBillingPage = () => {
                 <thead className="bg-slate-50 border-b">
                   <tr className="text-left text-slate-600">
                     <th className="px-4 py-3 font-medium">Bill No.</th>
-                    <th className="px-4 py-3 font-medium">Pateint Name</th>
+                    <th className="px-4 py-3 font-medium">Patient Name</th>
                     <th className="px-4 py-3 font-medium">Total Amt. (₹)</th>
-                    <th className="px-4 py-3 font-medium">Amt. Paid (₹)</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Payment Mode</th>
                     <th className="px-4 py-3 font-medium">Updated At</th>
+                    <th className="px-4 py-3 font-medium">Action</th>
                   </tr>
                 </thead>
 
@@ -247,7 +281,10 @@ const ReceptionistBillingPage = () => {
                       key={bill.id}
                       className="border-b last:border-b-0 hover:bg-slate-50 transition"
                     >
-                      <td className="px-4 py-3 font-mono text-slate-700">
+                      <td
+                        className="px-4 py-3 font-mono text-blue-700 underline cursor-pointer"
+                        onClick={() => openBillDetails(bill.id)}
+                      >
                         {bill.billNumber}
                       </td>
                       <td className="px-4 py-3 text-slate-800">
@@ -255,9 +292,6 @@ const ReceptionistBillingPage = () => {
                       </td>
                       <td className="px-4 py-3 text-slate-800">
                         {bill.totalAmount}
-                      </td>
-                      <td className="px-4 py-3 text-slate-800">
-                        {bill.amountPaid}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -273,10 +307,25 @@ const ReceptionistBillingPage = () => {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-slate-700">
-                        {bill.payments[1].method}
+                        {bill.payments?.[bill.payments.length - 1]?.method ??
+                          "-"}
                       </td>
                       <td className="px-4 py-3 text-slate-700">
-                        {bill.updatedAt}
+                        {dayjs(bill.updatedAt).format("DD/MM/YYYY HH:mm")}
+                      </td>
+                      <td className="px-4 py-3">
+                        {bill.status === "PAID" ? (
+                          <span className="text-xs text-slate-500">
+                            No action needed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => openCompletePayment(bill.id)}
+                            className="rounded-md bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
+                          >
+                            Complete Payment
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -313,6 +362,25 @@ const ReceptionistBillingPage = () => {
           </div>
         </div>
       )}
+
+      <BillDetailsModal
+        open={detailsOpen}
+        data={selectedBill}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedBill(null);
+        }}
+      />
+
+      <CompletePaymentModal
+        open={paymentOpen}
+        billId={paymentBillId}
+        onClose={() => {
+          setPaymentOpen(false);
+          setPaymentBillId(null);
+          refresh();
+        }}
+      />
     </DashboardLayout>
   );
 };

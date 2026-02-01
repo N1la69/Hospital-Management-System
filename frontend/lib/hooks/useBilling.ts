@@ -2,10 +2,11 @@ import {
   AddBillItemRequest,
   BillingResponse,
   CreateBillRequest,
+  PaymentRequestInterface,
 } from "@/types/billing";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { cancelBill } from "../api/billing.api";
+import { cancelBill, getBillDetails } from "../api/billing.api";
 import api from "../utils/axios";
 
 export function useBilling() {
@@ -40,7 +41,10 @@ export function useBilling() {
     }
   };
 
-  const addPayment = async (billId: string, payload: PaymentRequest) => {
+  const addPayment = async (
+    billId: string,
+    payload: PaymentRequestInterface,
+  ) => {
     const res = await api.post<BillingResponse>(
       `/api/billing/${billId}/payments`,
       payload,
@@ -49,10 +53,22 @@ export function useBilling() {
     return res.data;
   };
 
+  const loadBill = async (billId: string) => {
+    const data = await getBillDetails(billId);
+    setBill(data);
+  };
+
   const cancelCurrentBill = async (billId: string) => {
     await cancelBill(billId);
     setBill(null);
   };
 
-  return { bill, loading, createNewBill, addPayment, cancelCurrentBill };
+  return {
+    bill,
+    loading,
+    createNewBill,
+    addPayment,
+    cancelCurrentBill,
+    loadBill,
+  };
 }

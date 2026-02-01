@@ -12,6 +12,8 @@ public interface BillingService {
 
     void cancelBill(String billId);
 
+    BillingResponse getBillDetails(String billId);
+
     PageResponse<BillingResponse> advancedSearch(BillSearchFilter filter, int page, int size);
 
     BillingResponse recordPayment(String billId, PaymentRequest request);
