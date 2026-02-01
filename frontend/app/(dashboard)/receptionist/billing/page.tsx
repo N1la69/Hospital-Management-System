@@ -96,10 +96,6 @@ const ReceptionistBillingPage = () => {
     handleSearch(0);
   };
 
-  const refresh = () => {
-    handleSearch(0);
-  };
-
   return (
     <DashboardLayout title="Billing Page" menuItems={receptionistMenu}>
       {/* HEADER */}
@@ -378,7 +374,11 @@ const ReceptionistBillingPage = () => {
         onClose={() => {
           setPaymentOpen(false);
           setPaymentBillId(null);
-          refresh();
+        }}
+        onUpdated={(updatedBill) => {
+          setBills((prev) =>
+            prev.map((b) => (b.id === updatedBill.id ? updatedBill : b)),
+          );
         }}
       />
     </DashboardLayout>

@@ -1,8 +1,11 @@
+"use client";
+
 import { useBilling } from "@/lib/hooks/useBilling";
-import { AddBillItemRequest } from "@/types/billing";
+import { AddBillItemRequest, BillingResponse } from "@/types/billing";
 import BillItemsForm from "./BillItemsForm";
 import BillSummary from "./BillSummary";
 import PaymentModal from "./PaymentModal";
+import { useState } from "react";
 
 interface Props {
   patientId: string;
@@ -15,14 +18,19 @@ const BillingPanel = ({
   appointmentId,
   defaultItems = [],
 }: Props) => {
-  const { bill, createNewBill, addPayment } = useBilling();
+  const [bill, setBill] = useState<BillingResponse | null>(null);
+
+  const { createNewBill, addPayment } = useBilling();
 
   const handleCreateBill = async (items: AddBillItemRequest[]) => {
-    await createNewBill(patientId, items, appointmentId);
+    const created = await createNewBill(patientId, items, appointmentId);
+    setBill(created);
   };
 
   const handleAddPayment = async (billId: string, payload: any) => {
-    return addPayment(billId, payload);
+    const updated = await addPayment(billId, payload);
+    setBill(updated);
+    return updated;
   };
 
   return (

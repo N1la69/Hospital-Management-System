@@ -12,9 +12,10 @@ interface Props {
   open: boolean;
   billId: string | null;
   onClose: () => void;
+  onUpdated: (bill: BillingResponse) => void;
 }
 
-const CompletePaymentModal = ({ open, billId, onClose }: Props) => {
+const CompletePaymentModal = ({ open, billId, onClose, onUpdated }: Props) => {
   const [bill, setBill] = useState<BillingResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -30,8 +31,12 @@ const CompletePaymentModal = ({ open, billId, onClose }: Props) => {
       .finally(() => setLoading(false));
   }, [open, billId]);
 
-  const handlePay = (billId: string, payload: any) =>
-    addPayment(billId, payload);
+  const handlePay = async (billId: string, payload: any) => {
+    const updated = await addPayment(billId, payload);
+    setBill(updated);
+    onUpdated(updated);
+    return updated;
+  };
 
   return (
     <Modal open={open} onClose={onClose} title="Complete Payment" size="lg">
