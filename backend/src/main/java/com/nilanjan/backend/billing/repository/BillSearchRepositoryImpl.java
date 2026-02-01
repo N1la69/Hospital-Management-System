@@ -3,7 +3,9 @@ package com.nilanjan.backend.billing.repository;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -23,22 +25,37 @@ public class BillSearchRepositoryImpl implements BillSearchRepository {
     private final MongoTemplate mongoTemplate;
 
     @Override
-    public PageResult<Bill> search(BillSearchFilter filter, int page, int size) {
+    public PageResult<Bill> search(BillSearchFilter filter, Set<ObjectId> patientIds, Set<ObjectId> appointmentIds,
+            int page, int size) {
 
-        List<Criteria> criteriaList = new ArrayList<>();
+        List<Criteria> andCriteria = new ArrayList<>();
+        List<Criteria> orCriteria = new ArrayList<>();
 
         if (filter.name() != null && !filter.name().isBlank()) {
-            criteriaList.add(new Criteria().orOperator(
-                    Criteria.where("billNumber").regex(filter.name(), "i")));
+            orCriteria.add(Criteria.where("billNumber").regex(filter.name(), "i"));
+
+            if (patientIds != null && !patientIds.isEmpty()) {
+                orCriteria.add(Criteria.where("patientId").in(patientIds));
+            }
+
+            if (appointmentIds != null && !appointmentIds.isEmpty()) {
+                orCriteria.add(Criteria.where("appointmentId").in(appointmentIds));
+            }
+
+            if (orCriteria.isEmpty()) {
+                return new PageResult<>(List.of(), 0);
+            }
+
+            andCriteria.add(new Criteria().orOperator(orCriteria.toArray(new Criteria[0])));
         }
 
         if (filter.paymentStatus() != null && !filter.paymentStatus().isBlank()) {
-            criteriaList.add(
+            andCriteria.add(
                     Criteria.where("status").is(filter.paymentStatus()));
         }
 
         if (filter.paymentMethod() != null && !filter.paymentMethod().isBlank()) {
-            criteriaList.add(
+            andCriteria.add(
                     Criteria.where("payments")
                             .elemMatch(Criteria.where("method")
                                     .is(filter.paymentMethod())));
@@ -48,24 +65,24 @@ public class BillSearchRepositoryImpl implements BillSearchRepository {
             Instant from = Instant.parse(filter.fromDate());
             Instant to = Instant.parse(filter.toDate());
 
-            criteriaList.add(
+            andCriteria.add(
                     Criteria.where("createdAt").gte(from).lte(to));
         } else if (filter.fromDate() != null) {
-            criteriaList.add(
+            andCriteria.add(
                     Criteria.where("createdAt")
                             .gte(Instant.parse(filter.fromDate())));
         } else if (filter.toDate() != null) {
-            criteriaList.add(
+            andCriteria.add(
                     Criteria.where("createdAt")
                             .lte(Instant.parse(filter.toDate())));
         }
 
-        Criteria criteria = new Criteria();
-        if (!criteriaList.isEmpty()) {
-            criteria.andOperator(criteriaList.toArray(new Criteria[0]));
+        Criteria finalCriteria = new Criteria();
+        if (!andCriteria.isEmpty()) {
+            finalCriteria.andOperator(andCriteria.toArray(new Criteria[0]));
         }
 
-        Query query = new Query(criteria);
+        Query query = new Query(finalCriteria);
         query.with(Sort.by(Sort.Direction.DESC, "updatedAt"));
 
         long total = mongoTemplate.count(query, Bill.class);

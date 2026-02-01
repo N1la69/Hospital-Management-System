@@ -3,7 +3,10 @@ package com.nilanjan.backend.billing.application;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import com.nilanjan.backend.billing.domain.Payment;
 import com.nilanjan.backend.billing.repository.BillRepository;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
+import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.patient.repository.PatientRepository;
 
@@ -131,7 +135,29 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public PageResponse<BillingResponse> advancedSearch(BillSearchFilter filter, int page, int size) {
 
-        PageResult<Bill> result = billRepository.search(filter, page, size);
+        Set<ObjectId> patientIds = new HashSet<>();
+        Set<ObjectId> appointmentIds = new HashSet<>();
+
+        if (filter.name() != null && !filter.name().isBlank()) {
+            patientRepository.searchByNameOrCode(filter.name())
+                    .forEach(p -> patientIds.add(p.getId()));
+
+            Set<ObjectId> doctorIds = doctorRepository
+                    .searchByNameOrCode(filter.name())
+                    .stream()
+                    .map(Doctor::getId)
+                    .collect(Collectors.toSet());
+
+            appointmentRepository
+                    .findByDoctorIdInOrPatientIdIn(doctorIds, patientIds)
+                    .forEach(a -> appointmentIds.add(a.getId()));
+
+            appointmentRepository.searchByCode(filter.name())
+                    .forEach(a -> appointmentIds.add(a.getId()));
+        }
+
+        PageResult<Bill> result = billRepository.search(filter, patientIds.isEmpty() ? null : patientIds,
+                appointmentIds.isEmpty() ? null : appointmentIds, page, size);
         List<BillingResponse> items = result.data().stream()
                 .map(this::mapToResponse)
                 .toList();

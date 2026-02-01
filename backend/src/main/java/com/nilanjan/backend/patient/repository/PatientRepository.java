@@ -10,10 +10,6 @@ import com.nilanjan.backend.patient.domain.Patient;
 
 public interface PatientRepository extends MongoRepository<Patient, ObjectId>, PatientSearchRepository {
 
-    @Query("{ $or: [ { firstName: { $regex: ?0, $options: 'i' } }, { lastName: { $regex: ?0, $options: 'i' } } ] }")
-    List<Patient> searchByName(String name);
-
-    @Query("{ 'patientCode': { $regex: ?0, $options: 'i' } }")
-    List<Patient> findByPatientCodeRegex(String code);
-
+    @Query("{ $or: [ { firstName: { $regex: ?0, $options: 'i' } }, { lastName:  { $regex: ?0, $options: 'i' } }, { patientCode: { $regex: ?0, $options: 'i' } } ] }")
+    List<Patient> searchByNameOrCode(String text);
 }

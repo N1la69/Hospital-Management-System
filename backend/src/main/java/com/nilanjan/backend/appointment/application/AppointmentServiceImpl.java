@@ -205,7 +205,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Set<ObjectId> doctorIds = null;
 
         if (filter.patientName() != null && !filter.patientName().isBlank()) {
-            patientIds = patientRepository.searchByName(filter.patientName())
+            patientIds = patientRepository.searchByNameOrCode(filter.patientName())
                     .stream().map(Patient::getId).collect(Collectors.toSet());
 
             if (patientIds.isEmpty())
@@ -213,7 +213,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         if (filter.doctorName() != null && !filter.doctorName().isBlank()) {
-            doctorIds = doctorRepository.searchByName(filter.doctorName())
+            doctorIds = doctorRepository.searchByNameOrCode(filter.doctorName())
                     .stream().map(Doctor::getId).collect(Collectors.toSet());
 
             if (doctorIds.isEmpty())
@@ -284,12 +284,12 @@ public class AppointmentServiceImpl implements AppointmentService {
             patientIds = new HashSet<>();
 
             patientIds.addAll(
-                    patientRepository.searchByName(search)
+                    patientRepository.searchByNameOrCode(search)
                             .stream()
                             .map(Patient::getId)
                             .toList());
 
-            patientRepository.findByPatientCodeRegex(search)
+            patientRepository.searchByNameOrCode(search)
                     .forEach(p -> patientIds.add(p.getId()));
 
             if (patientIds.isEmpty()) {

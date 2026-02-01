@@ -13,7 +13,7 @@ public interface DoctorRepository extends MongoRepository<Doctor, ObjectId>, Doc
 
     Optional<Doctor> findByLinkedUserId(ObjectId linkedUserId);
 
-    @Query("{ $or: [ { firstName: { $regex: ?0, $options: 'i' } }, { lastName: { $regex: ?0, $options: 'i' } } ] }")
-    List<Doctor> searchByName(String name);
+    @Query("{ $or: [ { firstName: { $regex: ?0, $options: 'i' } }, { lastName:  { $regex: ?0, $options: 'i' } }, { doctorCode: { $regex: ?0, $options: 'i' } } ] }")
+    List<Doctor> searchByNameOrCode(String text);
 
 }
