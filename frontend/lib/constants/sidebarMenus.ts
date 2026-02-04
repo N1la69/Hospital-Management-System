@@ -5,6 +5,7 @@ export const adminMenu: SidebarItem[] = [
   { label: "Patients", href: "/admin/patients" },
   { label: "Doctors", href: "/admin/doctors" },
   { label: "Receptionists", href: "/admin/receptionists" },
+  { label: "Pharmacists", href: "/admin/pharmacists" },
   { label: "Appointments", href: "/admin/appointments" },
 ];
 

@@ -4,33 +4,33 @@ import Modal from "../ui/Modal";
 
 interface Props {
   open: boolean;
-  receptionistName: string;
+  pharmacistName: string;
   onConfirm: () => void;
   onClose: () => void;
   loading?: boolean;
 }
 
-const DeleteReceptionistModal = ({
+const DeletePharmacistModal = ({
   open,
-  receptionistName,
+  pharmacistName,
   onConfirm,
   onClose,
   loading,
 }: Props) => {
   return (
-    <Modal open={open} onClose={onClose} title="Delete Receptionist" size="sm">
+    <Modal open={open} onClose={onClose} title="Delete Pharmacist" size="sm">
       <div className="space-y-5">
         {/* Main message */}
         <p className="text-sm text-slate-800">
           Are you sure you want to delete{" "}
-          <span className="font-semibold">{receptionistName}</span>?
+          <span className="font-semibold">{pharmacistName}</span>?
         </p>
 
         {/* Warning box */}
         <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           <p className="font-medium mb-2">This action cannot be undone.</p>
           <ul className="list-disc list-inside space-y-1 text-xs">
-            <li>Receptionist profile will be permanently deleted</li>
+            <li>Pharmacist profile will be permanently deleted</li>
             <li>Linked user account will be deleted</li>
           </ul>
         </div>
@@ -49,7 +49,7 @@ const DeleteReceptionistModal = ({
             disabled={loading}
             className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
           >
-            {loading ? "Deleting..." : "Delete Receptionist"}
+            {loading ? "Deleting..." : "Delete Pharmacist"}
           </button>
         </div>
       </div>
@@ -57,4 +57,4 @@ const DeleteReceptionistModal = ({
   );
 };
 
-export default DeleteReceptionistModal;
+export default DeletePharmacistModal;
