@@ -28,6 +28,7 @@ import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.doctor.domain.Doctor;
 import com.nilanjan.backend.doctor.repository.DoctorRepository;
 import com.nilanjan.backend.patient.repository.PatientRepository;
+import com.nilanjan.backend.pharmacy.application.PharmacyService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,7 @@ public class BillingServiceImpl implements BillingService {
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
+    private final PharmacyService pharmacyService;
 
     @Override
     public BillingResponse createBill(CreateBillRequest request) {
@@ -89,6 +91,10 @@ public class BillingServiceImpl implements BillingService {
         if (bill.getStatus() == BillStatus.CANCELLED)
             throw new IllegalStateException("Cannot add payment to a cancelled bill");
 
+        if (bill.getStatus() == BillStatus.PAID) {
+            throw new IllegalStateException("Bill already fully paid");
+        }
+
         if (request.amount() == null || request.amount().compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Payment amount must be greater than zero");
 
@@ -108,9 +114,15 @@ public class BillingServiceImpl implements BillingService {
         BigDecimal newPaidAmount = bill.getAmountPaid().add(request.amount());
         bill.setAmountPaid(newPaidAmount);
 
-        if (newPaidAmount.compareTo(bill.getTotalAmount()) >= 0)
+        if (newPaidAmount.compareTo(bill.getTotalAmount()) >= 0) {
             bill.setStatus(BillStatus.PAID);
-        else
+
+            try {
+                pharmacyService.dispenseByBill(bill.getId().toHexString());
+            } catch (Exception e) {
+                throw new RuntimeException("Payment done but stock dispense failed: " + e.getMessage());
+            }
+        } else
             bill.setStatus(BillStatus.PARTIALLY_PAID);
 
         bill.setUpdatedAt(Instant.now());

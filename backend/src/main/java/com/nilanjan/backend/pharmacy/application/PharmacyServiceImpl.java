@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import com.nilanjan.backend.billing.domain.Bill;
 import com.nilanjan.backend.billing.domain.BillItem;
 import com.nilanjan.backend.billing.repository.BillRepository;
+import com.nilanjan.backend.pharmacy.api.dto.AddMedicineRequest;
 import com.nilanjan.backend.pharmacy.api.dto.AddStockRequest;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineResponse;
+import com.nilanjan.backend.pharmacy.api.dto.UpdateMedicineRequest;
 import com.nilanjan.backend.pharmacy.domain.InventoryBatch;
 import com.nilanjan.backend.pharmacy.domain.Medicine;
 import com.nilanjan.backend.pharmacy.domain.StockTransaction;
@@ -58,6 +60,58 @@ public class PharmacyServiceImpl implements PharmacyService {
                 .build();
 
         transactionRepository.save(txn);
+    }
+
+    @Override
+    public MedicineResponse createMedicine(AddMedicineRequest request) {
+
+        Medicine medicine = Medicine.builder()
+                .name(request.name())
+                .manufacturer(request.manufacturer())
+                .category(request.category())
+                .unit(request.unit())
+                .defaultPrice(request.defaultPrice())
+                .cgstPercent(request.cgstPercent())
+                .sgstPercent(request.sgstPercent())
+                .sellingPrice(request.sellingPrice())
+                .reorderLevel(request.reorderLevel())
+                .active(true)
+                .build();
+
+        Medicine saved = medicineRepository.save(medicine);
+
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public MedicineResponse updateMedicine(String medicineId, UpdateMedicineRequest request) {
+
+        Medicine medicine = medicineRepository.findById(new ObjectId(medicineId))
+                .orElseThrow(() -> new RuntimeException("Medicine not found: " + medicineId));
+
+        medicine.setName(request.name());
+        medicine.setManufacturer(request.manufacturer());
+        medicine.setCategory(request.category());
+        medicine.setUnit(request.unit());
+        medicine.setDefaultPrice(request.defaultPrice());
+        medicine.setCgstPercent(request.cgstPercent());
+        medicine.setSgstPercent(request.sgstPercent());
+        medicine.setSellingPrice(request.sellingPrice());
+        medicine.setReorderLevel(request.reorderLevel());
+        medicine.setActive(request.active());
+
+        Medicine saved = medicineRepository.save(medicine);
+
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public MedicineResponse getMedicineById(String medicineId) {
+
+        Medicine medicine = medicineRepository.findById(new ObjectId(medicineId))
+                .orElseThrow(() -> new RuntimeException("Medicine not found: " + medicineId));
+
+        return mapToResponse(medicine);
     }
 
     @Override
