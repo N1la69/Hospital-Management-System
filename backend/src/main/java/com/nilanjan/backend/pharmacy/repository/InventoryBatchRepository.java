@@ -1,7 +1,7 @@
 package com.nilanjan.backend.pharmacy.repository;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -13,5 +13,5 @@ public interface InventoryBatchRepository extends MongoRepository<InventoryBatch
     List<InventoryBatch> findByMedicineIdAndQuantityAvailableGreaterThan(
             ObjectId medicineId, int qty);
 
-    List<InventoryBatch> findByExpiryDateBefore(LocalDate date);
+    Optional<InventoryBatch> findByMedicineId(ObjectId medicineId);
 }

@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.pharmacy.api.dto.AddMedicineRequest;
 import com.nilanjan.backend.pharmacy.api.dto.AddStockRequest;
+import com.nilanjan.backend.pharmacy.api.dto.InventoryResponse;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineResponse;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineSearchFilter;
+import com.nilanjan.backend.pharmacy.api.dto.MedicineStockResponse;
 import com.nilanjan.backend.pharmacy.api.dto.UpdateMedicineRequest;
 import com.nilanjan.backend.pharmacy.application.PharmacyService;
 
@@ -47,7 +49,7 @@ public class PharmacyController {
 
     @GetMapping("/medicines/{medicineId}")
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
-    public ResponseEntity<MedicineResponse> getMedById(@PathVariable String medicineId) {
+    public ResponseEntity<MedicineStockResponse> getMedById(@PathVariable String medicineId) {
         return ResponseEntity.ok(pharmacyService.getMedicineById(medicineId));
     }
 
@@ -64,9 +66,8 @@ public class PharmacyController {
 
     @PostMapping("/stock")
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
-    public ResponseEntity<Void> addStock(@RequestBody AddStockRequest request) {
-        pharmacyService.addStock(request);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<InventoryResponse> addStock(@RequestBody AddStockRequest request) {
+        return ResponseEntity.ok(pharmacyService.addStock(request));
     }
 
     // =============== DISPENSE FROM BILL ===============

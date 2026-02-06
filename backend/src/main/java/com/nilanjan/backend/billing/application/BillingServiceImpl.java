@@ -46,12 +46,22 @@ public class BillingServiceImpl implements BillingService {
     public BillingResponse createBill(CreateBillRequest request) {
 
         ObjectId appointmentId = null;
+        ObjectId patientId = null;
+        String walkInName = "NA";
+
         if (request.appointmentId() != null && !request.appointmentId().isBlank())
             appointmentId = new ObjectId(request.appointmentId());
 
+        if (request.patientId() != null && !request.patientId().isBlank())
+            patientId = new ObjectId(request.patientId());
+
+        if (request.walkInName() != null && !request.walkInName().isBlank())
+            walkInName = request.walkInName();
+
         Bill bill = Bill.builder()
                 .billNumber(BillNumberGenerator.generate())
-                .patientId(new ObjectId(request.patientId()))
+                .patientId(patientId)
+                .walkInName(walkInName)
                 .appointmentId(appointmentId)
                 .items(new ArrayList<>())
                 .payments(new ArrayList<>())
@@ -189,12 +199,11 @@ public class BillingServiceImpl implements BillingService {
     // HELPERS
     private BillingResponse mapToResponse(Bill bill) {
 
-        String patientCode = patientRepository.findById(bill.getPatientId())
-                .map(p -> p.getPatientCode())
-                .orElse(null);
-        String patientName = patientRepository.findById(bill.getPatientId())
-                .map(p -> p.getFirstName() + " " + p.getLastName())
-                .orElse("Unknown Patient");
+        String patientIdStr = null;
+        String patientCode = null;
+        String patientName = "NA";
+
+        String walkInName = "NA";
 
         String appointmentIdStr = null;
         String appointmentCode = null;
@@ -202,6 +211,19 @@ public class BillingServiceImpl implements BillingService {
         String doctorIdStr = null;
         String doctorCode = null;
         String doctorName = null;
+
+        if (bill.getPatientId() != null) {
+            patientIdStr = bill.getPatientId().toHexString();
+            patientCode = patientRepository.findById(bill.getPatientId())
+                    .map(p -> p.getPatientCode())
+                    .orElse(null);
+            patientName = patientRepository.findById(bill.getPatientId())
+                    .map(p -> p.getFirstName() + " " + p.getLastName())
+                    .orElse("Unknown Patient");
+        }
+
+        if (bill.getWalkInName() != null)
+            walkInName = bill.getWalkInName();
 
         if (bill.getAppointmentId() != null) {
             var appointmentOpt = appointmentRepository.findById(bill.getAppointmentId());
@@ -227,18 +249,15 @@ public class BillingServiceImpl implements BillingService {
         return new BillingResponse(
                 bill.getId().toHexString(),
                 bill.getBillNumber(),
-
-                bill.getPatientId().toHexString(),
+                patientIdStr,
                 patientCode,
                 patientName,
-
+                walkInName,
                 appointmentIdStr,
                 appointmentCode,
-
                 doctorIdStr,
                 doctorCode,
                 doctorName,
-
                 bill.getItems(),
                 bill.getSubtotal(),
                 bill.getTax(),

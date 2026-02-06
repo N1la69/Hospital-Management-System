@@ -1,6 +1,10 @@
 "use client";
 
-import { MedicineResponse, MedicineSearchFilter } from "@/types/pharmacy";
+import {
+  MedicineResponse,
+  MedicineSearchFilter,
+  MedicineStockResponse,
+} from "@/types/pharmacy";
 import { useEffect, useState } from "react";
 import AddMedicineModal from "./AddMedicineModal";
 import AddStockModal from "./AddStockModal";
@@ -11,7 +15,7 @@ import { searchMedicines } from "@/lib/api/pharmacy.api";
 import { RiMedicineBottleFill } from "react-icons/ri";
 
 const MedicineList = () => {
-  const [medicines, setMedicines] = useState<MedicineResponse[]>([]);
+  const [medicines, setMedicines] = useState<MedicineStockResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -228,36 +232,36 @@ const MedicineList = () => {
                 <tbody>
                   {medicines.map((medicine) => (
                     <tr
-                      key={medicine.id}
+                      key={medicine.medicine.id}
                       className="border-b last:border-b-0 hover:bg-slate-50 transition"
                     >
                       <td className="px-4 py-3 font-mono text-slate-700">
-                        {medicine.medicineCode}
+                        {medicine.medicine.medicineCode}
                       </td>
                       <td className="px-4 py-3 font-mono text-slate-700">
-                        {medicine.medicineName}
+                        {medicine.medicine.medicineName}
                       </td>
                       <td className="px-4 py-3 font-mono text-slate-700">
-                        {medicine.manufacturerName}
+                        {medicine.medicine.manufacturerName}
                       </td>
                       <td className="px-4 py-3 text-slate-800">
-                        {medicine.sellingPrice}
+                        {medicine.medicine.sellingPrice}
                       </td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                            medicine.status === "ACTIVE"
+                            medicine.medicine.status === "ACTIVE"
                               ? "bg-green-100 text-green-700"
                               : "bg-red-200 text-red-600"
                           }`}
                         >
-                          {medicine.status}
+                          {medicine.medicine.status}
                         </span>
                       </td>
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => setStockFor(medicine.id)}
+                            onClick={() => setStockFor(medicine.medicine.id)}
                             className="flex items-center justify-center rounded-md bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 transition focus:outline-none focus:ring-2 focus:ring-blue-300"
                             title="Add Stock"
                           >

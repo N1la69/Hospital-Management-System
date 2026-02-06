@@ -24,7 +24,10 @@ public class Bill {
     private ObjectId id;
 
     private String billNumber;
+
     private ObjectId patientId;
+    private String walkInName;
+
     private ObjectId appointmentId;
 
     private List<BillItem> items;

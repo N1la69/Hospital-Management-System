@@ -5,19 +5,21 @@ import java.util.List;
 import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.pharmacy.api.dto.AddMedicineRequest;
 import com.nilanjan.backend.pharmacy.api.dto.AddStockRequest;
+import com.nilanjan.backend.pharmacy.api.dto.InventoryResponse;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineResponse;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineSearchFilter;
+import com.nilanjan.backend.pharmacy.api.dto.MedicineStockResponse;
 import com.nilanjan.backend.pharmacy.api.dto.UpdateMedicineRequest;
 
 public interface PharmacyService {
 
-    void addStock(AddStockRequest request);
+    InventoryResponse addStock(AddStockRequest request);
 
     MedicineResponse createMedicine(AddMedicineRequest request);
 
     MedicineResponse updateMedicine(String medicineId, UpdateMedicineRequest request);
 
-    MedicineResponse getMedicineById(String medicineId);
+    MedicineStockResponse getMedicineById(String medicineId);
 
     void dispenseByBill(String billId);
 

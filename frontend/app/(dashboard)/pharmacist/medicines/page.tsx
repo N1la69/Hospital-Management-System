@@ -1,17 +1,15 @@
 "use client";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import AlertsPanel from "@/components/pharmacy/AlertsPanel";
+import MedicineList from "@/components/pharmacy/MedicineList";
 import { pharmacistMenu } from "@/lib/constants/sidebarMenus";
 
-const PharmacistDashboard = () => {
+const PharmacistMedicinesPage = () => {
   return (
     <DashboardLayout title="Pharmacist Dashboard" menuItems={pharmacistMenu}>
-      <div className="space-y-6">
-        <AlertsPanel />
-      </div>
+      <MedicineList />
     </DashboardLayout>
   );
 };
 
-export default PharmacistDashboard;
+export default PharmacistMedicinesPage;

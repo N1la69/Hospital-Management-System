@@ -28,8 +28,9 @@ export interface PaymentRequestInterface {
 }
 
 export interface CreateBillRequest {
-  patientId: string;
+  patientId?: string;
   appointmentId?: string;
+  walkInName?: string;
   items: AddBillItemRequest[];
 }
 
@@ -39,6 +40,7 @@ export interface BillingResponse {
   patientId: string;
   patientCode: string;
   patientName: string;
+  walkInName: string;
   appointmentId: string;
   appointmentCode: string;
   doctorId: string;

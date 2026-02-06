@@ -26,4 +26,5 @@ export const receptionistMenu: SidebarItem[] = [
 
 export const pharmacistMenu: SidebarItem[] = [
   { label: "Dashboard", href: "/pharmacist" },
+  { label: "Medicines", href: "/pharmacist/medicines" },
 ];

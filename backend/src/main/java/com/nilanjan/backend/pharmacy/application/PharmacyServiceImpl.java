@@ -15,8 +15,10 @@ import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.pharmacy.api.dto.AddMedicineRequest;
 import com.nilanjan.backend.pharmacy.api.dto.AddStockRequest;
+import com.nilanjan.backend.pharmacy.api.dto.InventoryResponse;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineResponse;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineSearchFilter;
+import com.nilanjan.backend.pharmacy.api.dto.MedicineStockResponse;
 import com.nilanjan.backend.pharmacy.api.dto.UpdateMedicineRequest;
 import com.nilanjan.backend.pharmacy.domain.InventoryBatch;
 import com.nilanjan.backend.pharmacy.domain.Medicine;
@@ -39,7 +41,7 @@ public class PharmacyServiceImpl implements PharmacyService {
     private final BillRepository billRepository;
 
     @Override
-    public void addStock(AddStockRequest request) {
+    public InventoryResponse addStock(AddStockRequest request) {
 
         InventoryBatch batch = InventoryBatch.builder()
                 .medicineId(new ObjectId(request.medicineId()))
@@ -63,6 +65,8 @@ public class PharmacyServiceImpl implements PharmacyService {
                 .build();
 
         transactionRepository.save(txn);
+
+        return mapToInventoryResponse(saved);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class PharmacyServiceImpl implements PharmacyService {
 
         Medicine saved = medicineRepository.save(medicine);
 
-        return mapToResponse(saved);
+        return mapToMedResponse(saved);
     }
 
     @Override
@@ -98,16 +102,23 @@ public class PharmacyServiceImpl implements PharmacyService {
 
         Medicine saved = medicineRepository.save(medicine);
 
-        return mapToResponse(saved);
+        return mapToMedResponse(saved);
     }
 
     @Override
-    public MedicineResponse getMedicineById(String medicineId) {
+    public MedicineStockResponse getMedicineById(String medicineId) {
 
         Medicine medicine = medicineRepository.findById(new ObjectId(medicineId))
                 .orElseThrow(() -> new RuntimeException("Medicine not found: " + medicineId));
 
-        return mapToResponse(medicine);
+        MedicineResponse medResponse = mapToMedResponse(medicine);
+
+        InventoryBatch batch = batchRepository.findByMedicineId(new ObjectId(medicineId))
+                .orElseThrow(() -> new RuntimeException("No batch founf for Medicine: " + medicineId));
+
+        InventoryResponse inventoryResponse = mapToInventoryResponse(batch);
+
+        return new MedicineStockResponse(medResponse, inventoryResponse);
     }
 
     @Override
@@ -152,9 +163,9 @@ public class PharmacyServiceImpl implements PharmacyService {
                     .mapToInt(InventoryBatch::getQuantityAvailable)
                     .sum();
 
-            if (qty <= med.getReorderLevel()) {
+            if (med.getStatus() == MedicineStatus.ACTIVE && qty <= med.getReorderLevel())
                 alerts.add(med.getMedicineName() + " low stock: " + qty);
-            }
+
         });
 
         return alerts;
@@ -165,14 +176,14 @@ public class PharmacyServiceImpl implements PharmacyService {
 
         PageResult<Medicine> result = medicineRepository.search(filter, page, size);
         List<MedicineResponse> items = result.data().stream()
-                .map(this::mapToResponse)
+                .map(this::mapToMedResponse)
                 .toList();
 
         return new PageResponse<>(items, result.total(), page, size);
     }
 
     // HELPERS
-    private MedicineResponse mapToResponse(Medicine medicine) {
+    private MedicineResponse mapToMedResponse(Medicine medicine) {
         return new MedicineResponse(
                 medicine.getId().toHexString(),
                 medicine.getMedicineName(),
@@ -182,6 +193,16 @@ public class PharmacyServiceImpl implements PharmacyService {
                 medicine.getSellingPrice(),
                 medicine.getReorderLevel(),
                 medicine.getStatus());
+    }
+
+    private InventoryResponse mapToInventoryResponse(InventoryBatch batch) {
+        return new InventoryResponse(
+                batch.getMedicineId().toHexString(),
+                batch.getBatchNo(),
+                batch.getMfgDate(),
+                batch.getExpiryDate(),
+                batch.getQuantityAvailable(),
+                batch.getSupplier());
     }
 
     private void deductFIFO(ObjectId medicineId, int qtyNeeded, ObjectId billId) {

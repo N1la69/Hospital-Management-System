@@ -35,6 +35,20 @@ export interface MedicineResponse {
   status: "ACTIVE" | "EXPIRED";
 }
 
+export interface InventoryResponse {
+  medicineId: string;
+  batchNo: string;
+  mfgDate: string;
+  expiryDate: string;
+  quantityAvailable: number;
+  supplier: string;
+}
+
+export interface MedicineStockResponse {
+  medicine: MedicineResponse;
+  stock: InventoryResponse;
+}
+
 export interface UpdateMedicineRequest {
   medicineName: string;
   manufacturerName: string;

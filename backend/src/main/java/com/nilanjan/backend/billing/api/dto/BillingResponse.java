@@ -9,31 +9,33 @@ import com.nilanjan.backend.billing.domain.BillStatus;
 import com.nilanjan.backend.billing.domain.Payment;
 
 public record BillingResponse(
-                String id,
-                String billNumber,
+        String id,
+        String billNumber,
 
-                String patientId,
-                String patientCode,
-                String patientName,
+        String patientId,
+        String patientCode,
+        String patientName,
 
-                String appointmentId,
-                String appointmentCode,
+        String walkInName,
 
-                String doctorId,
-                String doctorCode,
-                String doctorName,
+        String appointmentId,
+        String appointmentCode,
 
-                List<BillItem> items,
+        String doctorId,
+        String doctorCode,
+        String doctorName,
 
-                BigDecimal subtotal,
-                BigDecimal tax,
-                BigDecimal discount,
-                BigDecimal totalAmount,
-                BigDecimal amountPaid,
+        List<BillItem> items,
 
-                BillStatus status,
-                Instant updatedAt,
+        BigDecimal subtotal,
+        BigDecimal tax,
+        BigDecimal discount,
+        BigDecimal totalAmount,
+        BigDecimal amountPaid,
 
-                List<Payment> payments) {
+        BillStatus status,
+        Instant updatedAt,
+
+        List<Payment> payments) {
 
 }
