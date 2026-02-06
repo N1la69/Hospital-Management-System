@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.nilanjan.backend.pharmacy.domain.Medicine;
 
-public interface MedicineRepository extends MongoRepository<Medicine, ObjectId> {
+public interface MedicineRepository extends MongoRepository<Medicine, ObjectId>, MedicineSearchRepository {
     List<Medicine> findByNameContainingIgnoreCase(String name);
 }

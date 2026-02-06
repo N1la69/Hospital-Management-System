@@ -8,8 +8,6 @@ public record AddMedicineRequest(
                 String name,
                 String manufacturer,
                 MedicineCategory category,
-                String unit,
-                BigDecimal defaultPrice,
                 BigDecimal cgstPercent,
                 BigDecimal sgstPercent,
                 BigDecimal sellingPrice,

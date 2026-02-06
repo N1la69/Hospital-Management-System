@@ -16,5 +16,6 @@ export function getPrimaryRole(roles: string[]): string {
   if (roles.includes("DOCTOR")) return "DOCTOR";
   if (roles.includes("PATIENT")) return "PATIENT";
   if (roles.includes("RECEPTIONIST")) return "RECEPTIONIST";
+  if (roles.includes("PHARMACIST")) return "PHARMACIST";
   return "UNKNOWN";
 }

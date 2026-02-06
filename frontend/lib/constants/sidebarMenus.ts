@@ -23,3 +23,7 @@ export const receptionistMenu: SidebarItem[] = [
   { label: "Appointments", href: "/receptionist/appointments" },
   { label: "Billing", href: "/receptionist/billing" },
 ];
+
+export const pharmacistMenu: SidebarItem[] = [
+  { label: "Dashboard", href: "/pharmacist" },
+];

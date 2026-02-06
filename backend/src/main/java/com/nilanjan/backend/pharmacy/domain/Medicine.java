@@ -26,9 +26,6 @@ public class Medicine {
 
     private MedicineCategory category;
 
-    private String unit; // strip, bottle, piece
-    private BigDecimal defaultPrice;
-
     private BigDecimal cgstPercent;
     private BigDecimal sgstPercent;
 
@@ -36,5 +33,5 @@ public class Medicine {
 
     private Integer reorderLevel;
 
-    private boolean active;
+    private MedicineStatus status;
 }

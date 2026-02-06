@@ -11,12 +11,16 @@ import org.springframework.stereotype.Service;
 import com.nilanjan.backend.billing.domain.Bill;
 import com.nilanjan.backend.billing.domain.BillItem;
 import com.nilanjan.backend.billing.repository.BillRepository;
+import com.nilanjan.backend.common.dto.PageResponse;
+import com.nilanjan.backend.common.dto.PageResult;
 import com.nilanjan.backend.pharmacy.api.dto.AddMedicineRequest;
 import com.nilanjan.backend.pharmacy.api.dto.AddStockRequest;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineResponse;
+import com.nilanjan.backend.pharmacy.api.dto.MedicineSearchFilter;
 import com.nilanjan.backend.pharmacy.api.dto.UpdateMedicineRequest;
 import com.nilanjan.backend.pharmacy.domain.InventoryBatch;
 import com.nilanjan.backend.pharmacy.domain.Medicine;
+import com.nilanjan.backend.pharmacy.domain.MedicineStatus;
 import com.nilanjan.backend.pharmacy.domain.StockTransaction;
 import com.nilanjan.backend.pharmacy.domain.StockTransactionType;
 import com.nilanjan.backend.pharmacy.repository.InventoryBatchRepository;
@@ -69,13 +73,11 @@ public class PharmacyServiceImpl implements PharmacyService {
                 .name(request.name())
                 .manufacturer(request.manufacturer())
                 .category(request.category())
-                .unit(request.unit())
-                .defaultPrice(request.defaultPrice())
                 .cgstPercent(request.cgstPercent())
                 .sgstPercent(request.sgstPercent())
                 .sellingPrice(request.sellingPrice())
                 .reorderLevel(request.reorderLevel())
-                .active(true)
+                .status(MedicineStatus.ACTIVE)
                 .build();
 
         Medicine saved = medicineRepository.save(medicine);
@@ -92,13 +94,11 @@ public class PharmacyServiceImpl implements PharmacyService {
         medicine.setName(request.name());
         medicine.setManufacturer(request.manufacturer());
         medicine.setCategory(request.category());
-        medicine.setUnit(request.unit());
-        medicine.setDefaultPrice(request.defaultPrice());
         medicine.setCgstPercent(request.cgstPercent());
         medicine.setSgstPercent(request.sgstPercent());
         medicine.setSellingPrice(request.sellingPrice());
         medicine.setReorderLevel(request.reorderLevel());
-        medicine.setActive(request.active());
+        medicine.setStatus(request.status());
 
         Medicine saved = medicineRepository.save(medicine);
 
@@ -164,6 +164,17 @@ public class PharmacyServiceImpl implements PharmacyService {
         return alerts;
     }
 
+    @Override
+    public PageResponse<MedicineResponse> advancedSearch(MedicineSearchFilter filter, int page, int size) {
+
+        PageResult<Medicine> result = medicineRepository.search(filter, page, size);
+        List<MedicineResponse> items = result.data().stream()
+                .map(this::mapToResponse)
+                .toList();
+
+        return new PageResponse<>(items, result.total(), page, size);
+    }
+
     // HELPERS
     private MedicineResponse mapToResponse(Medicine medicine) {
         return new MedicineResponse(
@@ -171,13 +182,11 @@ public class PharmacyServiceImpl implements PharmacyService {
                 medicine.getName(),
                 medicine.getManufacturer(),
                 medicine.getCategory(),
-                medicine.getUnit(),
-                medicine.getDefaultPrice(),
                 medicine.getCgstPercent(),
                 medicine.getSgstPercent(),
                 medicine.getSellingPrice(),
                 medicine.getReorderLevel(),
-                medicine.isActive());
+                medicine.getStatus());
     }
 
     private void deductFIFO(ObjectId medicineId, int qtyNeeded, ObjectId billId) {

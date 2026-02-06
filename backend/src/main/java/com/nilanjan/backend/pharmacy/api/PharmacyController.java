@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nilanjan.backend.common.dto.PageResponse;
 import com.nilanjan.backend.pharmacy.api.dto.AddMedicineRequest;
 import com.nilanjan.backend.pharmacy.api.dto.AddStockRequest;
 import com.nilanjan.backend.pharmacy.api.dto.MedicineResponse;
+import com.nilanjan.backend.pharmacy.api.dto.MedicineSearchFilter;
 import com.nilanjan.backend.pharmacy.api.dto.UpdateMedicineRequest;
 import com.nilanjan.backend.pharmacy.application.PharmacyService;
 
@@ -46,6 +49,15 @@ public class PharmacyController {
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
     public ResponseEntity<MedicineResponse> getMedById(@PathVariable String medicineId) {
         return ResponseEntity.ok(pharmacyService.getMedicineById(medicineId));
+    }
+
+    @PostMapping("/medicines/search")
+    @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
+    public ResponseEntity<PageResponse<MedicineResponse>> searchMedicines(
+            @RequestBody MedicineSearchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(pharmacyService.advancedSearch(filter, page, size));
     }
 
     // =============== STOCK MANAGEMENT ===============

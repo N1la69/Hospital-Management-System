@@ -29,6 +29,7 @@ const LoginPage = () => {
       else if (role === "DOCTOR") window.location.href = "/doctor";
       else if (role === "PATIENT") window.location.href = "/patient";
       else if (role === "RECEPTIONIST") window.location.href = "/receptionist";
+      else if (role === "PHARMACIST") window.location.href = "/pharmacist";
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || error?.message || "Login failed",
@@ -79,7 +80,7 @@ const LoginPage = () => {
           </button>
 
           <p className="text-center text-xs text-slate-500">
-            Registered Patient or Authorized personnel only
+            Authorized personnel only
           </p>
         </div>
       </div>
