@@ -7,11 +7,10 @@ import com.nilanjan.backend.pharmacy.domain.MedicineStatus;
 
 public record MedicineResponse(
         String id,
-        String name,
-        String manufacturer,
+        String medicineName,
+        String medicineCode,
+        String manufacturerName,
         MedicineCategory category,
-        BigDecimal cgstPercent,
-        BigDecimal sgstPercent,
         BigDecimal sellingPrice,
         Integer reorderLevel,
         MedicineStatus status) {

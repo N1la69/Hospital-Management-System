@@ -32,7 +32,6 @@ public class InventoryBatch {
     private Integer quantityAvailable;
 
     private BigDecimal costPrice;
-    private BigDecimal sellingPrice;
 
     private String supplier;
 }

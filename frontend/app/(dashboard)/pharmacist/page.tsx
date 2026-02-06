@@ -10,7 +10,6 @@ const PharmacistDashboard = () => {
     <DashboardLayout title="Pharmacist Dashboard" menuItems={pharmacistMenu}>
       <div className="space-y-6">
         <AlertsPanel />
-
         <MedicineList />
       </div>
     </DashboardLayout>

@@ -21,13 +21,12 @@ public class Medicine {
     @Id
     private ObjectId id;
 
-    private String name;
-    private String manufacturer;
+    private String medicineCode;
+
+    private String medicineName;
+    private String manufacturerName;
 
     private MedicineCategory category;
-
-    private BigDecimal cgstPercent;
-    private BigDecimal sgstPercent;
 
     private BigDecimal sellingPrice;
 

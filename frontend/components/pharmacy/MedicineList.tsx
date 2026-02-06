@@ -65,10 +65,6 @@ const MedicineList = () => {
     handleSearch(0);
   };
 
-  useEffect(() => {
-    refresh();
-  }, []);
-
   return (
     <>
       {/* HEADER */}
@@ -169,7 +165,7 @@ const MedicineList = () => {
               >
                 <option value="">All</option>
                 <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="EXPIRED">Expired</option>
               </select>
             </div>
           </div>
@@ -220,7 +216,9 @@ const MedicineList = () => {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b">
                   <tr className="text-left text-slate-600">
-                    <th className="px-4 py-3 font-medium">Name</th>
+                    <th className="px-4 py-3 font-medium">Med. Code</th>
+                    <th className="px-4 py-3 font-medium">Med. Name</th>
+                    <th className="px-4 py-3 font-medium">Manufacturer Name</th>
                     <th className="px-4 py-3 font-medium">Price (₹)</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Actions</th>
@@ -234,7 +232,13 @@ const MedicineList = () => {
                       className="border-b last:border-b-0 hover:bg-slate-50 transition"
                     >
                       <td className="px-4 py-3 font-mono text-slate-700">
-                        {medicine.name}
+                        {medicine.medicineCode}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-slate-700">
+                        {medicine.medicineName}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-slate-700">
+                        {medicine.manufacturerName}
                       </td>
                       <td className="px-4 py-3 text-slate-800">
                         {medicine.sellingPrice}
@@ -244,7 +248,7 @@ const MedicineList = () => {
                           className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                             medicine.status === "ACTIVE"
                               ? "bg-green-100 text-green-700"
-                              : "bg-slate-200 text-slate-600"
+                              : "bg-red-200 text-red-600"
                           }`}
                         >
                           {medicine.status}

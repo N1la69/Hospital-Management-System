@@ -8,11 +8,9 @@ export type MedicineCategory =
   | "OTHER";
 
 export interface AddMedicineRequest {
-  name: string;
-  manufacturer: string;
+  medicineName: string;
+  manufacturerName: string;
   category: MedicineCategory;
-  cgstPercent: number;
-  sgstPercent: number;
   sellingPrice: number;
   reorderLevel: number;
 }
@@ -23,35 +21,31 @@ export interface AddStockRequest {
   expiryDate: string;
   quantity: number;
   costPrice: number;
-  sellingPrice: number;
   supplier: string;
 }
 
 export interface MedicineResponse {
   id: string;
-  name: string;
-  manufacturer: string;
+  medicineName: string;
+  medicineCode: string;
+  manufacturerName: string;
   category: MedicineCategory;
-  cgstPercent: number;
-  sgstPercent: number;
   sellingPrice: number;
   reorderLevel: number;
-  status: "ACTIVE" | "INACTIVE";
+  status: "ACTIVE" | "EXPIRED";
 }
 
 export interface UpdateMedicineRequest {
-  name: string;
-  manufacturer: string;
+  medicineName: string;
+  manufacturerName: string;
   category: MedicineCategory;
-  cgstPercent: number;
-  sgstPercent: number;
   sellingPrice: number;
   reorderLevel: number;
-  status: "ACTIVE" | "INACTIVE";
+  status: "ACTIVE" | "EXPIRED";
 }
 
 export interface MedicineSearchFilter {
   name?: string;
   category?: MedicineCategory;
-  status?: "ACTIVE" | "INACTIVE";
+  status?: "ACTIVE" | "EXPIRED";
 }

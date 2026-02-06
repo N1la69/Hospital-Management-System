@@ -5,11 +5,9 @@ import java.math.BigDecimal;
 import com.nilanjan.backend.pharmacy.domain.MedicineCategory;
 
 public record AddMedicineRequest(
-                String name,
-                String manufacturer,
+                String medicineName,
+                String manufacturerName,
                 MedicineCategory category,
-                BigDecimal cgstPercent,
-                BigDecimal sgstPercent,
                 BigDecimal sellingPrice,
                 Integer reorderLevel) {
 

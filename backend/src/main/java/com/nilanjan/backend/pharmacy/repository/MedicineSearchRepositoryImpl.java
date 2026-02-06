@@ -27,9 +27,9 @@ public class MedicineSearchRepositoryImpl implements MedicineSearchRepository {
 
         if (filter.name() != null && !filter.name().isBlank()) {
             criteriaList.add(new Criteria().orOperator(
-                    Criteria.where("name").regex(filter.name(), "i"),
-                    Criteria.where("manufacturer").regex(filter.name(), "i"),
-                    Criteria.where("unit").regex(filter.name(), "i")));
+                    Criteria.where("medicineName").regex(filter.name(), "i"),
+                    Criteria.where("medicineCode").regex(filter.name(), "i"),
+                    Criteria.where("manufacturerName").regex(filter.name(), "i")));
         }
 
         if (filter.category() != null) {

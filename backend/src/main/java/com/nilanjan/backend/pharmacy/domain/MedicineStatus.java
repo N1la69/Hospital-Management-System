@@ -1,5 +1,5 @@
 package com.nilanjan.backend.pharmacy.domain;
 
 public enum MedicineStatus {
-    ACTIVE, INACTIVE
+    ACTIVE, EXPIRED
 }

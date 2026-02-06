@@ -6,11 +6,9 @@ import com.nilanjan.backend.pharmacy.domain.MedicineCategory;
 import com.nilanjan.backend.pharmacy.domain.MedicineStatus;
 
 public record UpdateMedicineRequest(
-        String name,
-        String manufacturer,
+        String medicineName,
+        String manufacturerName,
         MedicineCategory category,
-        BigDecimal cgstPercent,
-        BigDecimal sgstPercent,
         BigDecimal sellingPrice,
         Integer reorderLevel,
         MedicineStatus status) {

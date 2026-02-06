@@ -48,7 +48,6 @@ public class PharmacyServiceImpl implements PharmacyService {
                 .expiryDate(request.expiryDate())
                 .quantityAvailable(request.quantity())
                 .costPrice(request.costPrice())
-                .sellingPrice(request.sellingPrice())
                 .supplier(request.supplier())
                 .build();
 
@@ -70,14 +69,13 @@ public class PharmacyServiceImpl implements PharmacyService {
     public MedicineResponse createMedicine(AddMedicineRequest request) {
 
         Medicine medicine = Medicine.builder()
-                .name(request.name())
-                .manufacturer(request.manufacturer())
+                .medicineCode(MedicineCodeGenerator.generate())
+                .medicineName(request.medicineName())
+                .manufacturerName(request.manufacturerName())
                 .category(request.category())
-                .cgstPercent(request.cgstPercent())
-                .sgstPercent(request.sgstPercent())
                 .sellingPrice(request.sellingPrice())
-                .reorderLevel(request.reorderLevel())
                 .status(MedicineStatus.ACTIVE)
+                .reorderLevel(request.reorderLevel())
                 .build();
 
         Medicine saved = medicineRepository.save(medicine);
@@ -91,11 +89,9 @@ public class PharmacyServiceImpl implements PharmacyService {
         Medicine medicine = medicineRepository.findById(new ObjectId(medicineId))
                 .orElseThrow(() -> new RuntimeException("Medicine not found: " + medicineId));
 
-        medicine.setName(request.name());
-        medicine.setManufacturer(request.manufacturer());
+        medicine.setMedicineName(request.medicineName());
+        medicine.setManufacturerName(request.manufacturerName());
         medicine.setCategory(request.category());
-        medicine.setCgstPercent(request.cgstPercent());
-        medicine.setSgstPercent(request.sgstPercent());
         medicine.setSellingPrice(request.sellingPrice());
         medicine.setReorderLevel(request.reorderLevel());
         medicine.setStatus(request.status());
@@ -125,7 +121,7 @@ public class PharmacyServiceImpl implements PharmacyService {
                 continue;
 
             Medicine medicine = medicineRepository
-                    .findByNameContainingIgnoreCase(item.getDescription())
+                    .findByMedicineNameContainingIgnoreCase(item.getDescription())
                     .stream().findFirst()
                     .orElseThrow(() -> new RuntimeException("Medicine not found"));
 
@@ -157,7 +153,7 @@ public class PharmacyServiceImpl implements PharmacyService {
                     .sum();
 
             if (qty <= med.getReorderLevel()) {
-                alerts.add(med.getName() + " low stock: " + qty);
+                alerts.add(med.getMedicineName() + " low stock: " + qty);
             }
         });
 
@@ -179,11 +175,10 @@ public class PharmacyServiceImpl implements PharmacyService {
     private MedicineResponse mapToResponse(Medicine medicine) {
         return new MedicineResponse(
                 medicine.getId().toHexString(),
-                medicine.getName(),
-                medicine.getManufacturer(),
+                medicine.getMedicineName(),
+                medicine.getMedicineCode(),
+                medicine.getManufacturerName(),
                 medicine.getCategory(),
-                medicine.getCgstPercent(),
-                medicine.getSgstPercent(),
                 medicine.getSellingPrice(),
                 medicine.getReorderLevel(),
                 medicine.getStatus());
