@@ -2,29 +2,13 @@
 
 import { bloodGroupMapper, PatientDetailsResponse } from "@/types/patient";
 import Modal from "../ui/Modal";
+import InfoItem from "../ui/InfoItem";
 
 interface Props {
   open: boolean;
   data: PatientDetailsResponse | null;
   onClose: () => void;
 }
-
-const InfoItem = ({
-  label,
-  value,
-  full = false,
-}: {
-  label: string;
-  value: string;
-  full?: boolean;
-}) => (
-  <div className={full ? "sm:col-span-2" : ""}>
-    <p className="text-xs uppercase tracking-wide text-slate-500">{label}</p>
-    <p className="text-sm font-medium text-slate-800 wrap-break-word">
-      {value}
-    </p>
-  </div>
-);
 
 const PatientDetailsModal = ({ open, data, onClose }: Props) => {
   if (!data) return null;

@@ -11,9 +11,10 @@ interface Props {
   open: boolean;
   onClose: () => void;
   medicineId: string;
+  onSuccess: () => void;
 }
 
-const AddStockModal = ({ open, onClose, medicineId }: Props) => {
+const AddStockModal = ({ open, onClose, medicineId, onSuccess }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState<AddStockRequest>({
@@ -88,7 +89,7 @@ const AddStockModal = ({ open, onClose, medicineId }: Props) => {
         expiryDate: dateToInstant(form.expiryDate),
       });
 
-      toast.success("Stock added successfully");
+      onSuccess();
       onClose();
 
       setForm({

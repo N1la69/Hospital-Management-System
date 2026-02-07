@@ -11,9 +11,10 @@ import AddStockModal from "./AddStockModal";
 import { FiFilter, FiSearch } from "react-icons/fi";
 import { FaBoxOpen, FaCartPlus } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { searchMedicines } from "@/lib/api/pharmacy.api";
+import { getMedicineById, searchMedicines } from "@/lib/api/pharmacy.api";
 import { RiMedicineBottleFill } from "react-icons/ri";
 import { usePos } from "./pos/PosContext";
+import MedicineDetailsModal from "./MedicineDetailsModal";
 
 const MedicineList = () => {
   const { add } = usePos();
@@ -29,6 +30,10 @@ const MedicineList = () => {
   const [filters, setFilters] = useState<MedicineSearchFilter>({});
 
   const [stockFor, setStockFor] = useState<string | null>(null);
+
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedMedicine, setSelectedMedicine] =
+    useState<MedicineStockResponse | null>(null);
 
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -66,6 +71,20 @@ const MedicineList = () => {
     }
   };
 
+  const openMedicineDetails = async (medicineId: string) => {
+    try {
+      const res = await getMedicineById(medicineId);
+      setSelectedMedicine(res);
+      setDetailsOpen(true);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to load medicine details",
+      );
+    }
+  };
+
   const clearFilters = () => {
     setFilters({});
     setSearchText("");
@@ -73,10 +92,8 @@ const MedicineList = () => {
   };
 
   useEffect(() => {
-    const reload = () => handleSearch(page);
-
-    window.addEventListener("stock-updated", reload);
-    return () => window.removeEventListener("stock-updated", reload);
+    window.addEventListener("stock-updated", refresh);
+    return () => window.removeEventListener("stock-updated", refresh);
   }, [page]);
 
   return (
@@ -248,7 +265,12 @@ const MedicineList = () => {
                       <td className="px-4 py-3 font-mono text-slate-700">
                         {medicine.medicine.medicineCode}
                       </td>
-                      <td className="px-4 py-3 font-mono text-slate-700">
+                      <td
+                        className="px-4 py-3 font-mono text-blue-700 cursor-pointer"
+                        onClick={() =>
+                          openMedicineDetails(medicine.medicine.id)
+                        }
+                      >
                         {medicine.medicine.medicineName}
                       </td>
                       <td className="px-4 py-3 text-slate-800">
@@ -342,9 +364,22 @@ const MedicineList = () => {
         <AddStockModal
           open={!!stockFor}
           medicineId={stockFor}
+          onSuccess={() => {
+            toast.success("Stock added successfully");
+            refresh();
+          }}
           onClose={() => setStockFor(null)}
         />
       )}
+
+      <MedicineDetailsModal
+        open={detailsOpen}
+        data={selectedMedicine}
+        onClose={() => {
+          setDetailsOpen(false);
+          setSelectedMedicine(null);
+        }}
+      />
     </>
   );
 };

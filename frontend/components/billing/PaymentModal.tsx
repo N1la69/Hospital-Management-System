@@ -37,6 +37,7 @@ const PaymentModal = ({ bill, onPay }: Props) => {
       setOpen(false);
       setAmount(0);
       setReference("");
+      toast.success("Payment successfull");
     } catch {
       toast.error("Payment failed");
     } finally {
@@ -66,7 +67,7 @@ const PaymentModal = ({ bill, onPay }: Props) => {
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm">
             Remaining amount:
             <span className="ml-1 font-semibold text-green-700">
-              ₹{remaining}
+              ₹{remaining.toFixed(2)}
             </span>
           </div>
 
