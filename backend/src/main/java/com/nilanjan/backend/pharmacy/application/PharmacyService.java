@@ -27,5 +27,5 @@ public interface PharmacyService {
 
     List<String> checkLowStockAlerts();
 
-    PageResponse<MedicineResponse> advancedSearch(MedicineSearchFilter filter, int page, int size);
+    PageResponse<MedicineStockResponse> advancedSearch(MedicineSearchFilter filter, int page, int size);
 }

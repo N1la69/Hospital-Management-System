@@ -9,12 +9,15 @@ import { useEffect, useState } from "react";
 import AddMedicineModal from "./AddMedicineModal";
 import AddStockModal from "./AddStockModal";
 import { FiFilter, FiSearch } from "react-icons/fi";
-import { FaBoxOpen } from "react-icons/fa";
+import { FaBoxOpen, FaCartPlus } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { searchMedicines } from "@/lib/api/pharmacy.api";
 import { RiMedicineBottleFill } from "react-icons/ri";
+import { usePos } from "./pos/PosContext";
 
 const MedicineList = () => {
+  const { add } = usePos();
+
   const [medicines, setMedicines] = useState<MedicineStockResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -222,8 +225,8 @@ const MedicineList = () => {
                   <tr className="text-left text-slate-600">
                     <th className="px-4 py-3 font-medium">Med. Code</th>
                     <th className="px-4 py-3 font-medium">Med. Name</th>
-                    <th className="px-4 py-3 font-medium">Manufacturer Name</th>
                     <th className="px-4 py-3 font-medium">Price (₹)</th>
+                    <th className="px-4 py-3 font-medium">Available Qty.</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Actions</th>
                   </tr>
@@ -241,11 +244,11 @@ const MedicineList = () => {
                       <td className="px-4 py-3 font-mono text-slate-700">
                         {medicine.medicine.medicineName}
                       </td>
-                      <td className="px-4 py-3 font-mono text-slate-700">
-                        {medicine.medicine.manufacturerName}
-                      </td>
                       <td className="px-4 py-3 text-slate-800">
                         {medicine.medicine.sellingPrice}
+                      </td>
+                      <td className="px-4 py-3 text-slate-800">
+                        {medicine.stock.quantityAvailable}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -260,9 +263,22 @@ const MedicineList = () => {
                       </td>
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
+                          {/* ADD TO POS */}
+                          <button
+                            onClick={() => {
+                              add(medicine.medicine);
+                              toast.success("Added to POS cart");
+                            }}
+                            className="flex items-center justify-center rounded-md bg-green-50 p-2 text-green-700 hover:bg-green-100 transition"
+                            title="Add to POS Cart"
+                          >
+                            <FaCartPlus size={16} />
+                          </button>
+
+                          {/* ADD STOCK */}
                           <button
                             onClick={() => setStockFor(medicine.medicine.id)}
-                            className="flex items-center justify-center rounded-md bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 transition focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            className="flex items-center justify-center rounded-md bg-blue-50 p-2 text-blue-700 hover:bg-blue-100 transition"
                             title="Add Stock"
                           >
                             <FaBoxOpen size={16} />

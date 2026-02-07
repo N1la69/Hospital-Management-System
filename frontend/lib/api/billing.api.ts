@@ -2,7 +2,8 @@ import { BillSearchFilter, CreateBillRequest } from "@/types/billing";
 import api from "../utils/axios";
 
 export const createBill = async (payload: CreateBillRequest) => {
-  await api.post("/api/billing", payload);
+  const res = await api.post("/api/billing", payload);
+  return res.data;
 };
 
 export const payment = async (

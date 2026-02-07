@@ -172,12 +172,28 @@ public class PharmacyServiceImpl implements PharmacyService {
     }
 
     @Override
-    public PageResponse<MedicineResponse> advancedSearch(MedicineSearchFilter filter, int page, int size) {
+    public PageResponse<MedicineStockResponse> advancedSearch(MedicineSearchFilter filter, int page, int size) {
 
         PageResult<Medicine> result = medicineRepository.search(filter, page, size);
-        List<MedicineResponse> items = result.data().stream()
-                .map(this::mapToMedResponse)
-                .toList();
+        List<MedicineStockResponse> items = result.data().stream()
+                .map(med -> {
+                    Integer qty = batchRepository.findByMedicineId(med.getId())
+                            .stream()
+                            .mapToInt(InventoryBatch::getQuantityAvailable)
+                            .sum();
+
+                    InventoryResponse stock = new InventoryResponse(
+                            med.getId().toHexString(),
+                            null,
+                            null,
+                            null,
+                            qty,
+                            null);
+
+                    return new MedicineStockResponse(
+                            mapToMedResponse(med),
+                            stock);
+                }).toList();
 
         return new PageResponse<>(items, result.total(), page, size);
     }

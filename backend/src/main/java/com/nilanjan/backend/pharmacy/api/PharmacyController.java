@@ -55,7 +55,7 @@ public class PharmacyController {
 
     @PostMapping("/medicines/search")
     @PreAuthorize("hasAnyRole('ADMIN','PHARMACIST')")
-    public ResponseEntity<PageResponse<MedicineResponse>> searchMedicines(
+    public ResponseEntity<PageResponse<MedicineStockResponse>> searchMedicines(
             @RequestBody MedicineSearchFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
