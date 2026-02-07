@@ -43,7 +43,7 @@ public class BillingController {
     }
 
     @GetMapping("/{billId}/details")
-    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST')")
+    @PreAuthorize("hasAnyRole('ADMIN','RECEPTIONIST','PHARMACIST')")
     public ResponseEntity<BillingResponse> getDetails(@PathVariable String billId) {
         return ResponseEntity.ok(billingService.getBillDetails(billId));
     }

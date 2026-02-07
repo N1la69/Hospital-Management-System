@@ -72,6 +72,13 @@ const MedicineList = () => {
     handleSearch(0);
   };
 
+  useEffect(() => {
+    const reload = () => handleSearch(page);
+
+    window.addEventListener("stock-updated", reload);
+    return () => window.removeEventListener("stock-updated", reload);
+  }, [page]);
+
   return (
     <>
       {/* HEADER */}

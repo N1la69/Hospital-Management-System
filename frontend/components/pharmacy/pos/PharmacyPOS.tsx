@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { usePos } from "./PosContext";
-import { createBill } from "@/lib/api/billing.api";
+import { createBill, getBillDetails, payment } from "@/lib/api/billing.api";
 import PaymentModal from "@/components/billing/PaymentModal";
+import { BillingResponse, PaymentRequestInterface } from "@/types/billing";
+import { toast } from "react-toastify";
 
 const TAX_PERCENT = 12;
 
@@ -13,6 +15,7 @@ const PharmacyPOS = () => {
   const [walkInName, setWalkInName] = useState("");
   const [patientId, setPatientId] = useState<string | undefined>();
   const [appointmentId, setAppointmentId] = useState<string | undefined>();
+  const [createdBill, setCreatedBill] = useState<BillingResponse | null>(null);
   const [billId, setBillId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,17 +42,46 @@ const PharmacyPOS = () => {
         patientId: patientId || undefined,
         appointmentId: appointmentId || undefined,
         walkInName: patientId ? undefined : walkInName,
+        tax,
         items: billItems,
       });
 
+      let fullBill;
+      try {
+        fullBill = await getBillDetails(res.id);
+        fullBill.subtotal = subtotal;
+        fullBill.tax = tax;
+        fullBill.totalAmount = total;
+      } catch (e) {
+        toast.error("Bill created but failed to load details");
+        return;
+      }
+
+      setCreatedBill(fullBill);
       setBillId(res.id);
-      clear();
     } finally {
       setLoading(false);
     }
   };
 
-  if (items.length === 0) return null;
+  const handlePayment = async (
+    billId: string,
+    payload: PaymentRequestInterface,
+  ) => {
+    const updated = await payment(billId, payload);
+
+    setCreatedBill(updated);
+
+    if (updated.status === "PAID") {
+      setCreatedBill(null);
+      setBillId(null);
+      clear();
+
+      window.dispatchEvent(new Event("stock-updated"));
+    }
+  };
+
+  if (items.length === 0 && !createdBill) return null;
 
   return (
     <div className="border rounded-xl p-4 mt-4 space-y-3">
@@ -100,12 +132,7 @@ const PharmacyPOS = () => {
         Create Bill
       </button>
 
-      {billId && (
-        <PaymentModal
-          bill={{ id: billId } as any}
-          onPay={async () => setBillId(null)}
-        />
-      )}
+      {createdBill && <PaymentModal bill={createdBill} onPay={handlePayment} />}
     </div>
   );
 };

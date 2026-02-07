@@ -31,6 +31,7 @@ export interface CreateBillRequest {
   patientId?: string;
   appointmentId?: string;
   walkInName?: string;
+  tax?: number;
   items: AddBillItemRequest[];
 }
 

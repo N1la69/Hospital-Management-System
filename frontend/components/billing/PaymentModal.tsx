@@ -46,13 +46,15 @@ const PaymentModal = ({ bill, onPay }: Props) => {
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="w-full inline-flex gap-1 items-center justify-center rounded-md bg-green-600 py-3 text-sm font-semibold text-white hover:bg-green-700"
-      >
-        <IoAddCircle size={17} />
-        Add Payment
-      </button>
+      {bill.status !== "PAID" && (
+        <button
+          onClick={() => setOpen(true)}
+          className="w-full inline-flex gap-1 items-center justify-center rounded-md bg-green-600 py-3 text-sm font-semibold text-white hover:bg-green-700"
+        >
+          <IoAddCircle size={17} />
+          Add Payment
+        </button>
+      )}
 
       <Modal
         open={open}

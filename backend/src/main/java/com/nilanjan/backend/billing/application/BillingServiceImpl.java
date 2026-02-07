@@ -66,7 +66,7 @@ public class BillingServiceImpl implements BillingService {
                 .items(new ArrayList<>())
                 .payments(new ArrayList<>())
                 .subtotal(BigDecimal.ZERO)
-                .tax(BigDecimal.ZERO)
+                .tax(request.tax() != null ? request.tax() : BigDecimal.ZERO)
                 .discount(BigDecimal.ZERO)
                 .totalAmount(BigDecimal.ZERO)
                 .amountPaid(BigDecimal.ZERO)
